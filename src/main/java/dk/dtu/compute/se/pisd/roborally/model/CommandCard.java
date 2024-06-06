@@ -43,16 +43,22 @@ public class CommandCard extends Subject {
     @Expose
     private ImageView cardImage;
 
+
+
+    private String type;
+
     /**
      * Constructs a new CommandCard with the specified command.
      * @param command The command that this card represents.
      */
-    public CommandCard(@NotNull Command command) {
+    public CommandCard(@NotNull Command command, String type) {
         this.command = command;
         if(command.displayName != null) {
             Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + command.displayName + ".png")));
             cardImage = new ImageView(image);
+
         }
+        this.type = type;
     }
 
     /**
@@ -67,6 +73,10 @@ public class CommandCard extends Subject {
 
     public ImageView getCardImage() {
         return cardImage;
+    }
+
+    public String getType() {
+        return type;
     }
 
 

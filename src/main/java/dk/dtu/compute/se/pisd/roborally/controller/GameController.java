@@ -98,7 +98,7 @@ public class GameController {
 
 
 
-        return new CommandCard(commands[random]);
+        return new CommandCard(commands[random],"program");
     }
 
     /**
@@ -353,7 +353,7 @@ public class GameController {
                 CommandCardField otherField = otherPlayer.getCardField(j);
                 CommandCard card = otherField.getCard();
                 if(card != null){
-                    field.setCard(new CommandCard(card.command));
+                    field.setCard(new CommandCard(card.command,"program"));
                     field.setVisible(true);
 
                 }
@@ -363,7 +363,7 @@ public class GameController {
                 CommandCardField otherField = otherPlayer.getProgramField(k);
                 CommandCard card = otherField.getCard();
                 if(card != null){
-                    field.setCard(new CommandCard(card.command));
+                    field.setCard(new CommandCard(card.command,"program"));
                     field.setVisible(true);
 
 

@@ -81,22 +81,22 @@ public class Player extends Subject {
 
         program = new CommandCardField[NO_REGISTERS];
         for (int i = 0; i < program.length; i++) {
-            program[i] = new CommandCardField(this);
+            program[i] = new CommandCardField(this,"program");
         }
 
         cards = new CommandCardField[NO_CARDS];
         for (int i = 0; i < cards.length; i++) {
-            cards[i] = new CommandCardField(this);
+            cards[i] = new CommandCardField(this,"program");
         }
 
         upgrades = new CommandCardField[3];
         for (int i = 0; i < upgrades.length; i++) {
-             upgrades[i] = new CommandCardField(this);
+             upgrades[i] = new CommandCardField(this,"upgrade");
         }
 
         upgradeInv  = new CommandCardField[6];
         for (int i = 0; i < upgradeInv.length; i++) {
-            upgradeInv[i] = new CommandCardField(this);
+            upgradeInv[i] = new CommandCardField(this,"upgrade");
         }
 
 

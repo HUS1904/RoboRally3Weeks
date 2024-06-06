@@ -53,10 +53,10 @@ public class Shop extends VBox {
 
         for(int i = 0; i< gameController.board.getPlayerAmount();i++) {
             CommandCard commandCard = this.deck.deal();
-            CommandCardField cardfield = new CommandCardField(gameController.board.getCurrentPlayer());
+            CommandCardField cardfield = new CommandCardField(gameController.board.getCurrentPlayer(),"upgrade");
             gameController.board.getShopFields().add(cardfield);
             cardfield.setCard(commandCard);
-            upgradshop.add(new CardFieldView(gameController,cardfield,"upgrade"),i,0);
+            upgradshop.add(new CardFieldView(gameController,cardfield),i,0);
 
             }
 
@@ -73,25 +73,26 @@ public class Shop extends VBox {
 
     public void handleClick(){
 
-        gameController.board.getCurrentTurn().phase = Phase.PROGRAMMING;
-        if(gameController.board.getCurrentTurn() == gameController.board.getCurrentPlayer()) {
-            System.out.println("current Player: " + gameController.board.getCurrentTurn());
+      if (gameController.board.getCurrentTurn() == gameController.board.getCurrentPlayer()) {
+            gameController.board.getCurrentTurn().phase = Phase.PROGRAMMING;
             gameController.board.moveCurrentTurn();
-            gameController.board.setCurrentPlayer(gameController.board.getCurrentTurn());
-            System.out.println("current Player: " + gameController.board.getCurrentTurn());
+
+
+
+
         }
 
-        for(int i = 0; i< gameController.board.getPlayerAmount();i++) {
-            if(gameController.board.getPlayer(i).phase == Phase.PROGRAMMING){
-                if(i == gameController.board.getPlayerAmount()-1){
+
+
+                if(gameController.board.getPlayers().indexOf(gameController.board.getCurrentTurn()) == gameController.board.getPlayerAmount() - 1 &&  gameController.board.getCurrentTurn().phase == Phase.PROGRAMMING) {
                     gameController.startProgrammingPhase();
-                };
-            } else{
-                break;
-            }
+                }
+
+
+
         }
 
 
     }
-}
+
 

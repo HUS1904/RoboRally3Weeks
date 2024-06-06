@@ -209,6 +209,12 @@ public class Board extends Subject {
        }
 
 
+
+       public List<Player> getPlayers(){
+        return players;
+       }
+
+
     /**
      * Sets the unique game identifier for this board. Throws an exception if
      * attempting to change an already set ID.

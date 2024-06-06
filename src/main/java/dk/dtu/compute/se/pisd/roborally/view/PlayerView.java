@@ -100,7 +100,7 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < Player.NO_REGISTERS; i++) {
             CommandCardField cardField = player.getProgramField(i);
             if (cardField != null) {
-                programCardViews[i] = new CardFieldView(gameController, cardField,"card");
+                programCardViews[i] = new CardFieldView(gameController, cardField);
                 programPane.add(programCardViews[i], i, 0);
             }
         }
@@ -135,7 +135,7 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < Player.NO_CARDS; i++) {
             CommandCardField cardField = player.getCardField(i);
             if (cardField != null) {
-                cardViews[i] = new CardFieldView(gameController, cardField,"card");
+                cardViews[i] = new CardFieldView(gameController, cardField);
                 cardsPane.add(cardViews[i], i, 0);
             }
         }
@@ -149,7 +149,7 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < Player.NO_UPGRADES; i++) {
             CommandCardField cardField = player.getUpgradeField(i);
             if (cardField != null) {
-                upgradesViews[i] = new CardFieldView(gameController, cardField,"upgrade");
+                upgradesViews[i] = new CardFieldView(gameController, cardField);
                 upgradesPane.add(upgradesViews[i], i, 0);
             }
         }
@@ -164,7 +164,7 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < Player.NO_UPGRADE_INV; i++) {
             CommandCardField cardField = player.getUpgradeInv(i);
             if (cardField != null) {
-                upgradesInvViews[i] = new CardFieldView(gameController, cardField,"upgrade");
+                upgradesInvViews[i] = new CardFieldView(gameController, cardField);
                 upgradesInvPane.add(upgradesInvViews[i], i, 0);
             }
         }

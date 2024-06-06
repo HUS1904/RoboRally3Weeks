@@ -39,14 +39,19 @@ public class CommandCardField extends Subject {
     @Expose
     private boolean visible;
 
+
+
+    private String type;
+
     /**
      * Constructs a CommandCardField for the specified player, initially without a command card.
      * @param player The player to whom this field belongs.
      */
-    public CommandCardField(Player player) {
+    public CommandCardField(Player player,String type) {
         this.player = player;
         this. card = null;
         this.visible = true;
+        this.type = type;
     }
 
     /**
@@ -86,6 +91,8 @@ public class CommandCardField extends Subject {
             notifyChange();
         }
     }
-
+    public String getType() {
+        return type;
+    }
 
 }
