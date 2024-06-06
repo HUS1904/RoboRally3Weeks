@@ -86,4 +86,6 @@ public class CommandCardField extends Subject {
             notifyChange();
         }
     }
+
+
 }

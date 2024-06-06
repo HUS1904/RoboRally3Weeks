@@ -58,9 +58,13 @@ public class PlayerView extends Tab implements ViewObserver {
     private GridPane programPane;
     private Label cardsLabel;
     private GridPane cardsPane;
+    private GridPane upgradesPane;
+    private GridPane upgradesInvPane;
 
     private CardFieldView[] programCardViews;
     private CardFieldView[] cardViews;
+    private CardFieldView[] upgradesViews;
+    private CardFieldView[] upgradesInvViews;
 
     private VBox buttonPanel;
 
@@ -96,7 +100,7 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < Player.NO_REGISTERS; i++) {
             CommandCardField cardField = player.getProgramField(i);
             if (cardField != null) {
-                programCardViews[i] = new CardFieldView(gameController, cardField);
+                programCardViews[i] = new CardFieldView(gameController, cardField,"card");
                 programPane.add(programCardViews[i], i, 0);
             }
         }
@@ -131,30 +135,54 @@ public class PlayerView extends Tab implements ViewObserver {
         for (int i = 0; i < Player.NO_CARDS; i++) {
             CommandCardField cardField = player.getCardField(i);
             if (cardField != null) {
-                cardViews[i] = new CardFieldView(gameController, cardField);
+                cardViews[i] = new CardFieldView(gameController, cardField,"card");
                 cardsPane.add(cardViews[i], i, 0);
             }
         }
 
-            // added the labels of the upgrade cardfields
 
-            temporaryUpgrade = new Label("TempUp");
-            PermanentUpgrade = new Label("PermUp");
-
-            upgradeLabels = new HBox();
-            upgradeLabels.setSpacing(30);
-
-            upgradeLabels.getChildren().add(temporaryUpgrade);
-            upgradeLabels.getChildren().add(PermanentUpgrade);
-            //
-
-            // adding the CardFieldViews for the Upgrade panel
-
-            Upgrade = new HBox(10,new CardFieldView(gameController,player.PlayerUpgradeTmp),new CardFieldView(gameController,player.PlayerUpgradePerm));
-            Upgrade.setSpacing(10);
+        Label currentUpgrades = new Label("Current Upgrades");
+        upgradesPane = new GridPane();
+        upgradesPane.setVgap(2.0);
+        upgradesPane.setHgap(2.0);
+        upgradesViews = new CardFieldView[Player.NO_UPGRADES];
+        for (int i = 0; i < Player.NO_UPGRADES; i++) {
+            CommandCardField cardField = player.getUpgradeField(i);
+            if (cardField != null) {
+                upgradesViews[i] = new CardFieldView(gameController, cardField,"upgrade");
+                upgradesPane.add(upgradesViews[i], i, 0);
+            }
+        }
 
 
-            //CardFieldView tmp = new CardFieldView(gameController,player.PlayerUpgradeTmp);
+
+        Label upgradeCards = new Label("Available upgrades");
+        upgradesInvPane = new GridPane();
+        upgradesInvPane.setVgap(2.0);
+        upgradesInvPane.setHgap(2.0);
+        upgradesInvViews = new CardFieldView[Player.NO_UPGRADE_INV];
+        for (int i = 0; i < Player.NO_UPGRADE_INV; i++) {
+            CommandCardField cardField = player.getUpgradeInv(i);
+            if (cardField != null) {
+                upgradesInvViews[i] = new CardFieldView(gameController, cardField,"upgrade");
+                upgradesInvPane.add(upgradesInvViews[i], i, 0);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //CardFieldView tmp = new CardFieldView(gameController,player.PlayerUpgradeTmp);
            // CardFieldView perm = new CardFieldView(gameController,player.PlayerUpgradePerm);
 
 
@@ -162,8 +190,10 @@ public class PlayerView extends Tab implements ViewObserver {
 
 
         top.getChildren().add(playerInteractionPanel);
-        top.getChildren().add(upgradeLabels);
-        top.getChildren().add(Upgrade);
+        top.getChildren().add(currentUpgrades);
+        top.getChildren().add(upgradesPane);
+        top.getChildren().add(upgradeCards);
+        top.getChildren().add(upgradesInvPane);
         top.getChildren().add(programLabel);
         top.getChildren().add(programPane);
         top.getChildren().add(cardsLabel);
@@ -192,28 +222,30 @@ public class PlayerView extends Tab implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == player.board) {
-            for (int i = 0; i < Player.NO_REGISTERS; i++) {
-                CardFieldView cardFieldView = programCardViews[i];
-                if (cardFieldView != null) {
-                    if (player.board.getPhase() == Phase.PROGRAMMING ) {
-                        cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
-                    } else {
-                        if (i < player.board.getStep()) {
-                            cardFieldView.setBackground(CardFieldView.BG_DONE);
-                        } else if (i == player.board.getStep()) {
-                            if (player.board.getCurrentPlayer() == player) {
-                                cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
-                            } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
+
+                for (int i = 0; i < Player.NO_REGISTERS; i++) {
+                    CardFieldView cardFieldView = programCardViews[i];
+                    if (cardFieldView != null) {
+                        if (player.board.getPhase() == Phase.PROGRAMMING) {
+                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                        } else {
+                            if (i < player.board.getStep()) {
                                 cardFieldView.setBackground(CardFieldView.BG_DONE);
+                            } else if (i == player.board.getStep()) {
+                                if (player.board.getCurrentPlayer() == player) {
+                                    cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
+                                } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
+                                    cardFieldView.setBackground(CardFieldView.BG_DONE);
+                                } else {
+                                    cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                                }
                             } else {
                                 cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                             }
-                        } else {
-                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                         }
                     }
                 }
-            }
+
 
             if (player.board.getPhase() != Phase.PLAYER_INTERACTION) {
                 if (!programPane.getChildren().contains(buttonPanel)) {

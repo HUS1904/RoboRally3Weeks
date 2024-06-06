@@ -38,6 +38,8 @@ public class Player extends Subject {
 
     final public static int NO_REGISTERS = 5;
     final public static int NO_CARDS = 8;
+    final public static int NO_UPGRADES = 3;
+    final public static int NO_UPGRADE_INV = 6;
 
 
     final transient public Board board;
@@ -53,13 +55,15 @@ public class Player extends Subject {
     private CommandCardField[] program;
     @Expose
     private CommandCardField[] cards;
-    @Expose
-    public CommandCardField PlayerUpgradeTmp;
-    @Expose
-    public CommandCardField PlayerUpgradePerm;
 
+    private CommandCardField[] upgrades;
+    @Expose
+    private CommandCardField[] upgradeInv;
     private int index = 0;
+    @Expose
     public double distance;
+    @Expose
+    public Phase phase;
 
     /**
      * Constructs a new Player with the specified board, color, and name.
@@ -85,8 +89,18 @@ public class Player extends Subject {
             cards[i] = new CommandCardField(this);
         }
 
-        PlayerUpgradeTmp = new CommandCardField(this);
-        PlayerUpgradePerm = new CommandCardField(this);
+        upgrades = new CommandCardField[3];
+        for (int i = 0; i < upgrades.length; i++) {
+             upgrades[i] = new CommandCardField(this);
+        }
+
+        upgradeInv  = new CommandCardField[6];
+        for (int i = 0; i < upgradeInv.length; i++) {
+            upgradeInv[i] = new CommandCardField(this);
+        }
+
+
+
     }
 
     /**
@@ -154,7 +168,7 @@ public class Player extends Subject {
             if (space != null) {
                 space.setPlayer(this);
             }
-            notifyChange();
+
         }
     }
 
@@ -196,6 +210,13 @@ public class Player extends Subject {
      */
     public CommandCardField getCardField(int i) {
         return cards[i];
+    }
+
+    public CommandCardField getUpgradeField(int i) {
+        return upgrades[i];
+    }
+    public CommandCardField getUpgradeInv(int i) {
+        return upgradeInv[i];
     }
 
     public void incrementIndex() {

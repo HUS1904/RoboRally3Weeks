@@ -21,6 +21,7 @@
  */
 package dk.dtu.compute.se.pisd.roborally.model;
 
+import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -37,8 +38,9 @@ import java.util.Objects;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class CommandCard extends Subject {
-
+    @Expose
     final public Command command;
+    @Expose
     private ImageView cardImage;
 
     /**
