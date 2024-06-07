@@ -61,7 +61,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.index = 0;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
+        image = new Image(getClass().getResourceAsStream("/ny2 (2).png" ));
     }
 
 
@@ -99,7 +99,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.index = index;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
+        image = new Image(getClass().getResourceAsStream("/ny2 (2).png" ));
     }
 
     public int getIndex() {
