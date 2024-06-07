@@ -265,7 +265,7 @@ public class GameController {
                     this.moveForward(player,3);
                     break;
                 case Back:
-                    this.moveForward(player,1);
+                    this.moveForward(player,-1); // Fix
                     break;
                 case RIGHT:
                 case UTURN:
@@ -473,6 +473,9 @@ public class GameController {
         CommandCard sourceCard = source.getCard();
         CommandCard targetCard = target.getCard();
         if (sourceCard != null && targetCard == null) {
+            if (sourceCard.isSpecialCard(sourceCard) && board.getCurrentPlayer().getPlayerUpgradeTmp()) {
+
+            }
             target.setCard(sourceCard);
             source.setCard(null);
             return true;

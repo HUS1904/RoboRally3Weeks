@@ -85,8 +85,8 @@ public class Player extends Subject {
             cards[i] = new CommandCardField(this);
         }
 
-        PlayerUpgradeTmp = new CommandCardField(this);
-        PlayerUpgradePerm = new CommandCardField(this);
+        PlayerUpgradeTmp = new CommandCardField(this); // Initializes a new CommandCardField for temporary upgrades (current contains 1 slot).
+        PlayerUpgradePerm = new CommandCardField(this); // Permanent upgrades ^^^
     }
 
     /**
@@ -188,6 +188,18 @@ public class Player extends Subject {
     public CommandCardField getProgramField(int i) {
         return program[i];
     }
+
+    public CommandCardField getPlayerUpgradeTmp() {
+        return PlayerUpgradeTmp;
+    }
+
+    public CommandCardField getPlayerUpgradePerm() {
+        return PlayerUpgradePerm;
+    }
+
+//    public CommandCardField getPlayerDamage() {
+//        return PlayerDamage;
+//    }
 
     /**
      * Gets the command card field at the specified index.

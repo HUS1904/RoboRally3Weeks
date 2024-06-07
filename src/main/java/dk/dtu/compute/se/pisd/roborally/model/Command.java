@@ -44,7 +44,9 @@ public enum Command {
     UTURN("U-Turn"),
     Back("Back up"),
     Again("Again"),
-    Power("Power Up");
+    Power("Power Up"),
+    UPGRADE("Upg"), // Cmd-definition of an "Upgrade-card".
+    DAMAGE("Dmg"); //Cmd-definition of a "Damage-card".
 
     final public String displayName;
 

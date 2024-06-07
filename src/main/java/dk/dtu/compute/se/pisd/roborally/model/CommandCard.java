@@ -67,5 +67,11 @@ public class CommandCard extends Subject {
         return cardImage;
     }
 
+    public boolean isSpecialCard(CommandCard commandCard) {
+        if (Objects.equals(commandCard.getName(), "Dmg") || commandCard.getName().equals("Upg")) {
+            return true;
+        }
+        return false;
+    }
 
 }
