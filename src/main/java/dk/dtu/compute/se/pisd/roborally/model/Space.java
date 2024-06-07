@@ -209,7 +209,7 @@ public class Space extends Subject {
                     // TODO: Implement PIT
                     return;
                 case ENERGY_SPACE:
-                    // TODO: Implement ENERGY_SPACE
+                   this.player.incrementEnergy(1);
                     return;
                 case CHECKPOINT:
                     // Checkpoint logic handled in move

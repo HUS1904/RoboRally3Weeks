@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,6 +32,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -46,14 +52,6 @@ public class PlayerView extends Tab implements ViewObserver {
 
     private VBox top;
 
-    private Label temporaryUpgrade;
-    private Label PermanentUpgrade;
-
-    private HBox Upgrade;
-
-    private HBox upgradeLabels;
-
-    private HBox labels;
     private Label programLabel;
     private GridPane programPane;
     private Label cardsLabel;
@@ -73,6 +71,8 @@ public class PlayerView extends Tab implements ViewObserver {
     private Button stepButton;
 
     private VBox playerInteractionPanel;
+
+    private GridPane energyCubes;
 
     private GameController gameController;
 
@@ -169,6 +169,35 @@ public class PlayerView extends Tab implements ViewObserver {
             }
         }
 
+        energyCubes = new GridPane();
+        energyCubes.setPadding(new Insets(4.0, 4.0, 4.0, 4.0));
+        energyCubes.setHgap(2.0);
+
+
+        for (int i = 0; i < player.getEnergy(); i++) {
+            Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
+
+            // Create a radial gradient for the shine effect
+            RadialGradient gradient = new RadialGradient(
+                    0,
+                    0,
+                    0.5,
+                    0.5,
+                    0.5,
+                    true,
+                    CycleMethod.NO_CYCLE,
+                    new Stop(0, Color.WHITE),
+                    new Stop(1, Color.GREEN)
+            );
+            rectangle.setFill(gradient);
+
+
+
+
+            energyCubes.add(rectangle,i,0);
+        }
+
+        // Set the fill of the rectangle to the gradient
 
 
 
@@ -182,13 +211,11 @@ public class PlayerView extends Tab implements ViewObserver {
 
 
 
-        //CardFieldView tmp = new CardFieldView(gameController,player.PlayerUpgradeTmp);
-           // CardFieldView perm = new CardFieldView(gameController,player.PlayerUpgradePerm);
 
 
-            //
 
 
+        top.getChildren().add(energyCubes);
         top.getChildren().add(playerInteractionPanel);
         top.getChildren().add(currentUpgrades);
         top.getChildren().add(upgradesPane);
@@ -201,8 +228,11 @@ public class PlayerView extends Tab implements ViewObserver {
 
         if (player.board != null) {
             player.board.attach(this);
+            player.attach(this);
             update(player.board);
         }
+
+
 
         this.setOnSelectionChanged(event -> {
             if (isSelected()) {
@@ -303,6 +333,34 @@ public class PlayerView extends Tab implements ViewObserver {
                     playerInteractionPanel.getChildren().add(optionButton);
                 }
             }
+        } else if (subject == player){
+
+            energyCubes.getChildren().clear();
+            for (int i = 0; i < player.getEnergy(); i++) {
+                Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
+
+                // Create a radial gradient for the shine effect
+                RadialGradient gradient = new RadialGradient(
+                        0,
+                        0,
+                        0.5,
+                        0.5,
+                        0.5,
+                        true,
+                        CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.WHITE),
+                        new Stop(1, Color.GREEN)
+                );
+                rectangle.setFill(gradient);
+
+
+
+
+                energyCubes.add(rectangle,i,0);
+            }
+
+
+
         }
     }
 }

@@ -65,6 +65,8 @@ public class Player extends Subject {
     @Expose
     public Phase phase;
 
+    private int energyCubes;
+
     /**
      * Constructs a new Player with the specified board, color, and name.
      * Initializes the player's program and command card fields.
@@ -76,6 +78,7 @@ public class Player extends Subject {
         this.board = board;
         this.name = name;
         this.color = color;
+        this.energyCubes = 5;
 
         this.space = null;
 
@@ -102,6 +105,8 @@ public class Player extends Subject {
 
 
     }
+
+
 
     /**
      * Gets the name of the player.
@@ -248,4 +253,24 @@ public class Player extends Subject {
     public int getIndex() {
         return index;
     }
+
+    /**
+     * Gets the amount of energy cubes the player has
+     * @return returns the amount of energy cubes
+     */
+    public int getEnergy(){
+        return this.energyCubes;
+    }
+
+    /**
+     * increments or decrements the players energy cubes
+     * @param amount can be either negative or positive
+     * @return returns the amount of energy cubes
+     */
+    public void incrementEnergy(int amount){
+        this.energyCubes += amount;
+    }
 }
+
+
+

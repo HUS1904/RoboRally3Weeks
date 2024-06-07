@@ -120,6 +120,7 @@ public class GameController {
      * one step in the activation phase, executing the command in the current register for each player.
      */
     public void executeRegister(){
+        this.board.getCurrentPlayer().incrementEnergy(1);
         makeProgramFieldsVisible(board.getStep() + 1);
         for (int i = 0; i < board.getPlayerAmount(); i++) {
             Player currentPlayer = board.getPlayer(i);
