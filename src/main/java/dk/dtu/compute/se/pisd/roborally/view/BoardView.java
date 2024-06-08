@@ -106,7 +106,7 @@ public class BoardView extends VBox implements ViewObserver {
                         s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START_OFF" + ".png" )));
                     }
                     else if(s1.getType() == ActionField.BOARD_LASER && phase == Phase.PROGRAMMING){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "NORMAL" + ".png" )));
+                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "ny2 (2)" + ".png" )));
                     }
                     else if(s1.getType() == ActionField.BOARD_LASER_END && phase == Phase.PROGRAMMING){
                         s.image.setImage(new Image(getClass().getResourceAsStream("/" + "WALL" + ".png" )));

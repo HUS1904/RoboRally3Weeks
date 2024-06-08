@@ -32,6 +32,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
+
+import java.net.URL;
 import java.util.Objects;
 
 
@@ -86,10 +88,11 @@ public class RoboRally extends Application {
 
         appController = new AppController(this);
 
-        // create the primary scene with the a menu bar and a pane for
+        // create the primary scene with a menu bar and a pane for
         // the board view (which initially is empty); it will be filled
         // when the user creates a new game or loads a game
         RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
+        menuBar.setId("menu");
         boardRoot = new BorderPane();
         VBox vbox = new VBox(menuBar, boardRoot);
         vbox.setMinWidth(MIN_APP_WIDTH);
@@ -103,6 +106,14 @@ public class RoboRally extends Application {
                     appController.exit();} );
         stage.setResizable(true);
         stage.show();
+
+        URL url = getClass().getResource("/stylesheets/DarkMode.css");
+        if (url == null) {
+            System.out.println("Resource not found. Error!");
+        } else {
+            primaryScene.getStylesheets().add(url.toExternalForm());
+        }
+
     }
 
     /**
@@ -118,6 +129,7 @@ public class RoboRally extends Application {
         if (gameController != null) {
             // create and add view for new board
             BoardView boardView = new BoardView(gameController);
+            boardView.setId("board");
             boardRoot.setCenter(boardView);
         }
         // Waiting witch calling sizeToScene and shows, until everything is fully updated
@@ -135,6 +147,7 @@ public class RoboRally extends Application {
 
             // create and add view for new board
             MapSelection mapselection = new MapSelection(appController);
+            mapselection.setId("mapselect");
             boardRoot.setCenter(mapselection);
 
         // Waiting witch calling sizeToScene and shows, until everything is fully updated

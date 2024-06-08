@@ -120,6 +120,7 @@ public class PlayerView extends Tab implements ViewObserver {
         // programPane.add(buttonPanel, Player.NO_REGISTERS, 0); done in update now
 
         playerInteractionPanel = new VBox();
+        playerInteractionPanel.setId("playerInteractionPanel");
         playerInteractionPanel.setAlignment(Pos.CENTER_LEFT);
         playerInteractionPanel.setSpacing(3.0);
 

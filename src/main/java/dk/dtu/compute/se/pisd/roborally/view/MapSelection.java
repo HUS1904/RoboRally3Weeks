@@ -20,50 +20,36 @@ public class MapSelection extends VBox {
     ImageView imageView;
     StackPane stackPane;
 
-
     public MapSelection(AppController controller) {
+        // Create a ChoiceBox with selectable options
+        ChoiceBox<String> choiceBox = new ChoiceBox<>();
+        choiceBox.setItems(FXCollections.observableArrayList(
+                "Course 1", "Course 2", "Course 3"
+        ));
 
-            // Create a ChoiceBox with selectable options
-            ChoiceBox<String> choiceBox = new ChoiceBox<>();
-            choiceBox.setItems(FXCollections.observableArrayList(
-                    "Course 1", "Course 2", "Course 3"
-            ));
-
-            // Set default selection (optional)
-            choiceBox.setValue("Course 1");
-            choiceBox.setPadding(new Insets(10, 10, 10, 10));
+        // Set default selection (optional)
+        choiceBox.setValue("Course 1");
+        choiceBox.setPadding(new Insets(10, 10, 10, 10));
         choiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-           imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + choiceBox.getValue() +".png")), 200, 200, false, false));
-           stackPane.getChildren().clear();
-           stackPane.getChildren().add(imageView);
+            imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + choiceBox.getValue() +".png")), 400, 300, false, false));
+            stackPane.getChildren().clear();
+            stackPane.getChildren().add(imageView);
         });
 
-            image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + choiceBox.getValue() +".png")), 200, 200, false, false);
-            imageView = new ImageView(image);
-            imageView.prefHeight(300);
-            imageView.prefWidth(300);
+        image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + choiceBox.getValue() +".png")), 400, 300, false, false);
+        imageView = new ImageView(image);
+        imageView.prefHeight(300);
+        imageView.prefWidth(400);
 
+        stackPane = new StackPane();
+        stackPane.getChildren().add(imageView);
 
+        // Create a button to get the selected option
+        Button selectButton = new Button("Select");
+        selectButton.setOnAction(e -> {
+           controller.startGame(choiceBox.getValue());
+        });
 
-            stackPane = new StackPane();
-            stackPane.getChildren().add(imageView);
-
-
-
-            // Create a button to get the selected option
-            Button selectButton = new Button("Select");
-            selectButton.setOnAction(e -> {
-
-               controller.startGame(choiceBox.getValue());
-
-            });
-
-
-            this.getChildren().addAll(choiceBox,stackPane, selectButton);
-
-
-
-
-
-        }
+        this.getChildren().addAll(choiceBox,stackPane, selectButton);
+    }
 }
