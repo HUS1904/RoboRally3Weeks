@@ -354,6 +354,7 @@ public class GameController {
         return false;
     }
 
+
     public void moveTo(Player player,int x ,int y) {
         Space nextSpace = board.getSpace(x, y);
         player.setSpace(nextSpace);
