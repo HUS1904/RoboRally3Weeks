@@ -27,9 +27,12 @@ import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.MapSelection;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 
@@ -53,6 +56,9 @@ public class RoboRally extends Application {
     // private RoboRallyMenuBar menuBar;
 
     public AppController appController;
+    private URL url;
+    private ImageView imgMode = new ImageView();;
+    private Scene primaryScene;
 
     /**
      * Initializes the application before the start method is called. This is where
@@ -93,10 +99,32 @@ public class RoboRally extends Application {
         // when the user creates a new game or loads a game
         RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
         menuBar.setId("menu");
+
         boardRoot = new BorderPane();
-        VBox vbox = new VBox(menuBar, boardRoot);
+        boardRoot.setId("root");
+
+        Image image = new Image(getClass().getResourceAsStream("/dark.png" ));
+        imgMode.setImage(image);
+
+        imgMode.setFitHeight(25);  // Set the height of the image
+        imgMode.setFitWidth(25);   // Set the width of the image
+
+        Button mode = new Button();
+        mode.setId("circular-button");
+        mode.setGraphic(imgMode);  // Set the ImageView as the button's graphic
+        mode.setOnAction(actionEvent -> appController.changeMode());
+
+        HBox menuAndButton = new HBox();
+        menuAndButton.setId("menu-and-button");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setMargin(mode, new Insets(0, 10, 0, 0));
+        menuAndButton.getChildren().addAll(menuBar, spacer, mode);
+
+
+        VBox vbox = new VBox(menuAndButton, boardRoot);
         vbox.setMinWidth(MIN_APP_WIDTH);
-        Scene primaryScene = new Scene(vbox);
+        primaryScene = new Scene(vbox);
 
         stage.setScene(primaryScene);
         stage.setTitle("RoboRally");
@@ -107,7 +135,7 @@ public class RoboRally extends Application {
         stage.setResizable(true);
         stage.show();
 
-        URL url = getClass().getResource("/stylesheets/DarkMode.css");
+        URL url = getClass().getResource("/stylesheets/LightMode.css");
         if (url == null) {
             System.out.println("Resource not found. Error!");
         } else {
@@ -140,6 +168,8 @@ public class RoboRally extends Application {
             // if stage shows, then its gonna maximize
             stage.setMaximized(true);
         }
+
+
     }
 
     public void createMapSlectionView(){
@@ -151,10 +181,8 @@ public class RoboRally extends Application {
             boardRoot.setCenter(mapselection);
 
         // Waiting witch calling sizeToScene and shows, until everything is fully updated
-
         stage.sizeToScene();
         stage.show();
-
     }
 
     /**
@@ -180,5 +208,17 @@ public class RoboRally extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
+    public void setImgMode(Image img) {
+        imgMode.setImage(img);
+    }
+
+    public Scene getPrimaryScene() {
+        return primaryScene;
     }
 }

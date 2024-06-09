@@ -38,8 +38,12 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.event.ActionEvent;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -70,6 +74,7 @@ public class AppController implements Observer {
 
     private GameController gameController;
     public String course = null;
+    private boolean isLightMode = true;
 
     /**
      * Initializes a new AppController instance with the specified RoboRally game instance.
@@ -315,6 +320,59 @@ public class AppController implements Observer {
     public boolean isGameRunning() {
         return gameController != null;
     }
+
+    public void changeMode() {
+        System.out.println("Attempting to change mode.");
+        isLightMode = !isLightMode;
+
+        try {
+            if (isLightMode) {
+                System.out.println("Setting light mode.");
+                setLightMode();
+            } else {
+                System.out.println("Setting dark mode.");
+                setDarkMode();
+            }
+        } catch (Exception e) {
+            System.out.println("Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void setDarkMode() {
+        try {
+            URL url = getClass().getResource("/stylesheets/DarkMode.css");
+            if (url == null) {
+                throw new Exception("Resource not found: DarkMode.css");
+            }
+            final Image image = new Image(getClass().getResourceAsStream("/light.png"));
+            Platform.runLater(() -> {
+                roboRally.getPrimaryScene().getStylesheets().clear();
+                roboRally.getPrimaryScene().getStylesheets().add(url.toExternalForm());
+                roboRally.setImgMode(image);
+            });
+        } catch (Exception e) {
+            System.out.println("Failed to set dark mode: " + e.getMessage());
+        }
+    }
+
+    private void setLightMode() {
+        try {
+            URL url = getClass().getResource("/stylesheets/LightMode.css");
+            if (url == null) {
+                throw new Exception("Resource not found: LightMode.css");
+            }
+            final Image image = new Image(getClass().getResourceAsStream("/dark.png"));
+            Platform.runLater(() -> {
+                roboRally.getPrimaryScene().getStylesheets().clear();
+                roboRally.getPrimaryScene().getStylesheets().add(url.toExternalForm());
+                roboRally.setImgMode(image);
+            });
+        } catch (Exception e) {
+            System.out.println("Failed to set light mode: " + e.getMessage());
+        }
+    }
+
 
 
     /**

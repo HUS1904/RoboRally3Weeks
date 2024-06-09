@@ -1,6 +1,24 @@
+#menu-and-button{
+    -fx-background-color: #1e1e1e ;
+}
+
+#circular-button{
+    -fx-background-color: #383838;
+    -fx-background-radius: 20;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-padding: 0;
+    -fx-margin-right: 10px;
+}
+
+#menu{
+    -fx-hgrow: ALWAYS;
+}
+
 .menu-bar {
     -fx-background-color: #1e1e1e ;
-    -fx-opacity: 1;
 }
 .menu-bar .label {
     -fx-font-size: 15.0 pt;
@@ -93,21 +111,20 @@
     -fx-background-color: #2d2d30;
 }
 
+.label{
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 8.0pt;
+}
 
-
-
-
-/* Style for the tabs in unselected state */
+/* Tab menu bar */
 .tab-pane .tab-header-background {
     -fx-background-color: #1e1e1e; /* Slightly lighter blue for the tab menu background */
-
 }
 
 /* Style for each tab */
 .tab-pane .tab {
     -fx-background-color: #1e1e1e; /* Light blue for each tab */
-
-
 }
 
 .tab-pane .tab .tab-label{
@@ -119,13 +136,11 @@
 
 /* Style for the selected tab */
 .tab-pane .tab:hover {
-    -fx-background-color: #2d2d30; /* A different color when a tab is selected, e.g., teal */
-
-    -fx-border-color: #1e1e1e;
+    -fx-background-color: #007acc; /* A different color when a tab is selected, e.g., teal */
 }
 
-/* Style for the content area beneath the tabs */
-.tab-pane .tab-content-area {
-    -fx-background-color: #2d2d30; /* A different color when a tab is selected, e.g., teal */
+.tab-pane .tab:selected {
+    -fx-background-color: #2d2d30; /* Light blue for each tab */
 }
+
 
