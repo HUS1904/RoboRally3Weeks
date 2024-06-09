@@ -230,22 +230,19 @@ public class GameController {
 
     void executeCommand(@NotNull Player player, Command command) {
         if (player != null && player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
-
+            // Handle different commands
             switch (command) {
                 case FORWARD:
-                    this.moveForward(player,1);
+                    this.moveForward(player,1, true);
                     break;
                 case FORWARD1:
-                    this.moveForward(player,2);
+                    this.moveForward(player,2, true);
                     break;
                 case FORWARD2:
-                    this.moveForward(player,3);
+                    this.moveForward(player,3, true);
                     break;
                 case Back:
-                    this.moveForward(player,1);
+                    this.moveForward(player,1, false);
                     break;
                 case RIGHT:
                 case UTURN:
@@ -255,23 +252,20 @@ public class GameController {
                     this.turnLeft(player);
                     break;
                 case Again:
+                    // Execute the previous command again
                     if(board.getStep() - 1 >= 0){
                         executeCommand(player,player.getProgramField(board.getStep() - 1).getCard().command);
                     }
-
-
                 default:
                     // DO NOTHING (for now)
             }
         }
+        // Activate all spaces
         for(int i = 0; i < board.width; i++) {
             for(int j = 0; j < board.height; j++) {
                 board.getSpace(i, j).activate();
             }
         }
-        /*if(player.getIndex() == board.maxIndex) {
-            end();
-        }*/
     }
 
     /**
@@ -279,49 +273,85 @@ public class GameController {
      *
      * @param player the player whose robot should move forward
      */
-    public void moveForward(Player player,int num) {
+    public void moveForward(Player player, int numSpaces, boolean forward) {
+        if (player == null) return;
+
         Space currentSpace = player.getSpace();
+        int newX = currentSpace.x;
+        int newY = currentSpace.y;
+        int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
 
-
-        Heading heading = player.getHeading();
-        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
-            heading = heading.next().next();
-            ;
-        }
-
-        int currentX = currentSpace.x;
-        int currentY = currentSpace.y;
-
-        int nextX = currentX;
-        int nextY = currentY;
-
-        for(int i = 0; i <num; i++) {
-            switch (heading) {
-                case NORTH:
-                    nextY--;
-                    break;
-                case EAST:
-                    nextX++;
-                    break;
-                case SOUTH:
-                    nextY++;
-                    break;
-                case WEST:
-                    nextX--;
-                    break;
+        for (int i = 0; i < Math.abs(numSpaces); i++) {
+            // Calculate the new position based on the player's heading and the direction multiplier
+            switch (player.getHeading()) {
+                case NORTH: newY -= directionMultiplier; break;
+                case EAST:  newX += directionMultiplier; break;
+                case SOUTH: newY += directionMultiplier; break;
+                case WEST:  newX -= directionMultiplier; break;
             }
-        }
 
-        // Check if the next space is within the board boundaries
-        if (nextX >= 0 && nextX < board.width && nextY >= 0 && nextY < board.height) {
-            Space nextSpace = board.getSpace(nextX, nextY);
+            // Check if the new position is within board limits
+            if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
+                System.out.println("Move stopped: Reached board limits.");
+                return;
+            }
 
-            // If the next space is empty, move the player to that space
-            if (nextSpace.getPlayer() == null) {
+            Space nextSpace = board.getSpace(newX, newY);
+
+            // Check if the next space is a wall
+            if (nextSpace.getType() == ActionField.WALL) {
+                System.out.println("Move stopped: Wall ahead.");
+                return;
+            }
+
+            if (nextSpace.getPlayer() != null) {
+                // Attempt to push the player at nextPosition
+                Player otherPlayer = nextSpace.getPlayer();
+                if (canPush(otherPlayer, player.getHeading(), forward)) {
+                    // Move the current player to the next space after pushing
+                    currentSpace.setPlayer(null);
+                    nextSpace.setPlayer(player);
+                    player.setSpace(nextSpace);
+                } else {
+                    System.out.println("Move stopped: Cannot push player.");
+                    return;
+                }
+            } else {
+                // Move the current player to the next space
+                currentSpace.setPlayer(null);
+                nextSpace.setPlayer(player);
                 player.setSpace(nextSpace);
-                board.setCurrentPlayer(player);
             }
         }
+    }
+
+    private boolean canPush(Player player, Heading heading, boolean forward) {
+        Space currentSpace = player.getSpace();
+        int newX = currentSpace.x;
+        int newY = currentSpace.y;
+        int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
+
+        // Calculate the position to which the player would be pushed
+        switch (heading) {
+            case NORTH: newY -= directionMultiplier; break;
+            case EAST:  newX += directionMultiplier; break;
+            case SOUTH: newY += directionMultiplier; break;
+            case WEST:  newX -= directionMultiplier; break;
+        }
+
+        if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
+            return false;  // Return false if out of bounds
+        }
+
+        Space nextSpace = board.getSpace(newX, newY);
+        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null && nextSpace.getType() != ActionField.WALL) {
+            // Push the player to the new space if it is empty and not a wall
+            currentSpace.setPlayer(null);
+            nextSpace.setPlayer(player);
+            player.setSpace(nextSpace);
+            return true;
+        }
+        return false;
     }
 
     public void moveTo(Player player,int x ,int y) {
