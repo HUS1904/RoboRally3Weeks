@@ -33,6 +33,8 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.StrokeLineCap;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
+
 /**
  * Represents the graphical view of a single space on the RoboRally game board. This class
  * extends StackPane and is responsible for displaying the space's state, including any
@@ -82,17 +84,25 @@ public class SpaceView extends StackPane implements ViewObserver {
         Player player = space.getPlayer();
         this.getChildren().add(image);
         if (player != null) {
-            Polygon arrow = new Polygon(0.0, 0.0,
-                    10.0, 20.0,
-                    20.0, 0.0 );
-            try {
-                arrow.setFill(Color.valueOf(player.getColor()));
-            } catch (Exception e) {
-                arrow.setFill(Color.MEDIUMPURPLE);
+            String color = player.getColor().toLowerCase();
+            String playerImageFile = "/robot-" + color + ".png";
+            InputStream imageStream = getClass().getResourceAsStream(playerImageFile);
+            if (imageStream == null) {
+                System.out.println("Image file not found: " + playerImageFile);
+                return;
             }
+            ImageView playerImage = new ImageView(new Image(imageStream));
+            playerImage.setFitWidth(55);
+            playerImage.setFitHeight(55);
 
-            arrow.setRotate((90*player.getHeading().ordinal())%360);
-            this.getChildren().add(arrow);
+            playerImage.setRotate(switch (player.getHeading()) {
+                case NORTH -> 0;
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+            });
+
+            this.getChildren().add(playerImage);
         }
     }
 
