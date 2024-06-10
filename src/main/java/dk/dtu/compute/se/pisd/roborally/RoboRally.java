@@ -27,17 +27,25 @@ import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.MapSelection;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
+import javafx.stage.StageStyle;
 
 import java.net.URL;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -48,9 +56,7 @@ import java.util.Objects;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class RoboRally extends Application {
-
     private static final int MIN_APP_WIDTH = 600;
-
     private Stage stage;
     private BorderPane boardRoot;
     // private RoboRallyMenuBar menuBar;
@@ -80,20 +86,99 @@ public class RoboRally extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        Stage loadingStage = new Stage();
+        loadingStage.initStyle(StageStyle.TRANSPARENT);
 
         // Creating Icon in the setup-fase
-        Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png")));
+        Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Rally-Master.png")));
         primaryStage.getIcons().add(appIcon);
 
-        // Enable window resizing once the stage is shown
-        stage.showingProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                stage.setResizable(true);
+        Scene loadingScene = createLoadingScene();
+        loadingStage.setScene(loadingScene);
+        loadingStage.setResizable(false);
+        loadingStage.show();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                Logger.getLogger(RoboRally.class.getName()).log(Level.SEVERE, null, e);
             }
-        });
+            Platform.runLater(() -> {
+                loadingStage.close();
+                appController = new AppController(this);
+                setupMainScene(primaryStage);
+            });
+        }).start();
+    }
 
-        appController = new AppController(this);
+    /**
+     * Creates and displays the board view based on the current game controller.
+     * This method is responsible for updating the game's main display to show
+     * the current state of the game board.
+     * @param gameController The game controller that manages the state of the game.
+     */
+    public void createBoardView(GameController gameController) {
+        // if present, remove old BoardView
+        boardRoot.getChildren().clear();
 
+        if (gameController != null) {
+            // create and add view for new board
+            BoardView boardView = new BoardView(gameController);
+            boardView.setId("board");
+            boardRoot.setCenter(boardView);
+        }
+        // Waiting witch calling sizeToScene and shows, until everything is fully updated
+        if (!stage.isShowing()) {
+            stage.sizeToScene();
+            stage.show();
+        } else {
+            // if stage shows, then its gonna maximize
+            stage.setMaximized(true);
+        }
+
+
+    }
+
+    public void createMapSlectionView(){
+        boardRoot.getChildren().clear();
+
+            // create and add view for new board
+            MapSelection mapselection = new MapSelection(appController);
+            mapselection.setId("mapselect");
+            boardRoot.setCenter(mapselection);
+
+        // Waiting witch calling sizeToScene and shows, until everything is fully updated
+        stage.sizeToScene();
+        stage.show();
+    }
+
+    private Scene createLoadingScene() {
+        VBox loadingRoot = new VBox(5);
+        loadingRoot.setAlignment(Pos.CENTER);
+        loadingRoot.setStyle("-fx-background-color: transparent;");
+
+        Image logoimg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Rally-Master.png")));
+        ImageView logo = new ImageView(logoimg);
+
+        logo.setFitHeight(200);
+        logo.setFitWidth(520);
+
+        Image loadingimg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/loading.gif")));
+        ImageView loading = new ImageView(loadingimg);
+
+        loading.setFitHeight(150);
+        loading.setFitWidth(150);
+
+        VBox.setMargin(logo, new Insets(0, 0, 0, 0));
+        VBox.setMargin(loading, new Insets(-50, 0, 0, 0));
+        loadingRoot.getChildren().addAll(logo, loading);
+        Scene scene = new Scene(loadingRoot, 600, 400);
+        scene.setFill(Color.TRANSPARENT);
+        return scene;
+    }
+
+    private void setupMainScene(Stage stage) {
         // create the primary scene with a menu bar and a pane for
         // the board view (which initially is empty); it will be filled
         // when the user creates a new game or loads a game
@@ -141,48 +226,6 @@ public class RoboRally extends Application {
         } else {
             primaryScene.getStylesheets().add(url.toExternalForm());
         }
-
-    }
-
-    /**
-     * Creates and displays the board view based on the current game controller.
-     * This method is responsible for updating the game's main display to show
-     * the current state of the game board.
-     * @param gameController The game controller that manages the state of the game.
-     */
-    public void createBoardView(GameController gameController) {
-        // if present, remove old BoardView
-        boardRoot.getChildren().clear();
-
-        if (gameController != null) {
-            // create and add view for new board
-            BoardView boardView = new BoardView(gameController);
-            boardView.setId("board");
-            boardRoot.setCenter(boardView);
-        }
-        // Waiting witch calling sizeToScene and shows, until everything is fully updated
-        if (!stage.isShowing()) {
-            stage.sizeToScene();
-            stage.show();
-        } else {
-            // if stage shows, then its gonna maximize
-            stage.setMaximized(true);
-        }
-
-
-    }
-
-    public void createMapSlectionView(){
-        boardRoot.getChildren().clear();
-
-            // create and add view for new board
-            MapSelection mapselection = new MapSelection(appController);
-            mapselection.setId("mapselect");
-            boardRoot.setCenter(mapselection);
-
-        // Waiting witch calling sizeToScene and shows, until everything is fully updated
-        stage.sizeToScene();
-        stage.show();
     }
 
     /**
