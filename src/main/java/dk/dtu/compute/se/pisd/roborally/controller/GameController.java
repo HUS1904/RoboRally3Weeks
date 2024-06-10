@@ -101,6 +101,9 @@ public class GameController {
         return new CommandCard(commands[random],"program");
     }
 
+
+
+
     /**
      * Completes the programming phase and prepares for the activation phase. This method
      * transitions the game from programming to activation, making the program fields of
@@ -284,10 +287,13 @@ public class GameController {
 
 
         Heading heading = player.getHeading();
-        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
-            heading = heading.next().next();
-            ;
+        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName() != null){
+            if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
+                heading = heading.next().next();
+                ;
+            }
         }
+
 
         int currentX = currentSpace.x;
         int currentY = currentSpace.y;

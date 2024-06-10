@@ -71,8 +71,10 @@ public class Board extends Subject {
     @Expose
     private boolean stepMode;
 
-    private Player currentTurn = null;
+
     private static final int MAX_PLAYERS = 6;
+
+    private Player currentTurn;
 
 
 
@@ -168,13 +170,11 @@ public class Board extends Subject {
             }
         }
 
-        System.out.println("size of players at the start of determineTurn: " + temp.size());
 
         players.clear();
         players.addAll(temp);
-
-
-
+        setCurrentTurn(players.get(0));
+        System.out.println(currentTurn.getName());
     }
 
 
@@ -381,6 +381,21 @@ public class Board extends Subject {
         } else {
             return -1;
         }
+    }
+
+    /**
+     * method to get the player from the players list by using the name of the player as parameter
+     * @param representation the player whose number is queried
+     * @return the player that corresponds to the parameter name
+     */
+    public Player getPlayerRepresentation(String representation){
+        for (int i = 0; i < players.size();i++){
+            if(representation.equals(players.get(i).getName())){
+                return players.get(i);
+            }
+
+        }
+        return null;
     }
 
     /**

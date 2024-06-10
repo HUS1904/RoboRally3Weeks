@@ -197,6 +197,7 @@ public class PlayerView extends Tab implements ViewObserver {
             energyCubes.add(rectangle,i,0);
         }
 
+
         // Set the fill of the rectangle to the gradient
 
 
@@ -238,11 +239,12 @@ public class PlayerView extends Tab implements ViewObserver {
             if (isSelected()) {
                 this.player.board.setCurrentPlayer(this.player);
                 this.player.board.getStatusMessage();
-                // Perform actions specific to when PlayerView tab is selected
             }
         });
 
     }
+
+
 
     /**
      * Updates the view based on changes to the observed player's state.
@@ -285,8 +287,6 @@ public class PlayerView extends Tab implements ViewObserver {
                 switch (player.board.getPhase()) {
                     case INITIALISATION:
                         finishButton.setDisable(true);
-                        // XXX just to make sure that there is a way for the player to get
-                        //     from the initialization phase to the programming phase somehow!
                         executeButton.setDisable(false);
                         stepButton.setDisable(true);
                         break;

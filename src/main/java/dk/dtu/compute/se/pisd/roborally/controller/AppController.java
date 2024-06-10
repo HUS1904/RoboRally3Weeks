@@ -142,7 +142,6 @@ public class AppController implements Observer {
             }
 
             board.determineTurn(2,2);
-            board.setCurrentTurn(board.getPlayer(0));
             board.setCurrentPlayer(board.getPlayer(0));
 
         } catch (IOException e){
@@ -155,7 +154,7 @@ public class AppController implements Observer {
 
 
 
-        gameController.startProgrammingPhase();
+
         gameController.board.setPhase(Phase.INITIALISATION);
 
         roboRally.createBoardView(gameController);

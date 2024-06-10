@@ -81,6 +81,7 @@ public class Player extends Subject {
         this.energyCubes = 5;
 
         this.space = null;
+        this.phase = Phase.INITIALISATION;
 
         program = new CommandCardField[NO_REGISTERS];
         for (int i = 0; i < program.length; i++) {
@@ -268,7 +269,10 @@ public class Player extends Subject {
      * @return returns the amount of energy cubes
      */
     public void incrementEnergy(int amount){
+
         this.energyCubes += amount;
+
+        notifyChange();
     }
 }
 
