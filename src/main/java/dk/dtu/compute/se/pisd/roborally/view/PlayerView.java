@@ -48,8 +48,10 @@ public class PlayerView extends Tab implements ViewObserver {
 
     private Label temporaryUpgrade;
     private Label PermanentUpgrade;
+    private Label damageCard;
 
     private HBox Upgrade;
+    private HBox Damage;
 
     private HBox upgradeLabels;
 
@@ -140,18 +142,22 @@ public class PlayerView extends Tab implements ViewObserver {
 
             temporaryUpgrade = new Label("TempUp");
             PermanentUpgrade = new Label("PermUp");
+            damageCard = new Label("Damage");
 
             upgradeLabels = new HBox();
             upgradeLabels.setSpacing(30);
 
             upgradeLabels.getChildren().add(temporaryUpgrade);
             upgradeLabels.getChildren().add(PermanentUpgrade);
+            upgradeLabels.getChildren().add(damageCard);
             //
 
             // adding the CardFieldViews for the Upgrade panel
 
             Upgrade = new HBox(10,new CardFieldView(gameController,player.PlayerUpgradeTmp),new CardFieldView(gameController,player.PlayerUpgradePerm));
             Upgrade.setSpacing(10);
+
+            //Damage = new HBox(10, new CardFieldView(gameController, player.damage))
 
 
             //CardFieldView tmp = new CardFieldView(gameController,player.PlayerUpgradeTmp);

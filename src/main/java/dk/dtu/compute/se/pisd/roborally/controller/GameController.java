@@ -100,6 +100,9 @@ public class GameController {
     // XXX: implemented in the current version
     private CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
+
+
+
         int random = (int) (Math.random() * commands.length);
 
 

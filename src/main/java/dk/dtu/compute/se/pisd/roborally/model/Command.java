@@ -44,7 +44,8 @@ public enum Command {
     UTURN("U-Turn"),
     Back("Back up"),
     Again("Again"),
-    Power("Power Up");
+    Power("Power Up"),
+    Spam("Spam");
 
     final public String displayName;
 
