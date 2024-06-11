@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class GameController {
+    private boolean gearPhase = true;
 
    public Board board;
 
@@ -53,14 +54,17 @@ public class GameController {
      * @param space the space to which the current player should move
      */
     public void moveCurrentPlayerToSpace(@NotNull Space space)  {
+        if (!gearPhase) return;
         Player currentPlayer = board.getCurrentPlayer();
         if (currentPlayer != null) {
             // Check if the target space is occupied
-            if (space.getPlayer() == null) {
+            if (space.getPlayer() == null && space.getType() == ActionField.STARTING_GEAR) {
                 // Move the current player to the target space
                 currentPlayer.setSpace(space);
-
             }
+        }
+        if (board.getPlayers().stream().allMatch(p -> p.getSpace().getType() == ActionField.STARTING_GEAR)) {
+            gearPhase = !gearPhase;
         }
     }
 
@@ -107,6 +111,7 @@ public class GameController {
      * the players visible for the current register.
      */
     public void finishProgrammingPhase() {
+        if (gearPhase) return;
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);

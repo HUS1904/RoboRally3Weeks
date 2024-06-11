@@ -21,6 +21,7 @@
  */
 package dk.dtu.compute.se.pisd.roborally.model;
 
+import com.beust.ah.A;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
@@ -267,6 +268,10 @@ public class Board extends Subject {
         } else {
             return null;
         }
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return new ArrayList<>(players);
     }
 
     /**
