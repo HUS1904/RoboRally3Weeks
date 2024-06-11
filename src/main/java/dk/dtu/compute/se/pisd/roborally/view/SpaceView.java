@@ -22,16 +22,14 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import dk.dtu.compute.se.pisd.roborally.model.*;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
+import dk.dtu.compute.se.pisd.roborally.model.Board;
+import dk.dtu.compute.se.pisd.roborally.model.Player;
+import dk.dtu.compute.se.pisd.roborally.model.Space;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.StrokeLineCap;
 import org.jetbrains.annotations.NotNull;
+import javafx.scene.image.Image;
+import java.io.InputStream;
 
 import java.io.InputStream;
 
@@ -79,6 +77,7 @@ public class SpaceView extends StackPane implements ViewObserver {
         update(space);
     }
 
+    // Ændring af polygon/trekant figur til en avatar karakter
     private void updatePlayer() {
         this.getChildren().clear();
         Player player = space.getPlayer();
@@ -113,21 +112,9 @@ public class SpaceView extends StackPane implements ViewObserver {
      */
     @Override
     public void updateView(Subject subject) {
-        Space s = this.space;
-        if (subject == s) {
-            switch (s.getHeading()){
-                case EAST -> image.setRotate(90);
-                case WEST -> image.setRotate(-90);
-                case SOUTH -> image.setRotate(180);
-            }
-
+        if (subject == this.space) {
             updatePlayer();
         }
     }
 
-    public Phase getPhase(){
-        return space.getPhase();
-    }
-
 }
-

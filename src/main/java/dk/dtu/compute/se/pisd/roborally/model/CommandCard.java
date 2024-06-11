@@ -21,6 +21,7 @@
  */
 package dk.dtu.compute.se.pisd.roborally.model;
 
+import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -37,20 +38,27 @@ import java.util.Objects;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class CommandCard extends Subject {
-
+    @Expose
     final public Command command;
+    @Expose
     private ImageView cardImage;
+
+
+
+    private String type;
 
     /**
      * Constructs a new CommandCard with the specified command.
      * @param command The command that this card represents.
      */
-    public CommandCard(@NotNull Command command) {
+    public CommandCard(@NotNull Command command, String type) {
         this.command = command;
         if(command.displayName != null) {
             Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + command.displayName + ".png")));
             cardImage = new ImageView(image);
+
         }
+        this.type = type;
     }
 
     /**
@@ -65,6 +73,10 @@ public class CommandCard extends Subject {
 
     public ImageView getCardImage() {
         return cardImage;
+    }
+
+    public String getType() {
+        return type;
     }
 
 

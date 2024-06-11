@@ -23,9 +23,9 @@ package dk.dtu.compute.se.pisd.roborally.model;
 
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,18 +58,27 @@ public class Board extends Subject {
     @Expose
     private  List<Player> players = new ArrayList<>();
     @Expose
+    private List<CommandCardField> shopFields = new ArrayList<>();
+    @Expose
     private Player current;
     @Expose
     private Phase phase = INITIALISATION;
 
-    private String Course;
+    private Player Course;
 
     @Expose
     private int step = 0;
     @Expose
     private boolean stepMode;
 
-    private static final int MAX_PLAYERS = 6; // Example value to debug the code
+
+    private static final int MAX_PLAYERS = 6;
+
+    private Player currentTurn;
+
+
+
+
 
     /**
      * Constructs a new Board with the given dimensions and name.
@@ -83,14 +92,15 @@ public class Board extends Subject {
         this.width = course.width;
         this.height = course.height;
         spaces = new Space[width][height];
-        ArrayList<ArrayList<Space>> courseSpaces = course.getSpaces();
         for (int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++)  {
-                Space courseSpace = courseSpaces.get(y).get(x);
-                spaces[x][y] = createSpaceFromType(x, y, courseSpace);
+            for(int y = 0; y < height; y++) {
+
+                Space space = new Space(this, x, y,0);
+                spaces[x][y] = space;
             }
         }
         this.stepMode = false;
+
     }
 
     /**
@@ -111,50 +121,15 @@ public class Board extends Subject {
             }
         }
         this.stepMode = false;
-
     }
 
-    /**
-     * Creates a {@link Space} object based on the type specified in the {@link Space} object from the course.
-     * This method chooses the appropriate constructor for the {@link Space} class depending on the type of
-     * space described in the courseSpace object. It facilitates the initialization of spaces with specific
-     * attributes such as types, headings, and indexes, which are critical for setting up the game board.
-     *
-     * @param x The x-coordinate on the game board where the space is to be located.
-     * @param y The y-coordinate on the game board where the space is to be located.
-     * @param courseSpace The template {@link Space} object that contains the type and possibly additional
-     *                    properties needed to properly initialize a new {@link Space}.
-     * @return A new {@link Space} object initialized with properties specified in courseSpace and located
-     *         at the specified coordinates on the game board.
-     * @author Hussein Jarrah
-     */
-    private Space createSpaceFromType(int x, int y, Space courseSpace) {
-        if(courseSpace.getType() != null){
-            switch (courseSpace.getType()) {
-                case ENERGY_SPACE,
-                     CONVEYOR_BELT,
-                     DOUBLE_CONVEYOR_BELT,
-                     DOUBLE_LEFTTREE_CONVEYOR_BELT,
-                     DOUBLE_RIGHTTREE_CONVEYOR_BELT,
-                     RIGHT_CONVEYOR_BELT,
-                     LEFT_CONVEYOR_BELT,
-                     LEFT_GEAR,
-                     RIGHT_GEAR,
-                     STARTING_GEAR,
-                     RESPAWN,
-                     WALL,
-                     BOARD_LASER_START,
-                     BOARD_LASER,
-                     BOARD_LASER_END,
-                     PRIORITY_ANTENNA:
-                    return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading());
-                case CHECKPOINT:
-                    return new Space(this, x, y, courseSpace.getIndex());
-                default:
-                    return new Space(this, x, y);
+    public Player findCorrespondingPlayer(Player player) {
+        for(int i = 0; i< this.getPlayerAmount();i++){
+            if(player.getName().equals(this.getPlayer(i).getName())){
+                return this.getPlayer(i);
             }
         }
-        return new Space(this, x, y);
+        return null;
     }
 
     /**
@@ -163,37 +138,81 @@ public class Board extends Subject {
      * @return the game ID, or null if not set
      */
     public void determineTurn(int x, int y) {
-         int counter = 0;
+        int counter = 0;
+        System.out.println("size of players at the start of determineTurn: " + players.size());
         double[] distances = new double[players.size()];
-        List<Player> temp = new ArrayList<>();
+        ArrayList<Player> temp = new ArrayList<>();
 
-        for(Player player: players) {
+        for (Player player : players) {
             int dx = player.getSpace().x - x;
             int dy = player.getSpace().y - y;
 
-            double distance = Math.sqrt((dx*dx)+(dy*dy));
+            double distance = Math.sqrt((dx * dx) + (dy * dy));
 
             player.distance = distance;
             distances[counter] = distance;
-           }
+            counter++;
+        }
 
         double[] distancesSorted = Arrays.stream(distances).sorted().toArray();
 
-        for (int i = 0; i < distances.length; i++){
-            for (Player player: players){
-                if (player.distance == distancesSorted[0]){
+        for(int q = 0; q < distancesSorted.length;q++){
+            System.out.print("/" + distancesSorted[q]+ "/");
+        }
+
+        for (int i = 0; i < distances.length; i++) {
+            for (Player player : players) {
+                if (player.distance == distancesSorted[i]) {
+                    distancesSorted[i] = 8000;
+                    player.distance = 5000;
                     temp.add(player);
                 }
             }
         }
 
+
         players.clear();
         players.addAll(temp);
+        setCurrentTurn(players.get(0));
+        System.out.println(currentTurn.getName());
+    }
 
+
+
+        // moves the current turn to the next players in the current order of turns
+        public void moveCurrentTurn(){
+        Player currentTurn = getCurrentTurn();
+
+        for(Player player: players){
+            if(player == currentTurn){
+                if(!(players.indexOf(player) + 1 >= players.size())) {
+                    setCurrentTurn(players.get((players.indexOf(player)) + 1));
+                }
+            }
+        }
 
         }
 
-        // Sort distances array to determine order of players based on proximity
+
+
+        // sets the current turn
+
+        public void setCurrentTurn(Player player){
+            this.currentTurn = player;
+        }
+
+
+
+        // gets the player who's supposed to play
+       public Player getCurrentTurn(){
+        return currentTurn;
+       }
+
+
+
+       public List<Player> getPlayers(){
+        return players;
+       }
 
 
     /**
@@ -227,7 +246,6 @@ public class Board extends Subject {
         }
         return spaces[x][y];
     }
-
 
     /**
      * Returns the number of players currently on the board.
@@ -284,7 +302,7 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
-            notifyChange();
+
         }
     }
 
@@ -307,6 +325,11 @@ public class Board extends Subject {
             this.phase = phase;
             notifyChange();
         }
+    }
+
+
+    public List<CommandCardField> getShopFields() {
+        return shopFields;
     }
 
     /**
@@ -358,6 +381,21 @@ public class Board extends Subject {
         } else {
             return -1;
         }
+    }
+
+    /**
+     * method to get the player from the players list by using the name of the player as parameter
+     * @param representation the player whose number is queried
+     * @return the player that corresponds to the parameter name
+     */
+    public Player getPlayerRepresentation(String representation){
+        for (int i = 0; i < players.size();i++){
+            if(representation.equals(players.get(i).getName())){
+                return players.get(i);
+            }
+
+        }
+        return null;
     }
 
     /**

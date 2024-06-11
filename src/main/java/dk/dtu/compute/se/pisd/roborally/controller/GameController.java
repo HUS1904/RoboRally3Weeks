@@ -23,7 +23,6 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.model.*;
-import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -65,6 +64,7 @@ public class GameController {
     }
 
 
+
     /**
      * Initiates the programming phase of the game where players program the movement of their robots
      * for the round. This method sets up the game board and players for the programming phase.
@@ -92,14 +92,17 @@ public class GameController {
     }
 
     // XXX: implemented in the current version
-    private CommandCard generateRandomCommandCard() {
+   public CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
         int random = (int) (Math.random() * commands.length);
 
 
 
-        return new CommandCard(commands[random]);
+        return new CommandCard(commands[random],"program");
     }
+
+
+
 
     /**
      * Completes the programming phase and prepares for the activation phase. This method
@@ -112,6 +115,7 @@ public class GameController {
         board.setPhase(Phase.ACTIVATION);
         board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
+
     }
 
     /**
@@ -119,7 +123,7 @@ public class GameController {
      * one step in the activation phase, executing the command in the current register for each player.
      */
     public void executeRegister(){
-        System.out.print(board.getStep());
+        this.board.getCurrentPlayer().incrementEnergy(1);
         makeProgramFieldsVisible(board.getStep() + 1);
         for (int i = 0; i < board.getPlayerAmount(); i++) {
             Player currentPlayer = board.getPlayer(i);
@@ -135,32 +139,10 @@ public class GameController {
 
             }
         }
-
-        activateSpaces();
-
-        if(board.getStep() != 4) {
+        if(board.getStep() != 5) {
             board.setStep(board.getStep() + 1);
         } else {
             startProgrammingPhase();
-        }
-    }
-
-    /**
-     * Activates all spaces on the game board by triggering their specific activation behavior.
-     * This method iterates over every space on the board and calls the {@code activate} method
-     * on each one. The activation process may involve various effects depending on the type of
-     * the space, such as moving robots via conveyor belts, triggering traps, or applying game
-     * mechanics specific to other types of spaces. This method is typically called during the
-     * game's activation phase after all players have executed their moves to apply any environmental
-     * effects or board features.
-     *
-     * @author Hussein Jarrah
-     */
-    public void activateSpaces() {
-        for (int x = 0; x < board.width; x++) {
-            for (int y = 0; y < board.height; y++) {
-                board.getSpace(x, y).activate();
-            }
         }
     }
 
@@ -214,6 +196,7 @@ public class GameController {
     }
 
     private void executeNextStep() {
+        board.setCurrentPlayer(board.getPlayer(0));
         for (int i = 0; i < board.getPlayerAmount(); i++) {
             Player currentPlayer = board.getPlayer(i);
             if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
@@ -304,10 +287,13 @@ public class GameController {
 
 
         Heading heading = player.getHeading();
-        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
-            heading = heading.next().next();
-            ;
+        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName() != null){
+            if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
+                heading = heading.next().next();
+                ;
+            }
         }
+
 
         int currentX = currentSpace.x;
         int currentY = currentSpace.y;
@@ -338,18 +324,15 @@ public class GameController {
 
             // If the next space is empty, move the player to that space
             if (nextSpace.getPlayer() == null) {
-                currentSpace.setPlayer(null);
-                nextSpace.setPlayer(player);
+                player.setSpace(nextSpace);
                 board.setCurrentPlayer(player);
             }
         }
     }
 
     public void moveTo(Player player,int x ,int y) {
-        Space currentSpace = player.getSpace();
-        currentSpace.setPlayer(null);
         Space nextSpace = board.getSpace(x, y);
-        nextSpace.setPlayer(player);
+        player.setSpace(nextSpace);
     }
 
     public void reInitialize(Board board) {
@@ -375,9 +358,10 @@ public class GameController {
             for(int j = 0; j < Player.NO_CARDS; j++){
                 CommandCardField field = player.getCardField(j);
                 CommandCardField otherField = otherPlayer.getCardField(j);
-                CommandCard card = otherPlayer.getCardField(j).getCard();
+                CommandCard card = otherField.getCard();
                 if(card != null){
-                    field.setCard(card);
+                    field.setCard(new CommandCard(card.command,"program"));
+                    field.setVisible(true);
 
                 }
             }
@@ -386,8 +370,9 @@ public class GameController {
                 CommandCardField otherField = otherPlayer.getProgramField(k);
                 CommandCard card = otherField.getCard();
                 if(card != null){
-                    field.setCard(card);
-                    field.setVisible(otherField.isVisible());
+                    field.setCard(new CommandCard(card.command,"program"));
+                    field.setVisible(true);
+
 
                 }
             }
