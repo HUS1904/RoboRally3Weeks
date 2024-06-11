@@ -84,7 +84,8 @@ public class GameController {
                 }
                 for (int j = 0; j < Player.NO_CARDS; j++) {
                     CommandCardField field = player.getCardField(j);
-                    field.setCard(generateRandomCommandCard());
+                    CommandCard card = player.getDeck().deal();
+                    field.setCard(card);
                     field.setVisible(true);
                 }
             }
@@ -95,9 +96,6 @@ public class GameController {
    public CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
         int random = (int) (Math.random() * commands.length);
-
-
-
         return new CommandCard(commands[random],"program");
     }
 
@@ -142,6 +140,26 @@ public class GameController {
         if(board.getStep() != 5) {
             board.setStep(board.getStep() + 1);
         } else {
+            for (int i = 0; i < board.getPlayersNumber(); i++) {
+                Player player = board.getPlayer(i);
+                if (player != null) {
+                    for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                        CommandCardField field = player.getProgramField(j);
+                        if(field.getCard() != null){
+                            CommandCard card = field.getCard();
+                            player.getDeck().sendToDiscardPile(card);
+                        }
+                    }
+                    for (int j = 0; j < Player.NO_CARDS; j++) {
+                        CommandCardField field = player.getCardField(j);
+                        if(field.getCard() != null){
+                            CommandCard card = field.getCard();
+                            player.getDeck().sendToDiscardPile(card);
+                        }
+                    }
+                }
+            }
+
             startProgrammingPhase();
         }
     }

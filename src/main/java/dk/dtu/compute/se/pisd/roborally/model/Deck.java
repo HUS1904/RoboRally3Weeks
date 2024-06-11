@@ -8,21 +8,47 @@ import java.util.List;
 public class Deck {
 
     private List<CommandCard> deck = new ArrayList<>();
-    private GameController controller;
+    private List<CommandCard> discardPile = new ArrayList<>();
+
+   private GameController gameController;
 
 
-    public Deck(String type, GameController gameController) {
-        this.controller = gameController;
+    public Deck(String type,GameController gameController) {
+        this.gameController = gameController;
 
         for (int i = 0; i < 52; i++) {
 
-            deck.add(controller.generateRandomCommandCard());
+            deck.add(gameController.generateRandomCommandCard());
         }
+    }
+
+    public void shuffleDeck(){
+        for(int i = 0; i < discardPile.size();i++){
+            int random = (int) (Math.random() * discardPile.size());
+            deck.add(discardPile.remove(random));
+
+        }
+    }
+
+    public void sendToDiscardPile(CommandCard card){
+        discardPile.add(card);
+    }
+
+    public void addToDeck(CommandCard card){
+
+        int random = (int) (Math.random() * deck.size());
+        deck.add(random,card);
+
     }
 
 
     public CommandCard deal() {
-        return deck.remove(deck.size() - 1);
+
+        if(deck.size() != 8){
+            shuffleDeck();
+        }
+        CommandCard card = deck.remove(deck.size() - 1);
+        return card;
     }
 }
 

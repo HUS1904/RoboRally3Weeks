@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import org.jetbrains.annotations.NotNull;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
@@ -67,6 +68,11 @@ public class Player extends Subject {
 
     private int energyCubes;
 
+
+    private Deck deck;
+
+    private GameController gameController;
+
     /**
      * Constructs a new Player with the specified board, color, and name.
      * Initializes the player's program and command card fields.
@@ -74,7 +80,7 @@ public class Player extends Subject {
      * @param color the color representing the player
      * @param name the name of the player
      */
-    public Player(@NotNull Board board, String color, @NotNull String name) {
+    public Player(@NotNull Board board, String color, @NotNull String name,GameController gameController) {
         this.board = board;
         this.name = name;
         this.color = color;
@@ -82,6 +88,9 @@ public class Player extends Subject {
 
         this.space = null;
         this.phase = Phase.INITIALISATION;
+        this.gameController = gameController;
+
+        this.deck = new Deck("program",gameController);
 
         program = new CommandCardField[NO_REGISTERS];
         for (int i = 0; i < program.length; i++) {
@@ -106,6 +115,7 @@ public class Player extends Subject {
 
 
     }
+
 
 
 
@@ -273,6 +283,10 @@ public class Player extends Subject {
         this.energyCubes += amount;
 
         notifyChange();
+    }
+
+    public Deck getDeck() {
+        return deck;
     }
 }
 
