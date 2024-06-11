@@ -57,6 +57,8 @@ public class Player extends Subject {
     public CommandCardField PlayerUpgradeTmp;
     @Expose
     public CommandCardField PlayerUpgradePerm;
+    @Expose
+    public DamageCardField[] damage;
 
     private int index = 0;
     public double distance;
@@ -83,6 +85,11 @@ public class Player extends Subject {
         cards = new CommandCardField[NO_CARDS];
         for (int i = 0; i < cards.length; i++) {
             cards[i] = new CommandCardField(this);
+        }
+
+        damage = new DamageCardField[NO_CARDS];
+        for (int k = 0; k < damage.length; k++) {
+            damage[k] = new DamageCardField(this);
         }
 
         PlayerUpgradeTmp = new CommandCardField(this); // Initializes a new CommandCardField for temporary upgrades (current contains 1 slot).
@@ -197,10 +204,6 @@ public class Player extends Subject {
         return PlayerUpgradePerm;
     }
 
-//    public CommandCardField getPlayerDamage() {
-//        return PlayerDamage;
-//    }
-
     /**
      * Gets the command card field at the specified index.
      * @param i the index of the command card field
@@ -208,6 +211,10 @@ public class Player extends Subject {
      */
     public CommandCardField getCardField(int i) {
         return cards[i];
+    }
+
+    public DamageCardField getDamageField(int k) {
+        return damage[k];
     }
 
     public void incrementIndex() {

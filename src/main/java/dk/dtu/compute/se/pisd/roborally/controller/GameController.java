@@ -87,6 +87,12 @@ public class GameController {
                     field.setCard(generateRandomCommandCard());
                     field.setVisible(true);
                 }
+                for (int k = 0; k < Player.NO_CARDS; k++) {
+                    DamageCardField field = player.getDamageField(k);
+                    field.setCard(generateDamageCard());
+                    field.setVisible(true);
+                    System.out.print(field.getCard());
+                }
             }
         }
     }
@@ -99,6 +105,14 @@ public class GameController {
 
 
         return new CommandCard(commands[random]);
+    }
+
+    private DamageCard generateDamageCard() {
+        DamageCard damageCard = null;
+        for (DamageCommand c : DamageCommand.values()) {
+            damageCard = new DamageCard(c);
+        }
+        return damageCard;
     }
 
     /**
@@ -473,9 +487,6 @@ public class GameController {
         CommandCard sourceCard = source.getCard();
         CommandCard targetCard = target.getCard();
         if (sourceCard != null && targetCard == null) {
-            if (sourceCard.isSpecialCard(sourceCard) && board.getCurrentPlayer().getPlayerUpgradeTmp()) {
-
-            }
             target.setCard(sourceCard);
             source.setCard(null);
             return true;

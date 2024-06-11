@@ -44,9 +44,7 @@ public enum Command {
     UTURN("U-Turn"),
     Back("Back up"),
     Again("Again"),
-    Power("Power Up"),
-    UPGRADE("Upg"), // Cmd-definition of an "Upgrade-card".
-    DAMAGE("Dmg"); //Cmd-definition of a "Damage-card".
+    Power("Power Up");
 
     final public String displayName;
 
@@ -54,4 +52,7 @@ public enum Command {
         this.displayName = displayName;
     }
 
+//    public boolean isSpam(Command command) {
+//        return command == Command.valueOf("SPAM");
+//    }
 }
