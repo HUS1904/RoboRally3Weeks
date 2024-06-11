@@ -87,6 +87,11 @@ public class GameController {
                     field.setCard(generateRandomCommandCard());
                     field.setVisible(true);
                 }
+//                for (int k = 0; k < Player.NO_CARDS; k++) {
+//                    CommandCardField field = player.getCardField(k);
+//                    field.setCard(generateDamageCard());
+//                    field.setVisible(true);
+//                }
             }
         }
     }
@@ -94,11 +99,31 @@ public class GameController {
     // XXX: implemented in the current version
     private CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
+
+        for (int i = 0; i < commands.length; i++) {
+            if (commands[i] == Command.valueOf("SPAM")) {
+                commands[i] = commands[i-1];
+            }
+        }
+
         int random = (int) (Math.random() * commands.length);
 
 
 
         return new CommandCard(commands[random]);
+    }
+
+    private CommandCard generateDamageCard() {
+        Command[] commands = Command.values();
+        int index = 0;
+
+        for (int i = 0; i < commands.length; i++) {
+            if (commands[i] == Command.valueOf("SPAM")) {
+                index = i;
+            }
+        }
+
+        return new CommandCard(commands[index]);
     }
 
     /**
