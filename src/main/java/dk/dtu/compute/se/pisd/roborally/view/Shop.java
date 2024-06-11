@@ -75,18 +75,14 @@ public class Shop extends VBox {
 
       if (gameController.board.getCurrentPlayer() == gameController.board.getCurrentTurn()) {
             gameController.board.getCurrentTurn().phase = Phase.PROGRAMMING;
-        }
-
-        if(gameController.board.getPlayers().indexOf(gameController.board.getCurrentPlayer()) == gameController.board.getPlayerAmount() -1 &&  gameController.board.getCurrentTurn().phase == Phase.PROGRAMMING) {
-            gameController.startProgrammingPhase();
-        } else {
             gameController.board.moveCurrentTurn();
         }
 
+        if(gameController.board.getPlayers().indexOf(gameController.board.getCurrentPlayer()) == gameController.board.getPlayerAmount() -1 &&
+                gameController.board.getCurrentTurn().phase == Phase.PROGRAMMING) {
 
-
-
-
+            gameController.startProgrammingPhase();
+        }
 
         }
 

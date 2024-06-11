@@ -238,6 +238,8 @@ public class PlayerView extends Tab implements ViewObserver {
         this.setOnSelectionChanged(event -> {
             if (isSelected()) {
                 this.player.board.setCurrentPlayer(this.player);
+                System.out.println(this.player.board.getCurrentPlayer().getName());
+                System.out.println(this.player.board.getCurrentTurn().getName());
                 this.player.board.getStatusMessage();
             }
         });
