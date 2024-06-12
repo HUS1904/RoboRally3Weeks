@@ -119,27 +119,39 @@ public class GameController {
      * Executes the next register in the sequence for each player's robot. This method progresses the game by
      * one step in the activation phase, executing the command in the current register for each player.
      */
-    public void executeRegister(){
-        this.board.getCurrentPlayer().incrementEnergy(1);
-        makeProgramFieldsVisible(board.getStep() + 1);
-        for (int i = 0; i < board.getPlayerAmount(); i++) {
-            Player currentPlayer = board.getPlayer(i);
-            if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
-                int step = board.getStep();
-                if (step >= 0 && step < Player.NO_REGISTERS) {
-                    CommandCard card = currentPlayer.getProgramField(step).getCard();
-                    if (card != null) {
-                        Command command = card.command;
-                        executeCommand(currentPlayer, command);
-                    }
+    public void executeRegister() {
+        int currentStep = board.getStep();
+        Player currentPlayer = board.getCurrentPlayer();
+        if (currentStep >= 0 && currentStep < Player.NO_REGISTERS && currentPlayer != null) {
+            CommandCard card = currentPlayer.getProgramField(currentStep).getCard();
+            if (card != null) {
+                if (card.command.isInteractive()) {
+                    // Set to interaction phase, but don't advance the step
+                    board.setPhase(Phase.PLAYER_INTERACTION);
+                    // Interaction handling will occur here (show dialog, etc.)
+                } else {
+                    // Execute non-interactive command
+                    executeCommand(currentPlayer, card.command);
+                    // Optionally wait for user to trigger next step manually
+                    // If automatically proceeding:
+                    advanceStep();
                 }
-
             }
         }
-        if(board.getStep() != 5) {
-            board.setStep(board.getStep() + 1);
+    }
+
+    /**
+     * Advances the game to the next step in the activation phase.
+     * If the current step is the last register, the game will switch to the programming phase.
+     */
+    private void advanceStep() {
+        int currentStep = board.getStep();
+        int nextStep = currentStep + 1;
+        if (nextStep < Player.NO_REGISTERS) {
+            board.setStep(nextStep);
         } else {
-            startProgrammingPhase();
+            // Wrap up activation phase or reset for a new cycle
+            startProgrammingPhase();  // Assuming this method resets for a new cycle
         }
     }
 
@@ -193,38 +205,69 @@ public class GameController {
     }
 
     private void executeNextStep() {
-        board.setCurrentPlayer(board.getPlayer(0));
-        for (int i = 0; i < board.getPlayerAmount(); i++) {
-            Player currentPlayer = board.getPlayer(i);
+        while (true) {
+            Player currentPlayer = board.getCurrentPlayer();
             if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
                 int step = board.getStep();
                 if (step >= 0 && step < Player.NO_REGISTERS) {
                     CommandCard card = currentPlayer.getProgramField(step).getCard();
                     if (card != null) {
                         Command command = card.command;
-                        executeCommand(currentPlayer, command);
+                        if (command.isInteractive()) {
+                            // Switch to interactive mode and break loop
+                            board.setPhase(Phase.PLAYER_INTERACTION);
+                            return;  // Stop further execution to wait for user input
+                        } else {
+                            // Execute non-interactive command
+                            executeCommand(currentPlayer, command);
+                        }
                     }
+
+                    // Move to the next player
                     int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
                     if (nextPlayerNumber < board.getPlayersNumber()) {
                         board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
                     } else {
+                        // Last player, move to next step or end of the cycle
                         step++;
                         if (step < Player.NO_REGISTERS) {
                             makeProgramFieldsVisible(step);
                             board.setStep(step);
-                            board.setCurrentPlayer(board.getPlayer(0));
+                            board.setCurrentPlayer(board.getPlayer(0));  // Reset to first player
                         } else {
                             startProgrammingPhase();
+                            return;  // Exit if all steps are done
                         }
                     }
                 } else {
-                    // this should not happen
+                    // This should not happen
                     assert false;
                 }
             } else {
-                // this should not happen
+                // This should not happen
                 assert false;
             }
+            // This loop will continue until a break condition like an interactive command occurs
+        }
+    }
+
+    public void executeCommandOptionAndContinue(@NotNull Player player, Command command) {
+        // Execute the selected command
+        executeCommand(player, command);
+
+        // After executing the command, check if we need to progress the step or end the interactive phase
+        board.setPhase(Phase.ACTIVATION);
+        nextStepOrFinish();
+    }
+
+    private void nextStepOrFinish() {
+        int currentStep = board.getStep() + 1;
+        if (currentStep < Player.NO_REGISTERS) {
+            board.setStep(currentStep);
+            // Setup next command execution
+        } else {
+            // All commands executed, move to next phase or wrap up the current phase
+            startProgrammingPhase(); // Assuming this method resets or prepares for a new cycle
         }
     }
 

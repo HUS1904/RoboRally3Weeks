@@ -44,12 +44,18 @@ public enum Command {
     UTURN("U-Turn"),
     Back("Back up"),
     Again("Again"),
-    Power("Power Up");
+    Power("Power Up"),
+    OPTION_LEFT_RIGHT("Option Left or Right", LEFT, RIGHT),
+    OPTION_LEFT_FORWARD("Option Left or Forward", LEFT, FORWARD);
 
     final public String displayName;
+    final private List<Command> options;
 
-    Command(String displayName) {
+    Command(String displayName, Command... options) {
         this.displayName = displayName;
+        this.options = Collections.unmodifiableList(Arrays.asList(options));
     }
 
+    public boolean isInteractive() {return !options.isEmpty(); }
+    public List<Command> getOptions() {return options; }
 }
