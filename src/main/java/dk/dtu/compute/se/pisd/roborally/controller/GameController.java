@@ -95,11 +95,32 @@ public class GameController {
     // XXX: implemented in the current version
    public CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
+
+        // Make sure no damage-cards are generated
+       for (int i = 0; i < commands.length; i++) {
+           if (commands[i] == Command.valueOf("SPAM")) {
+               commands[i] = commands[i-1];
+           }
+       }
+
         int random = (int) (Math.random() * commands.length);
         return new CommandCard(commands[random],"program");
     }
 
 
+    // Method to generate a damage-card
+    public CommandCard generateDamageCard() {
+        Command[] commands = Command.values();
+        int index = 0;
+
+        for (int i = 0; i < commands.length; i++) {
+            if (commands[i] == Command.valueOf("SPAM")) {
+                index = i;
+            }
+        }
+
+        return new CommandCard(commands[index], "damage");
+    }
 
 
     /**
