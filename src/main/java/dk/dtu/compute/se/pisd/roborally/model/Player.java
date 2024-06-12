@@ -26,6 +26,7 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import org.jetbrains.annotations.NotNull;
 
+import static dk.dtu.compute.se.pisd.roborally.model.Command.SPAM;
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
 
 /**
@@ -257,6 +258,9 @@ public class Player extends Subject {
             return;
         else if(nextSpace.getType() == ActionField.CHECKPOINT)
             incrementIndex();
+        else if(nextSpace.getType() == ActionField.BOARD_LASER)
+            deck.sendToDiscardPile(gameController.generateDamageCard());
+            System.out.println("1 card sent to discard-pile");
 
         setSpace(nextSpace);
     }

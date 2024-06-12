@@ -108,7 +108,7 @@ public class GameController {
     }
 
 
-    // Method to generate a damage-card
+    // Helper-method to generate a damage-card
     public CommandCard generateDamageCard() {
         Command[] commands = Command.values();
         int index = 0;
