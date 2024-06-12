@@ -436,7 +436,6 @@ public class GameController {
         Heading heading = player.getHeading();
         if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("U-Turn")) {
             player.setHeading(heading.next().next());
-            ;
         } else {
             player.setHeading(heading.next());
         }
