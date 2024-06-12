@@ -278,20 +278,25 @@ public class GameController {
      *
      * @param player the player whose robot should move forward
      */
-    public void moveForward(Player player,int num) {
+    /**
+     * Moves the player's robot forward by one space, if possible, based on the robot's current heading and position.
+     *
+     * @param player the player whose robot should move forward
+     */
+    public void moveForward(Player player, int num) {
         Space currentSpace = player.getSpace();
         Heading heading = player.getHeading();
         int currentX = currentSpace.x;
         int currentY = currentSpace.y;
 
-        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
+        if (board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
             heading = heading.next().next();
         }
 
         int nextX = currentX;
         int nextY = currentY;
 
-        for(int i = 0; i < num; i++) {
+        for (int i = 0; i < num; i++) {
             switch (heading) {
                 case NORTH:
                     nextY--;
@@ -312,10 +317,10 @@ public class GameController {
         if (nextX >= 0 && nextX < board.width && nextY >= 0 && nextY < board.height) {
             Space nextSpace = board.getSpace(nextX, nextY);
 
-            // Check if there is a wall in the current direction
+            // Check if there is a wall in the current direction or opposite direction
             boolean hasWall = false;
-            for(int i = 0; i < num; i++) {
-                if (currentSpace.hasWall(heading)) {
+            for (int i = 0; i < num; i++) {
+                if (currentSpace.hasWall(heading) || nextSpace.hasWall(heading.opposite())) {
                     hasWall = true;
                     break;
                 }
@@ -328,6 +333,7 @@ public class GameController {
             }
         }
     }
+
 
     public void moveTo(Player player,int x ,int y) {
         Space nextSpace = board.getSpace(x, y);
