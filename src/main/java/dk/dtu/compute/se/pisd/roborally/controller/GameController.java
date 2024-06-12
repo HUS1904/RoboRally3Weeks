@@ -63,7 +63,11 @@ public class GameController {
                 currentPlayer.setSpace(space);
             }
         }
-        if (board.getPlayers().stream().allMatch(p -> p.getSpace().getType() == ActionField.STARTING_GEAR)) {
+        if (board.getPlayers()
+                 .stream()
+                 .map(Player::getSpace)
+                 .map(Space::getType)
+                 .allMatch(ActionField.STARTING_GEAR::equals)) {
             gearPhase = !gearPhase;
         }
     }
