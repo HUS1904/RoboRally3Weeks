@@ -1,9 +1,3 @@
-
-
-
-
-
-
 /*
  *  This file is part of the initial project provided for the
  *  course "Project in Software Development (02362)" held at
@@ -117,9 +111,8 @@ public class AppController implements Observer {
         }
     }
 
-    public void startGame(String Course)  {
-
-        String directoryPath = "src/main/resources/courses/" + Course + ".json";
+    public void startGame(String course) {
+        String directoryPath = "src/main/resources/courses/" + course + ".json";
 
         Gson gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
@@ -128,12 +121,11 @@ public class AppController implements Observer {
 
         try {
             String jsonContent = new String(Files.readAllBytes(courseFile.toPath()));
-            Course course = gson.fromJson(jsonContent,Course.class);
+            Course courseObject = gson.fromJson(jsonContent, Course.class);
 
+            gameController = new GameController(new Board(courseObject, "e"));
 
-            gameController = new GameController(new Board(course,"e"));
-
-            Board board =  gameController.board;
+            Board board = gameController.board;
             int no = result.get();
             for (int i = 0; i < no; i++) {
                 Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
@@ -141,19 +133,13 @@ public class AppController implements Observer {
                 player.setSpace(board.getSpace(i % board.width, i));
             }
 
-            board.determineTurn(2,2);
+            board.determineTurn(2, 2);
             board.setCurrentTurn(board.getPlayer(0));
             board.setCurrentPlayer(board.getPlayer(0));
 
-        } catch (IOException e){
-
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-
-
-
-
-
 
         gameController.startProgrammingPhase();
         gameController.board.setPhase(Phase.INITIALISATION);
@@ -165,27 +151,20 @@ public class AppController implements Observer {
      * Saves the current game state. This method is intended for future implementation.
      */
     public void saveGame() {
-        // making the board into a Json String
         Board board = gameController.board;
         Gson gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
                 .create();
         String gsonString = gson.toJson(board);
-        //
 
-        // making a directory path by combining the static driectoryoath and the filename provided by the user through the dialogue box
         String directoryPath = "src/main/resources/saves/";
 
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Save game");
         dialog.setHeaderText("Enter the name of the file");
-
-        // Show the dialog and wait for the user's response
         Optional<String> result = dialog.showAndWait();
-
         String fileName = result.orElse("default") + ".json";
 
-        // Create directory if it doesn't exist
         File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdirs();
@@ -193,28 +172,19 @@ public class AppController implements Observer {
         }
         Path filePath = Path.of(directoryPath, fileName);
 
-        //
-
-        // Create an empty JSON file
         try {
             Files.createFile(filePath);
             System.out.println("Empty JSON file created: " + filePath);
         } catch (IOException e) {
-            // Handle file creation exception
             e.printStackTrace();
         }
 
-
-        // Write the Json String into the Json file that was created
         try (FileWriter fileWriter = new FileWriter(directoryPath + fileName)) {
-            // Write JSON content to the file
             fileWriter.write(gsonString);
             System.out.println("JSON content has been written to the file.");
         } catch (IOException e) {
-            // Handle file I/O exception
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -243,13 +213,7 @@ public class AppController implements Observer {
                     .create();
 
             System.out.println(jsonContent);
-
             Board board = gson.fromJson(jsonContent,Board.class);
-
-
-
-
-
 
             Board newBoard = new Board(board.width,board.height);
             gameController = new GameController(newBoard);
@@ -267,11 +231,6 @@ public class AppController implements Observer {
 
             gameController.reInitialize(board);
             roboRally.createBoardView(gameController);
-
-
-
-
-
 
         } catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());

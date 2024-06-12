@@ -179,8 +179,8 @@ public class Board extends Subject {
 
 
 
-        // moves the current turn to the next players in the current order of turns
-        public void moveCurrentTurn(){
+    // moves the current turn to the next players in the current order of turns
+    public void moveCurrentTurn(){
         Player currentTurn = getCurrentTurn();
 
         for(Player player: players){
@@ -191,28 +191,28 @@ public class Board extends Subject {
             }
         }
 
-        }
+    }
 
 
 
-        // sets the current turn
+    // sets the current turn
 
-        public void setCurrentTurn(Player player){
-            this.currentTurn = player;
-        }
+    public void setCurrentTurn(Player player){
+        this.currentTurn = player;
+    }
 
 
 
-        // gets the player who's supposed to play
-       public Player getCurrentTurn(){
+    // gets the player who's supposed to play
+    public Player getCurrentTurn(){
         return currentTurn;
-       }
+    }
 
 
 
-       public List<Player> getPlayers(){
+    public List<Player> getPlayers(){
         return players;
-       }
+    }
 
 
     /**
@@ -444,6 +444,6 @@ public class Board extends Subject {
 
         // TODO Task1: add a counter along with a getter and a setter, so the
         //      state of the board (game) contains the number of moves, which then can
-        //      be used to extend the status message 
+        //      be used to extend the status message
     }
 }

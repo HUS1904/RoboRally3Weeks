@@ -1,4 +1,3 @@
-
 /*
  *  This file is part of the initial project provided for the
  *  course "Project in Software Development (02362)" held at
@@ -34,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class GameController {
 
-   public Board board;
+    public Board board;
 
     /**
      * Constructs a GameController with the specified game board.
@@ -92,7 +91,7 @@ public class GameController {
     }
 
     // XXX: implemented in the current version
-   public CommandCard generateRandomCommandCard() {
+    public CommandCard generateRandomCommandCard() {
         Command[] commands = Command.values();
         int random = (int) (Math.random() * commands.length);
 
@@ -281,21 +280,18 @@ public class GameController {
      */
     public void moveForward(Player player,int num) {
         Space currentSpace = player.getSpace();
-
-
         Heading heading = player.getHeading();
-        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
-            heading = heading.next().next();
-            ;
-        }
-
         int currentX = currentSpace.x;
         int currentY = currentSpace.y;
+
+        if(board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
+            heading = heading.next().next();
+        }
 
         int nextX = currentX;
         int nextY = currentY;
 
-        for(int i = 0; i <num; i++) {
+        for(int i = 0; i < num; i++) {
             switch (heading) {
                 case NORTH:
                     nextY--;
@@ -316,8 +312,17 @@ public class GameController {
         if (nextX >= 0 && nextX < board.width && nextY >= 0 && nextY < board.height) {
             Space nextSpace = board.getSpace(nextX, nextY);
 
-            // If the next space is empty, move the player to that space
-            if (nextSpace.getPlayer() == null) {
+            // Check if there is a wall in the current direction
+            boolean hasWall = false;
+            for(int i = 0; i < num; i++) {
+                if (currentSpace.hasWall(heading)) {
+                    hasWall = true;
+                    break;
+                }
+            }
+
+            // If there is no wall, move the player to the next space
+            if (!hasWall && nextSpace.getPlayer() == null) {
                 player.setSpace(nextSpace);
                 board.setCurrentPlayer(player);
             }

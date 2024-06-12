@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
+import java.util.EnumSet;
 
 
 /**
@@ -49,6 +50,8 @@ public class Space extends Subject {
     private final Heading sourceHeading;
     @Expose
     private final int index;
+    @Expose
+    private EnumSet<Heading> walls;
 
 
     public Image image;
@@ -67,6 +70,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.sourceHeading = Heading.NORTH;
         this.index = 0;
+        this.walls = EnumSet.noneOf(Heading.class);
         player = null;
         image = new Image(getClass().getResourceAsStream("/empty.png" ));
     }
@@ -88,6 +92,7 @@ public class Space extends Subject {
         this.heading = heading;
         this.sourceHeading = heading;
         this.index = 0;
+        this.walls = EnumSet.noneOf(Heading.class);
         player = null;
         image = new Image(getClass().getResourceAsStream("/empty.png" ));
     }
@@ -126,6 +131,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.sourceHeading = Heading.NORTH;
         this.index = index;
+        this.walls = EnumSet.noneOf(Heading.class);
         player = null;
         image = new Image(getClass().getResourceAsStream("/empty.png" ));
     }
@@ -172,6 +178,14 @@ public class Space extends Subject {
 
     }
 
+    public void addWall(Heading direction) {
+        walls.add(direction);
+    }
+
+    public boolean hasWall(Heading direction) {
+        return walls.contains(direction);
+    }
+
     /**
      * Activates effects of the space. This method will need to be called from
      * the controller every turn.
@@ -209,7 +223,7 @@ public class Space extends Subject {
                     // TODO: Implement PIT
                     return;
                 case ENERGY_SPACE:
-                   this.player.incrementEnergy(1);
+                    this.player.incrementEnergy(1);
                     return;
                 case CHECKPOINT:
                     // Checkpoint logic handled in move
