@@ -25,6 +25,7 @@ import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
 import java.util.EnumSet;
+import java.util.List;
 
 
 /**
@@ -117,6 +118,29 @@ public class Space extends Subject {
     }
 
     /**
+     * Constructs a new Space with walls specified.
+     * @param board The board to which this space belongs.
+     * @param x The x coordinate of this space on the board.
+     * @param y The y coordinate of this space on the board.
+     * @param walls The set of walls for this space.
+     */
+    public Space(Board board, int x, int y, List<Heading> walls) {
+        this.board = board;
+        this.x = x;
+        this.y = y;
+        this.type = ActionField.NORMAL;
+        this.heading = Heading.NORTH;
+        this.sourceHeading = Heading.NORTH;
+        this.index = 0;
+        this.walls = EnumSet.noneOf(Heading.class);
+        if (walls != null) {
+            this.walls.addAll(walls);
+        }
+        player = null;
+        image = new Image(getClass().getResourceAsStream("/empty.png"));
+    }
+
+    /**
      * Constructs a new CHECKPOINT type space
      * @param board The board to which this space belongs.
      * @param x The x coordinate of this space on the board.
@@ -134,6 +158,10 @@ public class Space extends Subject {
         this.walls = EnumSet.noneOf(Heading.class);
         player = null;
         image = new Image(getClass().getResourceAsStream("/empty.png" ));
+    }
+
+    public Heading getHeading() {
+        return heading;
     }
 
     public int getIndex() {
@@ -184,6 +212,10 @@ public class Space extends Subject {
 
     public boolean hasWall(Heading direction) {
         return walls.contains(direction);
+    }
+
+    public EnumSet<Heading> getWalls() {
+        return walls;
     }
 
     /**

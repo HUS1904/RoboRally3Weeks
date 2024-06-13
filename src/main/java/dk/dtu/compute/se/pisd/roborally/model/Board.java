@@ -75,7 +75,23 @@ public class Board extends Subject {
     private static final int MAX_PLAYERS = 6;
 
 
-
+    /**
+     * Retrieves the walls for the space at coordinates (x, y) from the course data.
+     *
+     * @param x the x-coordinate of the space
+     * @param y the y-coordinate of the space
+     * @return a list of headings representing the walls
+     */
+    private List<Heading> getWalls(int x, int y) {
+        List<Heading> walls = new ArrayList<>();
+        if (course != null && course.getSpaces() != null && y < course.getSpaces().size() && x < course.getSpaces().get(y).size()) {
+            Space courseSpace = course.getSpaces().get(y).get(x);
+            if (courseSpace != null && courseSpace.getWalls() != null) {
+                walls.addAll(courseSpace.getWalls());
+            }
+        }
+        return walls;
+    }
 
 
     /**
@@ -89,17 +105,19 @@ public class Board extends Subject {
         this.course = course;
         this.width = course.width;
         this.height = course.height;
-        spaces = new Space[width][height];
-        for (int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
+        this.spaces = new Space[width][height];
 
-                Space space = new Space(this, x, y,0);
+        // Initialize spaces with walls based on course data
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                List<Heading> walls = getWalls(x, y);
+                Space space = new Space(this, x, y, walls);
                 spaces[x][y] = space;
             }
         }
         this.stepMode = false;
-
     }
+
 
     /**
      * Constructs a new Board with the given Course and then retrives the Width and Height
