@@ -134,23 +134,17 @@ public class SpaceView extends StackPane implements ViewObserver {
             //LASERS OFF
             if (phase == Phase.PROGRAMMING) {
                 switch (s.getType()) {
-                    case BOARD_LASER_START ->
-                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START_OFF" + ".png")));
-                    case BOARD_LASER ->
-                            image.setImage(new Image(getClass().getResourceAsStream("/" + "NORMAL" + ".png")));
-                    case BOARD_LASER_END ->
-                            image.setImage(new Image(getClass().getResourceAsStream("/" + "WALL" + ".png")));
+                    case BOARD_LASER_START -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START_OFF" + ".png")));
+                    case BOARD_LASER -> image.setImage(new Image(getClass().getResourceAsStream("/" + "NORMAL" + ".png")));
+                    case BOARD_LASER_END -> image.setImage(new Image(getClass().getResourceAsStream("/" + "WALL" + ".png")));
                 }
             }
             //LASERS ON
             if (phase == Phase.ACTIVATION) {
                 switch (s.getType()) {
-                    case BOARD_LASER_START ->
-                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START" + ".png")));
-                    case BOARD_LASER ->
-                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png")));
-                    case BOARD_LASER_END ->
-                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_END" + ".png")));
+                    case BOARD_LASER_START -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START" + ".png")));
+                    case BOARD_LASER -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png")));
+                    case BOARD_LASER_END -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_END" + ".png")));
                 }
             }
 
