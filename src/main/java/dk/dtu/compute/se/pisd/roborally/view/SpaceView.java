@@ -32,8 +32,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.StrokeLineCap;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents the graphical view of a single space on the RoboRally game board. This class
@@ -114,13 +115,80 @@ public class SpaceView extends StackPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         Space s = this.space;
+        Board board = s.getBoard();
+        Phase phase = s.getPhase();
+
+        Set<ActionField> invalidValues = new HashSet<>();
+        invalidValues.add(ActionField.WALL);
+        invalidValues.add(ActionField.BOARD_LASER_START);
+        invalidValues.add(ActionField.BOARD_LASER_END);
+        invalidValues.add(ActionField.PRIORITY_ANTENNA);
+
         if (subject == s) {
-            switch (s.getHeading()){
+            switch (s.getHeading()) {
                 case EAST -> image.setRotate(90);
                 case WEST -> image.setRotate(-90);
                 case SOUTH -> image.setRotate(180);
             }
 
+            //LASERS OFF
+            if (phase == Phase.PROGRAMMING) {
+                switch (s.getType()) {
+                    case BOARD_LASER_START ->
+                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START_OFF" + ".png")));
+                    case BOARD_LASER ->
+                            image.setImage(new Image(getClass().getResourceAsStream("/" + "NORMAL" + ".png")));
+                    case BOARD_LASER_END ->
+                            image.setImage(new Image(getClass().getResourceAsStream("/" + "WALL" + ".png")));
+                }
+            }
+            //LASERS ON
+            if (phase == Phase.ACTIVATION) {
+                switch (s.getType()) {
+                    case BOARD_LASER_START ->
+                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START" + ".png")));
+                    case BOARD_LASER ->
+                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png")));
+                    case BOARD_LASER_END ->
+                            image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_END" + ".png")));
+                }
+            }
+
+//            //ROBOTLASERS
+//            for(int i = 0; i < board.getPlayerAmount(); i++){
+//                Player p = board.getPlayer(i);
+//                int x = p.getSpace().x;
+//                int y = p.getSpace().y;
+//
+//                while (board.getSpace(x,y).getType() != null && !invalidValues.contains(board.getSpace(x,y).getType())){
+//                    if ((x >= 0 && x < board.width) && (y >= 0 && y < board.height)) {
+//                        //PHASE = PROGRAMMING | LASERS = OFF
+//                        if(phase == Phase.PROGRAMMING){
+//                            insertHere.image.setImage(new Image(getClass().getResourceAsStream("/" + board.getSpace(x,y).getType() + ".png" )));
+//                        }
+//
+//                        //PHASE = ACTIVATION | LASERS = ON
+//                        if(phase == Phase.ACTIVATION && !p.getSpace().equals(s)){
+//                            insertHere.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png" )));
+//                        }
+//                    }
+//
+//                    switch (p.getHeading()) {
+//                        case NORTH:
+//                            y--;
+//                            break;
+//                        case EAST:
+//                            x++;
+//                            break;
+//                        case SOUTH:
+//                            y++;
+//                            break;
+//                        case WEST:
+//                            x--;
+//                            break;
+//                    }
+//                }
+//            }
             updatePlayer();
         }
     }

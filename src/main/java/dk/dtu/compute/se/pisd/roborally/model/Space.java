@@ -40,7 +40,7 @@ public class Space extends Subject {
     public  int y;
     private  Player player;
     @Expose
-    private final ActionField type;
+    private ActionField type;
     @Expose
     private final Heading heading;
     @Expose
@@ -110,6 +110,11 @@ public class Space extends Subject {
         return type;
     }
 
+    public void setType(ActionField t) {
+       this.type = t;
+       notifyChange();
+    }
+
     /**
      * Gets the player (robot) currently occupying this space, if any.
      * @return The player occupying this space, or null if the space is empty.
@@ -128,6 +133,10 @@ public class Space extends Subject {
      */
     public Heading getHeading(){
         return heading;
+    }
+
+    public Board getBoard(){
+        return board;
     }
 
     /**

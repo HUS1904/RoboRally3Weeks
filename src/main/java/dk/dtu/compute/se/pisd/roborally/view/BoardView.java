@@ -106,70 +106,7 @@ public class BoardView extends VBox implements ViewObserver {
                 for(int y = 0; y < board.height; y++) {
                     SpaceView s = spaces[x][y];
                     Space s1 = board.getSpace(x, y);
-
-                    //PHASE = PROGRAMMING | LASERS = OFF
-                    if(s1.getType() == ActionField.BOARD_LASER_START && phase == Phase.PROGRAMMING){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START_OFF" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER && phase == Phase.PROGRAMMING){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "ny2 (2)" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER_END && phase == Phase.PROGRAMMING){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "WALL" + ".png" )));
-                    }
-
-                    //PHASE = ACTIVATION | LASERS = ON
-                    if(s1.getType() == ActionField.BOARD_LASER_START && phase == Phase.ACTIVATION){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER && phase == Phase.ACTIVATION){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER_END && phase == Phase.ACTIVATION){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_END" + ".png" )));
-                    }
-
-
-                }
-            }
-
-            //ROBOTLASERS
-            Set<ActionField> invalidValues = new HashSet<>();
-            invalidValues.add(ActionField.WALL);
-            invalidValues.add(ActionField.BOARD_LASER_START);
-            invalidValues.add(ActionField.BOARD_LASER_END);
-            invalidValues.add(ActionField.PRIORITY_ANTENNA);
-
-            for(int i = 0; i < board.getPlayerAmount(); i++){
-                Player p = board.getPlayer(i);
-                int x = p.getSpace().x;
-                int y = p.getSpace().y;
-
-                while (board.getSpace(x,y).getType() != null && !invalidValues.contains(board.getSpace(x,y).getType())){
-                    //PHASE = PROGRAMMING | LASERS = OFF
-                    if(phase == Phase.PROGRAMMING){
-                        spaces[x][y].image.setImage(new Image(getClass().getResourceAsStream("/" + board.getSpace(x,y).getType() + ".png" )));
-                    }
-
-                    //PHASE = ACTIVATION | LASERS = ON
-                    if(phase == Phase.ACTIVATION && !p.getSpace().equals(board.getSpace(x, y))){
-                        spaces[x][y].image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png" )));
-                    }
-
-                    switch (p.getHeading()) {
-                        case NORTH:
-                            y--;
-                            break;
-                        case EAST:
-                            x++;
-                            break;
-                        case SOUTH:
-                            y++;
-                            break;
-                        case WEST:
-                            x--;
-                            break;
-                    }
+                    s.updateView(s1);
                 }
             }
             statusLabel.setText(board.getStatusMessage());

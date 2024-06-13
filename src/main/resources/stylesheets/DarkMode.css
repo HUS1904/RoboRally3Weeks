@@ -50,7 +50,6 @@
     -fx-text-fill: white;
 }
 .context-menu {
-    -fx-skin: "com.sun.javafx.scene.control.skin.ContextMenuSkin";
     -fx-background-color: #1e1e1e;
     -fx-border-width: 0.2px;
     -fx-border-color: black;
