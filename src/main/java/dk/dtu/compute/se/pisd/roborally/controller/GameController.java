@@ -132,7 +132,6 @@ public class GameController {
                         executeCommand(currentPlayer, command);
                     }
                 }
-
             }
         }
 
@@ -143,6 +142,21 @@ public class GameController {
         } else {
             startProgrammingPhase();
         }
+
+        int checkpoints = (int) board
+                .getSpacesList()
+                .stream()
+                .map(Space::getType)
+                .filter(ActionField.CHECKPOINT::equals)
+                .count();
+
+        if(board.getPlayers().stream().map(Player::getIndex).anyMatch(index -> index == checkpoints)) {
+            winGame();
+        }
+    }
+
+    public void winGame() {
+
     }
 
     /**

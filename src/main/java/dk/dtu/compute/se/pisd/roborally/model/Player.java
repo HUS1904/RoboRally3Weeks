@@ -58,7 +58,9 @@ public class Player extends Subject {
     @Expose
     public CommandCardField PlayerUpgradePerm;
 
+    @Expose
     private int index = 0;
+    @Expose
     public double distance;
 
     /**

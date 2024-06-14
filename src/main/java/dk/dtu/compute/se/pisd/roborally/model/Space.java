@@ -45,6 +45,7 @@ public class Space extends Subject {
     private final Heading heading;
     @Expose
     private final int index;
+    @Expose
     public Image image;
 
     /**

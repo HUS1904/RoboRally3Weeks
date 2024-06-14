@@ -21,6 +21,8 @@
  */
 package dk.dtu.compute.se.pisd.roborally.model;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Enumerates the various phases of a game turn in RoboRally. Each phase represents
  * a distinct stage of gameplay, from setting up the game to executing programmed
@@ -28,5 +30,6 @@ package dk.dtu.compute.se.pisd.roborally.model;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public enum Phase {
+    @Expose
     INITIALISATION, PROGRAMMING, ACTIVATION, PLAYER_INTERACTION
 }

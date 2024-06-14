@@ -62,6 +62,7 @@ public class Board extends Subject {
     @Expose
     private Phase phase = INITIALISATION;
 
+    @Expose
     private String Course;
 
     @Expose
@@ -269,6 +270,10 @@ public class Board extends Subject {
         }
     }
 
+    public ArrayList<Player> getPlayers() {
+        return new ArrayList<>(players);
+    }
+
     /**
      * Gets the current player whose turn it is.
      * @return the current player
@@ -397,6 +402,14 @@ public class Board extends Subject {
      */
     public int getPlayerAmount(){
         return this.players.size();
+    }
+
+    public ArrayList<Space> getSpacesList() {
+        ArrayList<Space> spacesList = new ArrayList<>();
+        for (Space[] space : spaces) {
+            spacesList.addAll(Arrays.asList(space));
+        }
+        return spacesList;
     }
 
     /**

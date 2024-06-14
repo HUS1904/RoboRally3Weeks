@@ -165,7 +165,7 @@ public class AppController implements Observer {
      //
 
     // making a directory path by combining the static driectoryoath and the filename provided by the user through the dialogue box
-        String directoryPath = "src/main/resources/saves/";
+        String directoryPath = "src/main/saves/";
 
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Save game");
