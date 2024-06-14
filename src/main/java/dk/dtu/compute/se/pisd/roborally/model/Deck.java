@@ -4,6 +4,7 @@ import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Deck {
 
@@ -17,19 +18,27 @@ public class Deck {
     public Deck(String type,GameController gameController) {
         this.gameController = gameController;
 
-        for (int i = 0; i < 52; i++) {
+        if (!Objects.equals(type, "upgrade")) {
+            for (int i = 0; i < 52; i++) {
 
-            deck.add(gameController.generateRandomCommandCard());
+                deck.add(gameController.generateRandomCommandCard());
+            }
+        } else {
+            for (int j = 0; j < 33; j++) {
+                deck.add(gameController.generateUpgradeCard());
+            }
         }
     }
 
-    public Deck generateUpgradeDeck(GameController gameController) {
+    //private Deck upgradeDeck = new Deck("upgrade", gameController);
+
+    public void generateUpgradeDeck(GameController gameController) {
         this.gameController = gameController;
 
         for (int i = 0; i < 33; i++) {
             upgradeDeck.add(gameController.generateUpgradeCard());
         }
-        return (Deck) upgradeDeck;
+        //return upgradeDeck;
     }
 
     public void shuffleDeck(){

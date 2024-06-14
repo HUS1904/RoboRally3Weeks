@@ -25,7 +25,9 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * The GameController class is responsible for managing the game logic and state transitions
@@ -100,7 +102,8 @@ public class GameController {
 
         // Make sure no damage-cards are generated
        for (int i = 0; i < commands.length; i++) {
-           if (commands[i] == Command.valueOf("SPAM")) {
+           if (commands[i] == Command.valueOf("SPAM") || commands[i] == Command.valueOf("RAMMINGGEAR")
+           || commands[i] == Command.valueOf("RECHARGE")) {
                commands[i] = commands[i-1];
            }
        }
@@ -126,17 +129,19 @@ public class GameController {
 
     public CommandCard generateUpgradeCard() {
         Command[] commands = Command.values();
-        int index;
+        List<Command> upgrades = new ArrayList<>();
 
-        CommandCard upgradeCard = null;
-        for (int i = 0; i < commands.length; i++) {
-            if (commands[i] == Command.valueOf("RECHARGE")) {
-                index = i;
-                upgradeCard = new CommandCard(commands[index], "upgrade");
+        for (Command command : commands) {
+            if (command == Command.valueOf("RECHARGE") || command == Command.valueOf("RAMMINGGEAR")) {
+                upgrades.add(command);
             }
         }
-        return upgradeCard;
+
+        int random = (int) (Math.random() * upgrades.size());
+        return new CommandCard(upgrades.get(random),"upgrade");
     }
+
+
 
 
     /**

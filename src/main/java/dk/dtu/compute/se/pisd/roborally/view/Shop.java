@@ -26,6 +26,8 @@ public class Shop extends VBox {
     public Shop(GameController gameController){
 
         this.deck = new Deck("upgrade",gameController);
+        this.deck.generateUpgradeDeck(gameController);
+        //this.deck = deck.generateUpgradeDeck(gameController);
         this.gameController = gameController;
         image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Facedown.png")));
 
@@ -52,6 +54,7 @@ public class Shop extends VBox {
 
 
         for(int i = 0; i< gameController.board.getPlayerAmount();i++) {
+            this.deck.generateUpgradeDeck(gameController);
             CommandCard commandCard = this.deck.deal();
             CommandCardField cardfield = new CommandCardField(gameController.board.getCurrentPlayer(),"upgrade");
             gameController.board.getShopFields().add(cardfield);
