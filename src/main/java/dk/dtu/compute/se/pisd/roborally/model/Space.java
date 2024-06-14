@@ -247,5 +247,9 @@ public class Space extends Subject {
 
     public Phase getPhase() {
         return board.getPhase();
+    public boolean isOccupiable() {
+        // Here, you can add any logic that determines if the space is occupiable.
+        // For now, let's assume a space is occupiable if there is no player on it.
+        return this.player == null;
     }
 }
