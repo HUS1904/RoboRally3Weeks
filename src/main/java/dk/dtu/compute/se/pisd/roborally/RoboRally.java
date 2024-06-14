@@ -27,12 +27,25 @@ import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.MapSelection;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
+import javafx.stage.StageStyle;
+
+import java.net.URL;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -43,14 +56,15 @@ import java.util.Objects;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class RoboRally extends Application {
-
     private static final int MIN_APP_WIDTH = 600;
-
     private Stage stage;
     private BorderPane boardRoot;
     // private RoboRallyMenuBar menuBar;
 
     public AppController appController;
+    private URL url;
+    private ImageView imgMode = new ImageView();;
+    private Scene primaryScene;
 
     /**
      * Initializes the application before the start method is called. This is where
@@ -72,37 +86,30 @@ public class RoboRally extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        Stage loadingStage = new Stage();
+        loadingStage.initStyle(StageStyle.TRANSPARENT);
 
         // Creating Icon in the setup-fase
-        Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png")));
+        Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Rally-Master.png")));
         primaryStage.getIcons().add(appIcon);
 
-        // Enable window resizing once the stage is shown
-        stage.showingProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                stage.setResizable(true);
+        Scene loadingScene = createLoadingScene();
+        loadingStage.setScene(loadingScene);
+        loadingStage.setResizable(false);
+        loadingStage.show();
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                Logger.getLogger(RoboRally.class.getName()).log(Level.SEVERE, null, e);
             }
-        });
-
-        appController = new AppController(this);
-
-        // create the primary scene with the a menu bar and a pane for
-        // the board view (which initially is empty); it will be filled
-        // when the user creates a new game or loads a game
-        RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
-        boardRoot = new BorderPane();
-        VBox vbox = new VBox(menuBar, boardRoot);
-        vbox.setMinWidth(MIN_APP_WIDTH);
-        Scene primaryScene = new Scene(vbox);
-
-        stage.setScene(primaryScene);
-        stage.setTitle("RoboRally");
-        stage.setOnCloseRequest(
-                e -> {
-                    e.consume();
-                    appController.exit();} );
-        stage.setResizable(true);
-        stage.show();
+            Platform.runLater(() -> {
+                loadingStage.close();
+                appController = new AppController(this);
+                setupMainScene(primaryStage);
+            });
+        }).start();
     }
 
     /**
@@ -118,6 +125,8 @@ public class RoboRally extends Application {
         if (gameController != null) {
             // create and add view for new board
             BoardView boardView = new BoardView(gameController);
+            gameController.setBoardView(boardView);
+            boardView.setId("board");
             boardRoot.setCenter(boardView);
         }
         // Waiting witch calling sizeToScene and shows, until everything is fully updated
@@ -128,6 +137,8 @@ public class RoboRally extends Application {
             // if stage shows, then its gonna maximize
             stage.setMaximized(true);
         }
+
+
     }
 
     public void createMapSlectionView(){
@@ -135,13 +146,87 @@ public class RoboRally extends Application {
 
             // create and add view for new board
             MapSelection mapselection = new MapSelection(appController);
+            mapselection.setId("mapselect");
             boardRoot.setCenter(mapselection);
 
         // Waiting witch calling sizeToScene and shows, until everything is fully updated
-
         stage.sizeToScene();
         stage.show();
+    }
 
+    private Scene createLoadingScene() {
+        VBox loadingRoot = new VBox(5);
+        loadingRoot.setAlignment(Pos.CENTER);
+        loadingRoot.setStyle("-fx-background-color: transparent;");
+
+        Image logoimg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Rally-Master.png")));
+        ImageView logo = new ImageView(logoimg);
+
+        logo.setFitHeight(200);
+        logo.setFitWidth(520);
+
+        Image loadingimg = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/loading.gif")));
+        ImageView loading = new ImageView(loadingimg);
+
+        loading.setFitHeight(150);
+        loading.setFitWidth(150);
+
+        VBox.setMargin(logo, new Insets(0, 0, 0, 0));
+        VBox.setMargin(loading, new Insets(-50, 0, 0, 0));
+        loadingRoot.getChildren().addAll(logo, loading);
+        Scene scene = new Scene(loadingRoot, 600, 400);
+        scene.setFill(Color.TRANSPARENT);
+        return scene;
+    }
+
+    private void setupMainScene(Stage stage) {
+        // create the primary scene with a menu bar and a pane for
+        // the board view (which initially is empty); it will be filled
+        // when the user creates a new game or loads a game
+        RoboRallyMenuBar menuBar = new RoboRallyMenuBar(appController);
+        menuBar.setId("menu");
+
+        boardRoot = new BorderPane();
+        boardRoot.setId("root");
+
+        Image image = new Image(getClass().getResourceAsStream("/dark.png" ));
+        imgMode.setImage(image);
+
+        imgMode.setFitHeight(25);  // Set the height of the image
+        imgMode.setFitWidth(25);   // Set the width of the image
+
+        Button mode = new Button();
+        mode.setId("circular-button");
+        mode.setGraphic(imgMode);  // Set the ImageView as the button's graphic
+        mode.setOnAction(actionEvent -> appController.changeMode());
+
+        HBox menuAndButton = new HBox();
+        menuAndButton.setId("menu-and-button");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setMargin(mode, new Insets(0, 10, 0, 0));
+        menuAndButton.getChildren().addAll(menuBar, spacer, mode);
+
+
+        VBox vbox = new VBox(menuAndButton, boardRoot);
+        vbox.setMinWidth(MIN_APP_WIDTH);
+        primaryScene = new Scene(vbox);
+
+        stage.setScene(primaryScene);
+        stage.setTitle("RoboRally");
+        stage.setOnCloseRequest(
+                e -> {
+                    e.consume();
+                    appController.exit();} );
+        stage.setResizable(true);
+        stage.show();
+
+        URL url = getClass().getResource("/stylesheets/LightMode.css");
+        if (url == null) {
+            System.out.println("Resource not found. Error!");
+        } else {
+            primaryScene.getStylesheets().add(url.toExternalForm());
+        }
     }
 
     /**
@@ -167,5 +252,17 @@ public class RoboRally extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public void setUrl(URL url) {
+        this.url = url;
+    }
+
+    public void setImgMode(Image img) {
+        imgMode.setImage(img);
+    }
+
+    public Scene getPrimaryScene() {
+        return primaryScene;
     }
 }

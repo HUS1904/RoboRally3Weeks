@@ -22,15 +22,18 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import dk.dtu.compute.se.pisd.roborally.model.Board;
-import dk.dtu.compute.se.pisd.roborally.model.Phase;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
-import dk.dtu.compute.se.pisd.roborally.model.Space;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import org.jetbrains.annotations.NotNull;
+
 import javafx.scene.image.Image;
 import java.io.InputStream;
+
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * Represents the graphical view of a single space on the RoboRally game board. This class
@@ -44,9 +47,21 @@ public class SpaceView extends StackPane implements ViewObserver {
     final public static int SPACE_HEIGHT = 60; // 60; // 75;
     final public static int SPACE_WIDTH = 60;  // 60; // 75;
 
+    private String altImage;
+
+    private boolean changeImage;
+
     public final Space space;
 
     public ImageView image;
+
+    public void setAltImage(String altImage) {
+        this.altImage = altImage;
+    }
+
+    public void setChangeImage(boolean b) {
+        this.changeImage = b;
+    }
 
     /**
      * Constructs a SpaceView for the specified Space.
@@ -112,12 +127,85 @@ public class SpaceView extends StackPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         Space s = this.space;
+        Board board = s.getBoard();
+        Phase phase = s.getPhase();
+
+        Set<ActionField> invalidValues = new HashSet<>();
+        invalidValues.add(ActionField.WALL);
+        invalidValues.add(ActionField.BOARD_LASER_START);
+        invalidValues.add(ActionField.BOARD_LASER_END);
+        invalidValues.add(ActionField.PRIORITY_ANTENNA);
+
         if (subject == s) {
             switch (s.getHeading()) {
                 case EAST -> image.setRotate(90);
                 case WEST -> image.setRotate(-90);
                 case SOUTH -> image.setRotate(180);
             }
+
+
+            String img = "/" + s.getType() + ".png";
+
+            //LASERS OFF
+            if (phase == Phase.PROGRAMMING) {
+                img = switch (s.getType()) {
+                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START_OFF" + ".png";
+                    case BOARD_LASER -> "/" + "NORMAL" + ".png";
+                    case BOARD_LASER_END -> "/" + "WALL" + ".png";
+                    default -> img;
+                };
+            }
+            //LASERS ON
+            if (phase == Phase.ACTIVATION) {
+                img = switch (s.getType()) {
+                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START" + ".png";
+                    case BOARD_LASER -> "/" + "BOARD_LASER" + ".png";
+                    case BOARD_LASER_END -> "/" + "BOARD_LASER_END" + ".png";
+                    default -> img;
+                };
+            }
+//            img = changeImage ? altImage : img;
+            image.setImage(new Image(getClass().getResourceAsStream(img)));
+//
+//            changeImage = false;
+
+//            //ROBOTLASERS
+//            for(int i = 0; i < board.getPlayerAmount(); i++){
+//                Player p = board.getPlayer(i);
+//                int x = p.getSpace().x;
+//                int y = p.getSpace().y;
+//
+//                while (board.getSpace(x,y).getType() != null && !invalidValues.contains(board.getSpace(x,y).getType())){
+//                    if ((x >= 0 && x < board.width) && (y >= 0 && y < board.height)) {
+//                        //PHASE = PROGRAMMING | LASERS = OFF
+//                        if(phase == Phase.PROGRAMMING){
+//                            insertHere.image.setImage(new Image(getClass().getResourceAsStream("/" + board.getSpace(x,y).getType() + ".png" )));
+//                        }
+//
+//                        //PHASE = ACTIVATION | LASERS = ON
+//                        if(phase == Phase.ACTIVATION && !p.getSpace().equals(s)){
+//                            insertHere.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png" )));
+//                        }
+//                    }
+//
+//                    switch (p.getHeading()) {
+//                        case NORTH:
+//                            y--;
+//                            break;
+//                        case EAST:
+//                            x++;
+//                            break;
+//                        case SOUTH:
+//                            y++;
+//                            break;
+//                        case WEST:
+//                            x--;
+//                            break;
+//                    }
+//                }
+//            }
+            updatePlayer();
+
         }
 
         updatePlayer();

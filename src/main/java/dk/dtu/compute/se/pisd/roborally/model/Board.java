@@ -21,8 +21,11 @@
  */
 package dk.dtu.compute.se.pisd.roborally.model;
 
+import com.beust.ah.A;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
+import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
@@ -351,6 +354,10 @@ public class Board extends Subject {
      */
     public Phase getPhase() {
         return phase;
+    }
+
+    public Space getSpaceView(int x, int y){
+        return spaces[x][y];
     }
 
     /**

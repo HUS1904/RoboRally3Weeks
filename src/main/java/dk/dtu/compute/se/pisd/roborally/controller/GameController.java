@@ -28,6 +28,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import dk.dtu.compute.se.pisd.roborally.view.BoardView;
+import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
+import javafx.scene.image.Image;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The GameController class is responsible for managing the game logic and state transitions
@@ -37,8 +44,10 @@ import java.util.List;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class GameController {
+    private boolean gearPhase = true;
 
     public Board board;
+   private BoardView boardView;
 
     /**
      * Constructs a GameController with the specified game board.
@@ -55,15 +64,22 @@ public class GameController {
      *
      * @param space the space to which the current player should move
      */
-    public void moveCurrentPlayerToSpace(@NotNull Space space) {
+    public void moveCurrentPlayerToSpace(@NotNull Space space)  {
+        if (!gearPhase) return;
         Player currentPlayer = board.getCurrentPlayer();
         if (currentPlayer != null) {
             // Check if the target space is occupied
-            if (space.getPlayer() == null) {
+            if (space.getPlayer() == null && space.getType() == ActionField.STARTING_GEAR) {
                 // Move the current player to the target space
                 currentPlayer.setSpace(space);
-
             }
+        }
+        if (board.getPlayers()
+                 .stream()
+                 .map(Player::getSpace)
+                 .map(Space::getType)
+                 .allMatch(ActionField.STARTING_GEAR::equals)) {
+            gearPhase = !gearPhase;
         }
     }
 
@@ -147,6 +163,7 @@ public class GameController {
      * the players visible for the current register.
      */
     public void finishProgrammingPhase() {
+        if (gearPhase) return;
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
@@ -177,27 +194,33 @@ public class GameController {
         }
 
         if (board.getStep() != 5) {
-            board.setStep(board.getStep() + 1);
-        } else {
-            for (int i = 0; i < board.getPlayersNumber(); i++) {
-                Player player = board.getPlayer(i);
-                if (player != null) {
-                    for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                        CommandCardField field = player.getProgramField(j);
-                        if (field.getCard() != null) {
-                            CommandCard card = field.getCard();
-                            player.getDeck().sendToDiscardPile(card);
+            activateSpaces();
+            //activateRobotLasers();
+
+            if (board.getStep() != 4) {
+                board.setStep(board.getStep() + 1);
+            } else {
+                for (int i = 0; i < board.getPlayersNumber(); i++) {
+                    Player player = board.getPlayer(i);
+                    if (player != null) {
+                        for (int j = 0; j < Player.NO_REGISTERS; j++) {
+                            CommandCardField field = player.getProgramField(j);
+                            if (field.getCard() != null) {
+                                CommandCard card = field.getCard();
+                                player.getDeck().sendToDiscardPile(card);
+                            }
                         }
-                    }
-                    for (int j = 0; j < Player.NO_CARDS; j++) {
-                        CommandCardField field = player.getCardField(j);
-                        if (field.getCard() != null) {
-                            CommandCard card = field.getCard();
-                            player.getDeck().sendToDiscardPile(card);
+                        for (int j = 0; j < Player.NO_CARDS; j++) {
+                            CommandCardField field = player.getCardField(j);
+                            if (field.getCard() != null) {
+                                CommandCard card = field.getCard();
+                                player.getDeck().sendToDiscardPile(card);
+                            }
                         }
                     }
                 }
             }
+
         }
         startProgrammingPhase();
         int currentStep = board.getStep();
@@ -219,6 +242,53 @@ public class GameController {
             }
         }
     }
+
+//    private void activateRobotLasers() {
+//        Set<ActionField> invalidValues = new HashSet<>();
+//        invalidValues.add(ActionField.WALL);
+//        invalidValues.add(ActionField.BOARD_LASER_START);
+//        invalidValues.add(ActionField.BOARD_LASER_END);
+//        invalidValues.add(ActionField.PRIORITY_ANTENNA);
+//
+//        for (int i = 0; i < board.getPlayerAmount(); i++) {
+//            Player p = board.getPlayer(i);
+//            Space s = p.getSpace();
+//            SpaceView[][] spaces = boardView.getSpaceViews();
+//            int x = p.getSpace().x;
+//            int y = p.getSpace().y;
+//
+//            while (board.getSpace(x,y).getType() != null && !invalidValues.contains(board.getSpace(x,y).getType())){
+//                if ((x >= 0 && x < board.width) && (y >= 0 && y < board.height)) {
+////                    //PHASE = PROGRAMMING | LASERS = OFF
+////                    if(board.getPhase() == Phase.PROGRAMMING){
+////                        spaces[x][y].setAltImage("/" + board.getSpace(x,y).getType() + ".png");
+////                        spaces[x][y].setChangeImage(true);
+////                    }
+//
+//                    //PHASE = ACTIVATION | LASERS = ON
+//                    if(board.getPhase() == Phase.ACTIVATION && !p.getSpace().equals(s)){
+//                        spaces[x][y].setAltImage("/" + "BOARD_LASER" + ".png");
+//                        spaces[x][y].setChangeImage(true);
+//                    }
+//                }
+//
+//                switch (p.getHeading()) {
+//                    case NORTH:
+//                        y--;
+//                        break;
+//                    case EAST:
+//                        x++;
+//                        break;
+//                    case SOUTH:
+//                        y++;
+//                        break;
+//                    case WEST:
+//                        x--;
+//                        break;
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Advances the game to the next step in the activation phase.
@@ -677,4 +747,5 @@ public class GameController {
             }
 
     }
+
 

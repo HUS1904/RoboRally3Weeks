@@ -1,0 +1,141 @@
+#menu-and-button{
+    -fx-background-color: #ACACAC;
+}
+
+#circular-button{
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-padding: 0;
+    -fx-margin-right: 10px;
+}
+
+#menu{
+    -fx-hgrow: ALWAYS;
+}
+
+.menu-bar {
+    -fx-background-color: #ACACAC;
+}
+.menu-bar .label {
+    -fx-font-size: 15.0 pt;
+    -fx-font-family: "poppins";
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-padding: 2.0px;
+}
+
+.menu-bar .menu-button:hover, .menu-bar .menu-button:focused, .menu-bar .menu-button:showing {
+    -fx-background: #007acc;
+    -fx-underline: true;
+}
+
+.menu-item {
+    -fx-background: #007acc;
+    -fx-padding: 0.0em 0.0em 0.0em 0.0em;
+
+}
+.menu-item .label{
+    -fx-font-size: 13.0 pt;
+    -fx-font-family: "poppins";
+    -fx-text-fill: black;
+}
+.menu-item .label:hover{
+    -fx-font-size: 14.0 pt;
+    -fx-background: #007acc ;
+    -fx-underline: true;
+    -fx-text-fill: black;
+}
+.context-menu {
+    -fx-background-color: white;
+    -fx-border-width: 0.2px;
+    -fx-border-color: black;
+    -fx-background-insets: 0.0, 1.0, 2.0;
+    -fx-background-radius: 0.0 6.0 6.0 6.0, 0.0 5.0 5.0 5.0, 0.0 4.0 4.0 4.0;
+    -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;
+}
+
+.choice-box{
+    -fx-background-color: white;
+    -fx-background-insets: 0.0, 1.0, 2.0;
+    -fx-background-radius: 0.0 6.0 6.0 6.0, 0.0 5.0 5.0 5.0, 0.0 4.0 4.0 4.0;
+    -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em;
+}
+
+.choice-box .label{
+    -fx-font-size: 15.0 pt;
+    -fx-font-family: "poppins";
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-padding: 2.0px;
+}
+
+#mapselect{
+    -fx-background-color: white;
+}
+
+#mapselect .button{
+    -fx-background-color: #ACACAC;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-font-size: 15.0pt;
+    -fx-padding: 5 10;
+    -fx-cursor: hand;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+}
+#mapselect .button:hover {
+    -fx-background-color: #007acc;
+}
+
+.button{
+    -fx-background-color: #ACACAC;
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-font-size: 10.0pt;
+    -fx-padding: 5 10;
+    -fx-cursor: hand;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+}
+
+.button:hover {
+    -fx-background-color: #007acc;
+}
+
+#board{
+    -fx-background-color: white;
+}
+
+.label{
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+    -fx-font-size: 8.0pt;
+}
+
+/* Tab menu bar */
+.tab-pane .tab-header-background {
+    -fx-background-color: #ACACAC; /* Slightly lighter blue for the tab menu background */
+}
+
+/* Style for each tab */
+.tab-pane .tab {
+    -fx-background-color: #ACACAC; /* Light blue for each tab */
+}
+
+.tab-pane .tab .tab-label{
+    -fx-font-size: 15.0 pt;
+    -fx-font-family: "poppins";
+    -fx-font-weight: bold;
+    -fx-padding: 2.0px;
+}
+
+
+.tab-pane .tab:selected {
+    -fx-background-color: white; /* Light blue for each tab */
+}
+
+

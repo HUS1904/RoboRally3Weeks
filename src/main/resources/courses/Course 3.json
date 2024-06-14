@@ -1,0 +1,937 @@
+{
+  "width": 13,
+  "height": 10,
+  "boardName": "LOST BEARINGS",
+  "spaces": [
+    [
+      {
+        "x": 0,
+        "y": 0,
+        "type": "RESPAWN",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "CONVEYOR_BELT",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "type": "CONVEYOR_BELT",
+        "heading": "SOUTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 7,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 8,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 9,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 10,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 11,
+        "type": "CONVEYOR_BELT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 0,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 1,
+        "y": 0,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "type": "STARTING_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "type": "CONVEYOR_BELT",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "type": "RIGHT_CONVEYOR_BELT",
+        "heading": "SOUTH",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 6,
+        "type": "CONVEYOR_BELT",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 7,
+        "type": "CONVEYOR_BELT",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 8,
+        "type": "CONVEYOR_BELT",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 9,
+        "type": "CONVEYOR_BELT",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 10,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 11,
+        "type": "RIGHT_CONVEYOR_BELT",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 1,
+        "y": 12,
+        "type": "CONVEYOR_BELT",
+        "heading": "WEST",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 2,
+        "y": 0,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "type": "WALL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "type": "ENERGY_SPACE",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 6,
+        "type": "PIT",
+        "heading": "SOUTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 7,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 8,
+        "type": "CHECKPOINT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 9,
+        "type": "PIT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 10,
+        "type": "ENERGY_SPACE",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 11,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 2,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 3,
+        "y": 0,
+        "type": "STARTING_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 1,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 4,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 5,
+        "type": "DOUBLE_CONVEYOR_BELT",
+        "heading": "SOUTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 6,
+        "type": "BOARD_LASER_END",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 7,
+        "type": "BOARD_LASER",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 8,
+        "type": "BOARD_LASER",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 9,
+        "type": "BOARD_LASER_START",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 10,
+        "type": "DOUBLE_CONVEYOR_BELT",
+        "heading": "SOUTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 11,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 3,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 4,
+        "y": 0,
+        "type": "PRIORITY_ANTENNA",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 1,
+        "type": "STARTING_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "type": "WALL",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 4,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 5,
+        "type": "LEFT_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 6,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 7,
+        "type": "ENERGY_SPACE",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 8,
+        "type": "LEFT_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 9,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 10,
+        "type": "RIGHT_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 11,
+        "type": "CHECKPOINT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 4,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 5,
+        "y": 0,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 1,
+        "type": "STARTING_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "type": "WALL",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 4,
+        "type": "CHECKPOINT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 5,
+        "type": "RIGHT_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 6,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 7,
+        "type": "RIGHT_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 8,
+        "type": "ENERGY_SPACE",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 9,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 10,
+        "type": "LEFT_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 11,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 5,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 6,
+        "y": 0,
+        "type": "STARTING_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 1,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 4,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "type": "DOUBLE_CONVEYOR_BELT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 6,
+        "type": "BOARD_LASER_START",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 7,
+        "type": "BOARD_LASER",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 8,
+        "type": "BOARD_LASER",
+        "heading": "WEST",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 9,
+        "type": "BOARD_LASER_END",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 10,
+        "type": "DOUBLE_CONVEYOR_BELT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 11,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 6,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 7,
+        "y": 0,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 1,
+        "type": "WALL",
+        "heading": "SOUTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 2,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 4,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 5,
+        "type": "ENERGY_SPACE",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 6,
+        "type": "PIT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 7,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 8,
+        "type": "CHECKPOINT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 9,
+        "type": "PIT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 10,
+        "type": "ENERGY_SPACE",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 11,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 7,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 8,
+        "y": 0,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 1,
+        "type": "STARTING_GEAR",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 2,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 3,
+        "type": "CONVEYOR_BELT",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 4,
+        "type": "RIGHT_CONVEYOR_BELT",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 5,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 6,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 7,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 8,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 9,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 10,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 11,
+        "type": "RIGHT_CONVEYOR_BELT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 8,
+        "y": 12,
+        "type": "CONVEYOR_BELT",
+        "heading": "EAST",
+        "index": 0
+      }
+    ],
+    [
+      {
+        "x": 9,
+        "y": 0,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 1,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 2,
+        "type": "CONVEYOR_BELT",
+        "heading": "EAST",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 3,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 4,
+        "type": "CONVEYOR_BELT",
+        "heading": "SOUTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 5,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 6,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 7,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 8,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 9,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 10,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 11,
+        "type": "CONVEYOR_BELT",
+        "heading": "NORTH",
+        "index": 0
+      },
+      {
+        "x": 9,
+        "y": 12,
+        "type": "NORMAL",
+        "heading": "NORTH",
+        "index": 0
+      }
+    ]
+  ]
+}
