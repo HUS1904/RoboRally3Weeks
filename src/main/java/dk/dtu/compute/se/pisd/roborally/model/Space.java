@@ -35,12 +35,12 @@ import javafx.scene.image.Image;
 public class Space extends Subject {
     public transient Board board;
     @Expose
-    public  int x;
+    public int x;
     @Expose
-    public  int y;
+    public int y;
 
 
-    private  Player player;
+    private Player player;
     @Expose
     private final ActionField type;
     @Expose
@@ -52,9 +52,10 @@ public class Space extends Subject {
 
     /**
      * Constructs a new Space with the specified board and coordinates.
+     *
      * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
      */
     public Space(Board board, int x, int y) {
         this.board = board;
@@ -64,7 +65,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.index = 0;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
+        image = new Image(getClass().getResourceAsStream("/NORMAL.png"));
     }
 
 
@@ -80,9 +81,10 @@ public class Space extends Subject {
 
     /**
      * Constructs a new ROTATING_CONVEYOR_BELT type space
-     * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
+     *
+     * @param board   The board to which this space belongs.
+     * @param x       The x coordinate of this space on the board.
+     * @param y       The y coordinate of this space on the board.
      * @param heading The heading to which the conveyor belt points
      */
     public Space(Board board, int x, int y, ActionField type, Heading heading) {
@@ -93,7 +95,7 @@ public class Space extends Subject {
         this.heading = heading;
         this.index = 0;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/" + this.type + ".png" ));
+        image = new Image(getClass().getResourceAsStream("/" + this.type + ".png"));
     }
 
     /**
@@ -104,15 +106,16 @@ public class Space extends Subject {
      * @return The current heading of the object, represented as an {@link Heading} enum.
      * @author Hussein Jarrah
      */
-    public Heading getHeading(){
+    public Heading getHeading() {
         return heading;
     }
 
     /**
      * Constructs a new CHECKPOINT type space
+     *
      * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
      * @param index The index corresponding to this checkpoint
      */
     public Space(Board board, int x, int y, int index) {
@@ -123,7 +126,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.index = index;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
+        image = new Image(getClass().getResourceAsStream("/NORMAL.png"));
     }
 
     public int getIndex() {
@@ -136,6 +139,7 @@ public class Space extends Subject {
 
     /**
      * Gets the player (robot) currently occupying this space, if any.
+     *
      * @return The player occupying this space, or null if the space is empty.
      */
     public Player getPlayer() {
@@ -145,6 +149,7 @@ public class Space extends Subject {
     /**
      * Sets or clears the player occupying this space. This method also ensures
      * consistency by updating the player's space reference accordingly.
+     *
      * @param player The new player to occupy this space, or null to clear the space.
      */
     public void setPlayer(Player player) {
@@ -173,7 +178,7 @@ public class Space extends Subject {
      * the controller every turn.
      */
     public void activate() {
-        if(player != null) {
+        if (player != null) {
             Heading oldHeading = player.getHeading();
             Player p = this.getPlayer();
             switch (type) {
@@ -247,7 +252,10 @@ public class Space extends Subject {
 
     public Phase getPhase() {
         return board.getPhase();
-    public boolean isOccupiable() {
+
+    }
+
+    public boolean isOccupiable () {
         // Here, you can add any logic that determines if the space is occupiable.
         // For now, let's assume a space is occupiable if there is no player on it.
         return this.player == null;
