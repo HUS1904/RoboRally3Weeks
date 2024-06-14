@@ -48,9 +48,21 @@ public class SpaceView extends StackPane implements ViewObserver {
     final public static int SPACE_HEIGHT = 60; // 60; // 75;
     final public static int SPACE_WIDTH = 60;  // 60; // 75;
 
+    private String altImage;
+
+    private boolean changeImage;
+
     public final Space space;
 
     public ImageView image;
+
+    public void setAltImage(String altImage) {
+        this.altImage = altImage;
+    }
+
+    public void setChangeImage(boolean b) {
+        this.changeImage = b;
+    }
 
     /**
      * Constructs a SpaceView for the specified Space.
@@ -131,22 +143,30 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case SOUTH -> image.setRotate(180);
             }
 
+            String img = "/" + s.getType() + ".png";
+
             //LASERS OFF
             if (phase == Phase.PROGRAMMING) {
-                switch (s.getType()) {
-                    case BOARD_LASER_START -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START_OFF" + ".png")));
-                    case BOARD_LASER -> image.setImage(new Image(getClass().getResourceAsStream("/" + "NORMAL" + ".png")));
-                    case BOARD_LASER_END -> image.setImage(new Image(getClass().getResourceAsStream("/" + "WALL" + ".png")));
-                }
+                img = switch (s.getType()) {
+                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START_OFF" + ".png";
+                    case BOARD_LASER -> "/" + "NORMAL" + ".png";
+                    case BOARD_LASER_END -> "/" + "WALL" + ".png";
+                    default -> img;
+                };
             }
             //LASERS ON
             if (phase == Phase.ACTIVATION) {
-                switch (s.getType()) {
-                    case BOARD_LASER_START -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START" + ".png")));
-                    case BOARD_LASER -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png")));
-                    case BOARD_LASER_END -> image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_END" + ".png")));
-                }
+                img = switch (s.getType()) {
+                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START" + ".png";
+                    case BOARD_LASER -> "/" + "BOARD_LASER" + ".png";
+                    case BOARD_LASER_END -> "/" + "BOARD_LASER_END" + ".png";
+                    default -> img;
+                };
             }
+//            img = changeImage ? altImage : img;
+            image.setImage(new Image(getClass().getResourceAsStream(img)));
+//
+//            changeImage = false;
 
 //            //ROBOTLASERS
 //            for(int i = 0; i < board.getPlayerAmount(); i++){

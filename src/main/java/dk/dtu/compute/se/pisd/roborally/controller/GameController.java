@@ -23,8 +23,13 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import dk.dtu.compute.se.pisd.roborally.view.BoardView;
+import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The GameController class is responsible for managing the game logic and state transitions
@@ -36,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 public class GameController {
 
    public Board board;
+   private BoardView boardView;
 
     /**
      * Constructs a GameController with the specified game board.
@@ -137,6 +143,7 @@ public class GameController {
         }
 
         activateSpaces();
+        //activateRobotLasers();
 
         if(board.getStep() != 4) {
             board.setStep(board.getStep() + 1);
@@ -144,6 +151,53 @@ public class GameController {
             startProgrammingPhase();
         }
     }
+
+//    private void activateRobotLasers() {
+//        Set<ActionField> invalidValues = new HashSet<>();
+//        invalidValues.add(ActionField.WALL);
+//        invalidValues.add(ActionField.BOARD_LASER_START);
+//        invalidValues.add(ActionField.BOARD_LASER_END);
+//        invalidValues.add(ActionField.PRIORITY_ANTENNA);
+//
+//        for (int i = 0; i < board.getPlayerAmount(); i++) {
+//            Player p = board.getPlayer(i);
+//            Space s = p.getSpace();
+//            SpaceView[][] spaces = boardView.getSpaceViews();
+//            int x = p.getSpace().x;
+//            int y = p.getSpace().y;
+//
+//            while (board.getSpace(x,y).getType() != null && !invalidValues.contains(board.getSpace(x,y).getType())){
+//                if ((x >= 0 && x < board.width) && (y >= 0 && y < board.height)) {
+////                    //PHASE = PROGRAMMING | LASERS = OFF
+////                    if(board.getPhase() == Phase.PROGRAMMING){
+////                        spaces[x][y].setAltImage("/" + board.getSpace(x,y).getType() + ".png");
+////                        spaces[x][y].setChangeImage(true);
+////                    }
+//
+//                    //PHASE = ACTIVATION | LASERS = ON
+//                    if(board.getPhase() == Phase.ACTIVATION && !p.getSpace().equals(s)){
+//                        spaces[x][y].setAltImage("/" + "BOARD_LASER" + ".png");
+//                        spaces[x][y].setChangeImage(true);
+//                    }
+//                }
+//
+//                switch (p.getHeading()) {
+//                    case NORTH:
+//                        y--;
+//                        break;
+//                    case EAST:
+//                        x++;
+//                        break;
+//                    case SOUTH:
+//                        y++;
+//                        break;
+//                    case WEST:
+//                        x--;
+//                        break;
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Activates all spaces on the game board by triggering their specific activation behavior.
@@ -490,4 +544,7 @@ public class GameController {
         assert false;
     }
 
+    public void setBoardView(BoardView b){
+        this.boardView = b;
+    }
 }

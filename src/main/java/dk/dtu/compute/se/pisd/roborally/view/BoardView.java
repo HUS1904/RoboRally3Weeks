@@ -33,6 +33,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,16 +45,11 @@ import java.util.Set;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class BoardView extends VBox implements ViewObserver {
-
     private Board board;
-
     private GridPane mainBoardPane;
     private SpaceView[][] spaces;
-
     private PlayersView playersView;
-
     private Label statusLabel;
-
     private SpaceEventHandler spaceEventHandler;
 
     /**
@@ -111,6 +107,10 @@ public class BoardView extends VBox implements ViewObserver {
             }
             statusLabel.setText(board.getStatusMessage());
         }
+    }
+
+    public SpaceView[][] getSpaceViews(){
+        return spaces;
     }
 
 
