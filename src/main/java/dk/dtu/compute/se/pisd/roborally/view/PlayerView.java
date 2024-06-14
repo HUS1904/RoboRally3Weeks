@@ -26,9 +26,7 @@ import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -154,8 +152,6 @@ public class PlayerView extends Tab implements ViewObserver {
             }
         }
 
-
-
         Label upgradeCards = new Label("Available upgrades");
         upgradesInvPane = new GridPane();
         upgradesInvPane.setVgap(2.0);
@@ -191,30 +187,11 @@ public class PlayerView extends Tab implements ViewObserver {
             );
             rectangle.setFill(gradient);
 
-
-
-
             energyCubes.add(rectangle,i,0);
         }
 
 
         // Set the fill of the rectangle to the gradient
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         top.getChildren().add(energyCubes);
         top.getChildren().add(playerInteractionPanel);
@@ -256,31 +233,30 @@ public class PlayerView extends Tab implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == player.board) {
-
-                for (int i = 0; i < Player.NO_REGISTERS; i++) {
-                    CardFieldView cardFieldView = programCardViews[i];
-                    if (cardFieldView != null) {
-                        if (player.board.getPhase() == Phase.PROGRAMMING) {
-                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
-                        } else {
-                            if (i < player.board.getStep()) {
+            for (int i = 0; i < Player.NO_REGISTERS; i++) {
+                CardFieldView cardFieldView = programCardViews[i];
+                if (cardFieldView != null) {
+                    if (player.board.getPhase() == Phase.PROGRAMMING) {
+                        cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                    } else {
+                        if (i < player.board.getStep()) {
+                            cardFieldView.setBackground(CardFieldView.BG_DONE);
+                        } else if (i == player.board.getStep()) {
+                            if (player.board.getCurrentPlayer() == player) {
+                                cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
+                            } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
                                 cardFieldView.setBackground(CardFieldView.BG_DONE);
-                            } else if (i == player.board.getStep()) {
-                                if (player.board.getCurrentPlayer() == player) {
-                                    cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
-                                } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
-                                    cardFieldView.setBackground(CardFieldView.BG_DONE);
-                                } else {
-                                    cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
-                                }
                             } else {
                                 cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                             }
+                        } else {
+                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                         }
                     }
                 }
+            }
 
-
+            // Handling non-interaction phases
             if (player.board.getPhase() != Phase.PLAYER_INTERACTION) {
                 if (!programPane.getChildren().contains(buttonPanel)) {
                     programPane.getChildren().remove(playerInteractionPanel);
@@ -311,58 +287,52 @@ public class PlayerView extends Tab implements ViewObserver {
                         stepButton.setDisable(true);
                 }
 
-
             } else {
-                if (!programPane.getChildren().contains(playerInteractionPanel)) {
-                    programPane.getChildren().remove(buttonPanel);
-                    programPane.add(playerInteractionPanel, Player.NO_REGISTERS, 0);
-                }
-                playerInteractionPanel.getChildren().clear();
-
-                if (player.board.getCurrentPlayer() == player) {
-                    // TODO Assignment V3: these buttons should be shown only when there is
-                    //      an interactive command card, and the buttons should represent
-                    //      the player's choices of the interactive command card. The
-                    //      following is just a mockup showing two options
-                    Button optionButton = new Button("Option1");
-                    optionButton.setOnAction( e -> gameController.notImplemented());
-                    optionButton.setDisable(false);
-                    playerInteractionPanel.getChildren().add(optionButton);
-
-                    optionButton = new Button("Option 2");
-                    optionButton.setOnAction( e -> gameController.notImplemented());
-                    optionButton.setDisable(false);
-                    playerInteractionPanel.getChildren().add(optionButton);
-                }
+                // Handle player interaction phase
+                handlePlayerInteraction();
             }
-        } else if (subject == player){
+        }
+    }
 
-            energyCubes.getChildren().clear();
-            for (int i = 0; i < player.getEnergy(); i++) {
-                Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
+    /**
+     * Updates the view based on changes to the observed player's state.
+     * This method is invoked in response to notifications from the observed subject.
+     */
+    private void handlePlayerInteraction() {
+        if (player.board.getCurrentPlayer() == player) {
+            int currentStep = player.board.getStep();
+            CommandCard card = player.getProgramField(currentStep).getCard();
+            if (card != null && card.command.isInteractive()) {
+                // Create a dialog for the command options
+                Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.setTitle("Choose an Option");
+                dialog.setHeaderText("Select your command:");
 
-                // Create a radial gradient for the shine effect
-                RadialGradient gradient = new RadialGradient(
-                        0,
-                        0,
-                        0.5,
-                        0.5,
-                        0.5,
-                        true,
-                        CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.WHITE),
-                        new Stop(1, Color.GREEN)
-                );
-                rectangle.setFill(gradient);
+                // Set up a custom pane for button layout
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setPadding(new Insets(20, 150, 10, 10));
 
+                int row = 0;
+                for (Command option : card.command.getOptions()) {
+                    Button optionButton = new Button(option.displayName);
+                    GridPane.setConstraints(optionButton, 0, row++);
+                    optionButton.setMaxWidth(Double.MAX_VALUE);
+                    grid.getChildren().add(optionButton);
 
+                    // Set action on button to execute command option and continue with the game
+                    optionButton.setOnAction(e -> {
+                        dialog.close();
+                        gameController.executeCommandOptionAndContinue(player, option);
+                    });
+                }
 
+                dialog.getDialogPane().setContent(grid);
+                dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL); // Add a cancel button to the dialog
 
-                energyCubes.add(rectangle,i,0);
+                dialog.showAndWait(); // Show dialog and wait for user response
             }
-
-
-
         }
     }
 }
