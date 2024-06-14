@@ -45,8 +45,7 @@ public class Space extends Subject {
     private final ActionField type;
     @Expose
     private final Heading heading;
-    @Expose
-    private final Heading sourceHeading;
+
     @Expose
     private final int index;
 
@@ -65,10 +64,9 @@ public class Space extends Subject {
         this.y = y;
         this.type = ActionField.NORMAL;
         this.heading = Heading.NORTH;
-        this.sourceHeading = Heading.NORTH;
         this.index = 0;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/empty.png" ));
+        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
     }
 
 
@@ -80,17 +78,7 @@ public class Space extends Subject {
      * @param type The type of action field located at this space
      * @param heading The heading the field is facing in
      */
-    public Space(Board board, int x, int y, ActionField type, Heading heading) {
-        this.board = board;
-        this.x = x;
-        this.y = y;
-        this.type = type;
-        this.heading = heading;
-        this.sourceHeading = heading;
-        this.index = 0;
-        player = null;
-        image = new Image(getClass().getResourceAsStream("/empty.png" ));
-    }
+
 
     /**
      * Constructs a new ROTATING_CONVEYOR_BELT type space
@@ -98,17 +86,28 @@ public class Space extends Subject {
      * @param x The x coordinate of this space on the board.
      * @param y The y coordinate of this space on the board.
      * @param heading The heading to which the conveyor belt points
-     * @param sourceHeading The heading from which the conveyor belt starts
      */
-    public Space(Board board, int x, int y, Heading heading, Heading sourceHeading) {
+    public Space(Board board, int x, int y, ActionField type, Heading heading) {
         this.board = board;
         this.x = x;
         this.y = y;
-        this.type = ActionField.ROTATING_CONVEYOR_BELT;
+        this.type = type;
         this.heading = heading;
-        this.sourceHeading = sourceHeading;
         this.index = 0;
         player = null;
+        image = new Image(getClass().getResourceAsStream("/" + this.type + ".png" ));
+    }
+
+    /**
+     * Retrieves the current heading of this object.
+     * The heading is typically used to determine the direction in which an object (such as a robot or a conveyor belt) is facing.
+     * This method is crucial for navigation and movement mechanics within the game, as it helps in determining the forward direction.
+     *
+     * @return The current heading of the object, represented as an {@link Heading} enum.
+     * @author Hussein Jarrah
+     */
+    public Heading getHeading(){
+        return heading;
     }
 
     /**
@@ -124,10 +123,9 @@ public class Space extends Subject {
         this.y = y;
         this.type = ActionField.CHECKPOINT;
         this.heading = Heading.NORTH;
-        this.sourceHeading = Heading.NORTH;
         this.index = index;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/empty.png" ));
+        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
     }
 
     public int getIndex() {
@@ -179,37 +177,51 @@ public class Space extends Subject {
     public void activate() {
         if(player != null) {
             Heading oldHeading = player.getHeading();
+            Player p = this.getPlayer();
             switch (type) {
+                case LEFT_CONVEYOR_BELT:
+                    p.setHeading(heading.prev());
+                    p.move(1);
+                    p.setHeading(oldHeading);
+                    break;
+                case RIGHT_CONVEYOR_BELT:
+                    p.setHeading(heading.next());
+                    p.move(1);
+                    p.setHeading(oldHeading);
+                    break;
                 case CONVEYOR_BELT:
-                    player.setHeading(heading);
-                    player.move(1);
-                    player.setHeading(oldHeading);
+                    p.setHeading(heading);
+                    p.move(1);
+                    p.setHeading(oldHeading);
                     break;
                 case PUSH_PANEL:
-                    //Logic for this to be activated at the end of a register
+                    p.setHeading(heading);
+                    p.move(1);
+                    p.setHeading(oldHeading);
                     break;
-                case DOUBLE_CONVEYOR_BELT:
-                    player.setHeading(heading);
-                    player.move(2);
-                    player.setHeading(oldHeading);
-                    break;
-                case ROTATING_CONVEYOR_BELT:
-                    if (player.getHeading() == sourceHeading) player.setHeading(heading);
+                case DOUBLE_CONVEYOR_BELT,
+                        DOUBLE_RIGHTTREE_CONVEYOR_BELT,
+                        DOUBLE_LEFTTREE_CONVEYOR_BELT:
+                    p.setHeading(heading);
+                    p.move(2);
+                    p.setHeading(oldHeading);
                     break;
                 case LEFT_GEAR:
-                    player.setHeading(player.getHeading().prev());
+                    p.setHeading(p.getHeading().prev());
                     break;
                 case RIGHT_GEAR:
-                    player.setHeading(player.getHeading().next());
+                    p.setHeading(p.getHeading().next());
                     break;
-                case BOARD_LASER:
+                case BOARD_LASER_START,
+                        BOARD_LASER,
+                        BOARD_LASER_END:
                     // TODO: Implement BOARD_LASER
                     return;
                 case PIT:
                     // TODO: Implement PIT
                     return;
                 case ENERGY_SPACE:
-                   this.player.incrementEnergy(1);
+                    // TODO: Implement ENERGY_SPACE
                     return;
                 case CHECKPOINT:
                     // Checkpoint logic handled in move
@@ -219,8 +231,9 @@ public class Space extends Subject {
                     return;
                 case PRIORITY_ANTENNA:
                     board.determineTurn(x, y);
-
                     return;
+                case RESPAWN:
+                    // TODO: Implement RESPAWN
                 default:
                     return;
             }
@@ -232,5 +245,9 @@ public class Space extends Subject {
         // also need to update when some player attributes change, the player can
         // notify the space of these changes by calling this method.
         notifyChange();
+    }
+
+    public Phase getPhase() {
+        return board.getPhase();
     }
 }

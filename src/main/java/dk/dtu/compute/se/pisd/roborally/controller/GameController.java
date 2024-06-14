@@ -174,6 +174,7 @@ public class GameController {
 
             }
         }
+
         if(board.getStep() != 5) {
             board.setStep(board.getStep() + 1);
         } else {
@@ -198,6 +199,13 @@ public class GameController {
             }
 
             startProgrammingPhase();
+        }
+    }
+    public void activateSpaces() {
+        for (int x = 0; x < board.width; x++) {
+            for (int y = 0; y < board.height; y++) {
+                board.getSpace(x, y).activate();
+            }
         }
     }
 

@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.model.Board;
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
 import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.model.Space;
 import javafx.scene.image.ImageView;
@@ -110,9 +111,16 @@ public class SpaceView extends StackPane implements ViewObserver {
      */
     @Override
     public void updateView(Subject subject) {
-        if (subject == this.space) {
-            updatePlayer();
+        Space s = this.space;
+        if (subject == s) {
+            switch (s.getHeading()) {
+                case EAST -> image.setRotate(90);
+                case WEST -> image.setRotate(-90);
+                case SOUTH -> image.setRotate(180);
+            }
         }
+
+        updatePlayer();
     }
 
 }

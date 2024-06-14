@@ -47,7 +47,7 @@ public class Board extends Subject {
     public final int height;
 
     @Expose
-    private Course course;
+    private Course Course;
 
     @Expose
     public final String boardName;
@@ -64,7 +64,7 @@ public class Board extends Subject {
     @Expose
     private Phase phase = INITIALISATION;
 
-    private Player Course;
+    private String course;
 
     @Expose
     private int step = 0;
@@ -88,19 +88,18 @@ public class Board extends Subject {
      */
     public Board(Course course, @NotNull String boardName) {
         this.boardName = boardName;
-        this.course = course;
+        this.Course = course;
         this.width = course.width;
         this.height = course.height;
         spaces = new Space[width][height];
+        ArrayList<ArrayList<Space>> courseSpaces = course.getSpaces();
         for (int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
-
-                Space space = new Space(this, x, y,0);
-                spaces[x][y] = space;
+            for(int y = 0; y < height; y++)  {
+                Space courseSpace = courseSpaces.get(y).get(x);
+                spaces[x][y] = createSpaceFromType(x, y, courseSpace);
             }
         }
         this.stepMode = false;
-
     }
 
     /**
@@ -123,6 +122,49 @@ public class Board extends Subject {
         this.stepMode = false;
     }
 
+    /**
+     * Creates a {@link Space} object based on the type specified in the {@link Space} object from the course.
+     * This method chooses the appropriate constructor for the {@link Space} class depending on the type of
+     * space described in the courseSpace object. It facilitates the initialization of spaces with specific
+     * attributes such as types, headings, and indexes, which are critical for setting up the game board.
+     *
+     * @param x The x-coordinate on the game board where the space is to be located.
+     * @param y The y-coordinate on the game board where the space is to be located.
+     * @param courseSpace The template {@link Space} object that contains the type and possibly additional
+     *                    properties needed to properly initialize a new {@link Space}.
+     * @return A new {@link Space} object initialized with properties specified in courseSpace and located
+     *         at the specified coordinates on the game board.
+     * @author Hussein Jarrah
+     */
+    private Space createSpaceFromType(int x, int y, Space courseSpace) {
+        if(courseSpace.getType() != null){
+            switch (courseSpace.getType()) {
+                case ENERGY_SPACE,
+                        CONVEYOR_BELT,
+                        DOUBLE_CONVEYOR_BELT,
+                        DOUBLE_LEFTTREE_CONVEYOR_BELT,
+                        DOUBLE_RIGHTTREE_CONVEYOR_BELT,
+                        RIGHT_CONVEYOR_BELT,
+                        LEFT_CONVEYOR_BELT,
+                        LEFT_GEAR,
+                        RIGHT_GEAR,
+                        STARTING_GEAR,
+                        RESPAWN,
+                        WALL,
+                        BOARD_LASER_START,
+                        BOARD_LASER,
+                        BOARD_LASER_END,
+                        PRIORITY_ANTENNA:
+                    return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading());
+                case CHECKPOINT:
+                    return new Space(this, x, y, courseSpace.getIndex());
+                default:
+                    return new Space(this, x, y);
+            }
+        }
+        return new Space(this, x, y);
+    }
+
     public Player findCorrespondingPlayer(Player player) {
         for(int i = 0; i< this.getPlayerAmount();i++){
             if(player.getName().equals(this.getPlayer(i).getName())){
@@ -131,6 +173,8 @@ public class Board extends Subject {
         }
         return null;
     }
+
+
 
     /**
      * Gets the unique game identifier for this board.
@@ -436,6 +480,8 @@ public class Board extends Subject {
     public int getPlayerAmount(){
         return this.players.size();
     }
+
+
 
     /**
      * Provides a status message about the current state of the game, including the phase, current player, and step.
