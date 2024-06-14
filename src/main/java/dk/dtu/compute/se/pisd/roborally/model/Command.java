@@ -46,7 +46,8 @@ public enum Command {
     Again("Again"),
     Power("Power Up"),
     SPAM("Spam"),
-    RECHARGE("Recha");
+    RECHARGE("Recha"),
+    RAMMINGGEAR("Ram"); 
 
     final public String displayName;
 
