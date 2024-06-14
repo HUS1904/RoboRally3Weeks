@@ -23,10 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
-import dk.dtu.compute.se.pisd.roborally.model.CommandCard;
-import dk.dtu.compute.se.pisd.roborally.model.CommandCardField;
-import dk.dtu.compute.se.pisd.roborally.model.Phase;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -37,6 +34,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 
 /**
  * The CardFieldView class provides the visual representation of a command card
@@ -51,7 +50,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     // This data format helps avoiding transfers of e.g. Strings from other
     // programs which can copy/paste Strings.
-    final public static  DataFormat ROBO_RALLY_CARD = new DataFormat("games/roborally/cards");
+    public static  DataFormat ROBO_RALLY_CARD_UPGRADE = new DataFormat("/games/roborally/upgrade");;
+
 
     final public static int CARDFIELD_WIDTH = 60;
     final public static int CARDFIELD_HEIGHT = 70;
@@ -74,12 +74,21 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     private GameController gameController;
 
+
+
     /**
      * Constructor for creating a view for a command card field.
      * @param gameController The game controller managing game logic and state.
      * @param field The command card field model associated with this view.
      */
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
+
+
+
+
+
+
+
         this.gameController = gameController;
         this.field = field;
 
@@ -120,6 +129,11 @@ public class CardFieldView extends GridPane implements ViewObserver {
         update(field);
     }
 
+
+
+
+
+
     private String cardFieldRepresentation(CommandCardField cardField) {
         if (cardField.player != null) {
 
@@ -134,6 +148,25 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 CommandCardField other = cardField.player.getCardField(i);
                 if (other == cardField) {
                     return "C," + i;
+                }
+            }
+
+                for (int i = 0; i < gameController.board.getShopFields().size(); i++) {
+                    CommandCardField other = gameController.board.getShopFields().get(i);
+                    if (other == cardField) {
+                        return "S," + i;
+                    }
+                }
+            for (int i = 0; i < Player.NO_UPGRADES ; i++) {
+                CommandCardField other = cardField.player.getUpgradeField(i);;
+                if (other == cardField) {
+                    return "U," + i;
+                }
+            }
+            for (int i = 0; i < gameController.board.getShopFields().size(); i++) {
+                CommandCardField other = cardField.player.getUpgradeInv(i);;
+                if (other == cardField) {
+                    return "I," + i;
                 }
             }
         }
@@ -151,11 +184,25 @@ public class CardFieldView extends GridPane implements ViewObserver {
                         return field.player.getProgramField(i);
                     }
                 } else if ("C".equals(strings[0])) {
-                    if (i < Player.NO_CARDS) {
+                    if (i < Player.NO_CARDS + 2) {
                         return field.player.getCardField(i);
                     }
+                } else if ("S".equals(strings[0])) {
+                    if (i < gameController.board.getShopFields().size()) {
+                        return gameController.board.getShopFields().get(i);
+                    } else if ("U".equals(strings[0])) {
+                        if (i < Player.NO_UPGRADES) {
+                            return field.player.getUpgradeField(i);
+                        }
+                    } else if ("I".equals(strings[0])) {
+                        if (i < Player.NO_UPGRADE_INV) {
+                            return field.player.getUpgradeInv(i);
+                        }
+                    }
                 }
+
             }
+
         }
         return null;
     }
@@ -200,18 +247,18 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 if (cardField != null &&
                         cardField.getCard() != null &&
                         cardField.player != null &&
-                        cardField.player.board != null &&
-                        cardField.player.board.getPhase().equals(Phase.PROGRAMMING)) {
+                        cardField.player.board != null) {
                     Dragboard db = source.startDragAndDrop(TransferMode.MOVE);
                     Image image = source.snapshot(null, null);
                     db.setDragView(image);
 
                     ClipboardContent content = new ClipboardContent();
-                    content.put(ROBO_RALLY_CARD, cardFieldRepresentation(cardField));
+                    content.put(ROBO_RALLY_CARD_UPGRADE, cardFieldRepresentation(cardField));
 
                     db.setContent(content);
                     source.setBackground(BG_DRAG);
                 }
+
             event.consume();
             }
 
@@ -223,17 +270,36 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
         @Override
         public void handle(DragEvent event) {
+
             Object t = event.getTarget();
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
                 CommandCardField cardField = target.field;
-                if (cardField != null &&
-                        (cardField.getCard() == null || event.getGestureSource() == target) &&
-                        cardField.player != null &&
-                        cardField.player.board != null) {
-                    if (event.getDragboard().hasContent(ROBO_RALLY_CARD)) {
-                        event.acceptTransferModes(TransferMode.MOVE);
+
+                // checking the phase becasue the turn nature differs from phase to phase
+                if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
+                    if (cardField != null &&
+                            (cardField.getCard() == null || event.getGestureSource() == target) &&
+                            cardField.player != null &&
+                            cardField.player.board != null && target.field.player == gameController.board.getCurrentTurn()) {
+                        CardFieldView source = (CardFieldView) event.getGestureSource();
+                        CommandCardField field = source.field;
+                        if (event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)  && field.getType().equals(cardField.getType())) {
+                            event.acceptTransferModes(TransferMode.MOVE);
+                        }
                     }
+                } else {
+                    if (cardField != null &&
+                            (cardField.getCard() == null || event.getGestureSource() == target) &&
+                            cardField.player != null &&
+                            cardField.player.board != null) {
+                        CardFieldView source = (CardFieldView) event.getGestureSource();
+                        CommandCardField field = source.field;
+                        if (event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE) && field.getType().equals(cardField.getType())) {
+                            event.acceptTransferModes(TransferMode.MOVE);
+                        }
+                    }
+
                 }
             }
             event.consume();
@@ -249,14 +315,36 @@ public class CardFieldView extends GridPane implements ViewObserver {
             if (t instanceof CardFieldView) {
                 CardFieldView target = (CardFieldView) t;
                 CommandCardField cardField = target.field;
-                if (cardField != null &&
-                        cardField.getCard() == null &&
-                        cardField.player != null &&
-                        cardField.player.board != null) {
-                    if (event.getGestureSource() != target &&
-                            event.getDragboard().hasContent(ROBO_RALLY_CARD)) {
-                        target.setBackground(BG_DROP);
+                // checking the phase becasue the turn nature differs from phase to phase
+                if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
+
+
+
+                    if (cardField != null &&
+                            cardField.getCard() == null &&
+                            cardField.player != null &&
+                            cardField.player.board != null) {
+                        CardFieldView source = (CardFieldView) event.getGestureSource();
+
+                        if (event.getGestureSource() != target &&
+                                event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)   && target.field.player == gameController.board.getCurrentTurn()) {
+                            target.setBackground(BG_DROP);
+                        }
                     }
+
+
+                } else{
+                    if (cardField != null &&
+                            cardField.getCard() == null &&
+                            cardField.player != null &&
+                            cardField.player.board != null) {
+                        CardFieldView source = (CardFieldView) event.getGestureSource();
+                        if (event.getGestureSource() != target &&
+                                event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)) {
+                            target.setBackground(BG_DROP);
+                        }
+                    }
+
                 }
             }
             event.consume();
@@ -277,7 +365,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                         cardField.player != null &&
                         cardField.player.board != null) {
                     if (event.getGestureSource() != target &&
-                            event.getDragboard().hasContent(ROBO_RALLY_CARD)) {
+                            event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)) {
                         target.setBackground(BG_DEFAULT);
                     }
                 }
@@ -298,25 +386,47 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
                 Dragboard db = event.getDragboard();
                 boolean success = false;
-                if (cardField != null &&
-                        cardField.getCard() == null &&
-                        cardField.player != null &&
-                        cardField.player.board != null) {
-                    if (event.getGestureSource() != target &&
-                            db.hasContent(ROBO_RALLY_CARD)) {
-                        Object object = db.getContent(ROBO_RALLY_CARD);
-                        if (object instanceof String) {
-                            CommandCardField source = cardFieldFromRepresentation((String) object);
-                            if (source != null && gameController.moveCards(source, cardField)) {
-                                // CommandCard card = source.getCard();
-                                // if (card != null) {
-                                // if (gameController.moveCards(source, cardField)) {
-                                    // cardField.setCard(card);
+                if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
+
+
+                    if (cardField != null &&
+                            cardField.getCard() == null &&
+                            cardField.player != null &&
+                            cardField.player.board != null && target.field.player == gameController.board.getCurrentTurn()) {
+                        if (event.getGestureSource() != target &&
+                                db.hasContent(ROBO_RALLY_CARD_UPGRADE)) {
+                            Object object = db.getContent(ROBO_RALLY_CARD_UPGRADE);
+                            if (object instanceof String) {
+                                CommandCardField source = cardFieldFromRepresentation((String) object);
+                                if (source != null && gameController.moveCards(source, cardField)) {
+                                    cardField.player.incrementEnergy(2);
                                     success = true;
-                                // }
+                                    // }
+                                }
                             }
                         }
                     }
+
+                } else {
+                    if (cardField != null &&
+                            cardField.getCard() == null &&
+                            cardField.player != null &&
+                            cardField.player.board != null) {
+                        if (event.getGestureSource() != target &&
+                                db.hasContent(ROBO_RALLY_CARD_UPGRADE)) {
+                            Object object = db.getContent(ROBO_RALLY_CARD_UPGRADE);
+                            if (object instanceof String) {
+                                CommandCardField source = cardFieldFromRepresentation((String) object);
+                                if (source != null && gameController.moveCards(source, cardField)) {
+
+                                    success = true;
+                                    // }
+                                }
+                            }
+                        }
+                    }
+
+
                 }
                 event.setDropCompleted(success);
                 target.setBackground(BG_DEFAULT);

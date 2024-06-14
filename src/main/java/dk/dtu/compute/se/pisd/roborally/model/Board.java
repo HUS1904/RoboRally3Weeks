@@ -23,9 +23,9 @@ package dk.dtu.compute.se.pisd.roborally.model;
 
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +47,7 @@ public class Board extends Subject {
     public final int height;
 
     @Expose
-    private Course course;
+    private Course Course;
 
     @Expose
     public final String boardName;
@@ -58,19 +58,23 @@ public class Board extends Subject {
     @Expose
     private  List<Player> players = new ArrayList<>();
     @Expose
+    private List<CommandCardField> shopFields = new ArrayList<>();
+    @Expose
     private Player current;
     @Expose
     private Phase phase = INITIALISATION;
-
     @Expose
-    private String Course;
-
+    private String course;
     @Expose
     private int step = 0;
     @Expose
     private boolean stepMode;
+    private static final int MAX_PLAYERS = 6;
+    private Player currentTurn;
 
-    private static final int MAX_PLAYERS = 6; // Example value to debug the code
+
+
+
 
     /**
      * Constructs a new Board with the given dimensions and name.
@@ -80,7 +84,7 @@ public class Board extends Subject {
      */
     public Board(Course course, @NotNull String boardName) {
         this.boardName = boardName;
-        this.course = course;
+        this.Course = course;
         this.width = course.width;
         this.height = course.height;
         spaces = new Space[width][height];
@@ -112,7 +116,6 @@ public class Board extends Subject {
             }
         }
         this.stepMode = false;
-
     }
 
     /**
@@ -133,21 +136,21 @@ public class Board extends Subject {
         if(courseSpace.getType() != null){
             switch (courseSpace.getType()) {
                 case ENERGY_SPACE,
-                     CONVEYOR_BELT,
-                     DOUBLE_CONVEYOR_BELT,
-                     DOUBLE_LEFTTREE_CONVEYOR_BELT,
-                     DOUBLE_RIGHTTREE_CONVEYOR_BELT,
-                     RIGHT_CONVEYOR_BELT,
-                     LEFT_CONVEYOR_BELT,
-                     LEFT_GEAR,
-                     RIGHT_GEAR,
-                     STARTING_GEAR,
-                     RESPAWN,
-                     WALL,
-                     BOARD_LASER_START,
-                     BOARD_LASER,
-                     BOARD_LASER_END,
-                     PRIORITY_ANTENNA:
+                        CONVEYOR_BELT,
+                        DOUBLE_CONVEYOR_BELT,
+                        DOUBLE_LEFTTREE_CONVEYOR_BELT,
+                        DOUBLE_RIGHTTREE_CONVEYOR_BELT,
+                        RIGHT_CONVEYOR_BELT,
+                        LEFT_CONVEYOR_BELT,
+                        LEFT_GEAR,
+                        RIGHT_GEAR,
+                        STARTING_GEAR,
+                        RESPAWN,
+                        WALL,
+                        BOARD_LASER_START,
+                        BOARD_LASER,
+                        BOARD_LASER_END,
+                        PRIORITY_ANTENNA:
                     return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading());
                 case CHECKPOINT:
                     return new Space(this, x, y, courseSpace.getIndex());
@@ -158,43 +161,92 @@ public class Board extends Subject {
         return new Space(this, x, y);
     }
 
+    public Player findCorrespondingPlayer(Player player) {
+        for(int i = 0; i< this.getPlayerAmount();i++){
+            if(player.getName().equals(this.getPlayer(i).getName())){
+                return this.getPlayer(i);
+            }
+        }
+        return null;
+    }
+
+
+
     /**
      * Gets the unique game identifier for this board.
      *
      * @return the game ID, or null if not set
      */
     public void determineTurn(int x, int y) {
-         int counter = 0;
+        int counter = 0;
+        System.out.println("size of players at the start of determineTurn: " + players.size());
         double[] distances = new double[players.size()];
-        List<Player> temp = new ArrayList<>();
+        ArrayList<Player> temp = new ArrayList<>();
 
-        for(Player player: players) {
+        for (Player player : players) {
             int dx = player.getSpace().x - x;
             int dy = player.getSpace().y - y;
 
-            double distance = Math.sqrt((dx*dx)+(dy*dy));
+            double distance = Math.sqrt((dx * dx) + (dy * dy));
 
             player.distance = distance;
             distances[counter] = distance;
-           }
+            counter++;
+        }
 
         double[] distancesSorted = Arrays.stream(distances).sorted().toArray();
 
-        for (int i = 0; i < distances.length; i++){
-            for (Player player: players){
-                if (player.distance == distancesSorted[0]){
+        for(int q = 0; q < distancesSorted.length;q++){
+            System.out.print("/" + distancesSorted[q]+ "/");
+        }
+
+        for (int i = 0; i < distances.length; i++) {
+            for (Player player : players) {
+                if (player.distance == distancesSorted[i]) {
+                    distancesSorted[i] = 8000;
+                    player.distance = 5000;
                     temp.add(player);
                 }
             }
         }
 
+
         players.clear();
         players.addAll(temp);
+        setCurrentTurn(players.get(0));
+        System.out.println(currentTurn.getName());
+    }
 
+
+
+        // moves the current turn to the next players in the current order of turns
+        public void moveCurrentTurn(){
+        Player currentTurn = getCurrentTurn();
+
+        for(Player player: players){
+            if(player == currentTurn){
+                if(!(players.indexOf(player) + 1 >= players.size())) {
+                    setCurrentTurn(players.get((players.indexOf(player)) + 1));
+                }
+            }
+        }
 
         }
 
-        // Sort distances array to determine order of players based on proximity
+
+
+        // sets the current turn
+
+        public void setCurrentTurn(Player player){
+            this.currentTurn = player;
+        }
+
+
+
+        // gets the player who's supposed to play
+       public Player getCurrentTurn(){
+        return currentTurn;
+       }
 
 
     /**
@@ -228,7 +280,6 @@ public class Board extends Subject {
         }
         return spaces[x][y];
     }
-
 
     /**
      * Returns the number of players currently on the board.
@@ -289,7 +340,7 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
-            notifyChange();
+
         }
     }
 
@@ -312,6 +363,11 @@ public class Board extends Subject {
             this.phase = phase;
             notifyChange();
         }
+    }
+
+
+    public List<CommandCardField> getShopFields() {
+        return shopFields;
     }
 
     /**
@@ -363,6 +419,21 @@ public class Board extends Subject {
         } else {
             return -1;
         }
+    }
+
+    /**
+     * method to get the player from the players list by using the name of the player as parameter
+     * @param representation the player whose number is queried
+     * @return the player that corresponds to the parameter name
+     */
+    public Player getPlayerRepresentation(String representation){
+        for (int i = 0; i < players.size();i++){
+            if(representation.equals(players.get(i).getName())){
+                return players.get(i);
+            }
+
+        }
+        return null;
     }
 
     /**

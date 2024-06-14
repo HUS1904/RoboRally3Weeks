@@ -38,6 +38,8 @@ public class Space extends Subject {
     public  int x;
     @Expose
     public  int y;
+
+
     private  Player player;
     @Expose
     private final ActionField type;
@@ -74,6 +76,15 @@ public class Space extends Subject {
      * @param type The type of action field located at this space
      * @param heading The heading the field is facing in
      */
+
+
+    /**
+     * Constructs a new ROTATING_CONVEYOR_BELT type space
+     * @param board The board to which this space belongs.
+     * @param x The x coordinate of this space on the board.
+     * @param y The y coordinate of this space on the board.
+     * @param heading The heading to which the conveyor belt points
+     */
     public Space(Board board, int x, int y, ActionField type, Heading heading) {
         this.board = board;
         this.x = x;
@@ -83,6 +94,18 @@ public class Space extends Subject {
         this.index = 0;
         player = null;
         image = new Image(getClass().getResourceAsStream("/" + this.type + ".png" ));
+    }
+
+    /**
+     * Retrieves the current heading of this object.
+     * The heading is typically used to determine the direction in which an object (such as a robot or a conveyor belt) is facing.
+     * This method is crucial for navigation and movement mechanics within the game, as it helps in determining the forward direction.
+     *
+     * @return The current heading of the object, represented as an {@link Heading} enum.
+     * @author Hussein Jarrah
+     */
+    public Heading getHeading(){
+        return heading;
     }
 
     /**
@@ -120,37 +143,29 @@ public class Space extends Subject {
     }
 
     /**
-     * Retrieves the current heading of this object.
-     * The heading is typically used to determine the direction in which an object (such as a robot or a conveyor belt) is facing.
-     * This method is crucial for navigation and movement mechanics within the game, as it helps in determining the forward direction.
-     *
-     * @return The current heading of the object, represented as an {@link Heading} enum.
-     * @author Hussein Jarrah
-     */
-    public Heading getHeading(){
-        return heading;
-    }
-
-    /**
      * Sets or clears the player occupying this space. This method also ensures
      * consistency by updating the player's space reference accordingly.
      * @param player The new player to occupy this space, or null to clear the space.
      */
     public void setPlayer(Player player) {
-        Player oldPlayer = this.player;
-        if (player != oldPlayer &&
-                (player == null || board == player.board)) {
-            this.player = player;
-            if (oldPlayer != null) {
-                // this should actually not happen
-                oldPlayer.setSpace(null);
-                notifyChange();
-            }
-            if (player != null) {
-                player.setSpace(this);
-            }
-            notifyChange();
-        }
+        this.player = player;
+        notifyChange();
+//        Player oldPlayer = this.player;
+//        if (player != oldPlayer &&
+//                (player == null || board == player.board)) {
+//            this.player = player;
+//            if (oldPlayer != null) {
+//                // this should actually not happen
+//                oldPlayer.setSpace(null);
+//                notifyChange();
+//            }
+//            if (player != null) {
+//                player.setSpace(this);
+//            }
+//
+//        }
+
+
     }
 
     /**
@@ -183,8 +198,8 @@ public class Space extends Subject {
                     p.setHeading(oldHeading);
                     break;
                 case DOUBLE_CONVEYOR_BELT,
-                     DOUBLE_RIGHTTREE_CONVEYOR_BELT,
-                     DOUBLE_LEFTTREE_CONVEYOR_BELT:
+                        DOUBLE_RIGHTTREE_CONVEYOR_BELT,
+                        DOUBLE_LEFTTREE_CONVEYOR_BELT:
                     p.setHeading(heading);
                     p.move(2);
                     p.setHeading(oldHeading);
@@ -196,8 +211,8 @@ public class Space extends Subject {
                     p.setHeading(p.getHeading().next());
                     break;
                 case BOARD_LASER_START,
-                     BOARD_LASER,
-                     BOARD_LASER_END:
+                        BOARD_LASER,
+                        BOARD_LASER_END:
                     // TODO: Implement BOARD_LASER
                     return;
                 case PIT:

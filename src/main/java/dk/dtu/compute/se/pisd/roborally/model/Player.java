@@ -23,8 +23,10 @@ package dk.dtu.compute.se.pisd.roborally.model;
 
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import org.jetbrains.annotations.NotNull;
 
+import static dk.dtu.compute.se.pisd.roborally.model.Command.SPAM;
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
 
 /**
@@ -38,6 +40,8 @@ public class Player extends Subject {
 
     final public static int NO_REGISTERS = 5;
     final public static int NO_CARDS = 8;
+    final public static int NO_UPGRADES = 3;
+    final public static int NO_UPGRADE_INV = 6;
 
 
     final transient public Board board;
@@ -54,14 +58,21 @@ public class Player extends Subject {
     @Expose
     private CommandCardField[] cards;
     @Expose
-    public CommandCardField PlayerUpgradeTmp;
+    private CommandCardField[] upgrades;
     @Expose
-    public CommandCardField PlayerUpgradePerm;
-
-    @Expose
+    private CommandCardField[] upgradeInv;
     private int index = 0;
     @Expose
     public double distance;
+    @Expose
+    public Phase phase;
+
+    private int energyCubes;
+
+
+    private Deck deck;
+
+    private GameController gameController;
 
     /**
      * Constructs a new Player with the specified board, color, and name.
@@ -70,26 +81,44 @@ public class Player extends Subject {
      * @param color the color representing the player
      * @param name the name of the player
      */
-    public Player(@NotNull Board board, String color, @NotNull String name) {
+    public Player(@NotNull Board board, String color, @NotNull String name,GameController gameController) {
         this.board = board;
         this.name = name;
         this.color = color;
+        this.energyCubes = 5;
 
         this.space = null;
+        this.phase = Phase.INITIALISATION;
+        this.gameController = gameController;
+
+        this.deck = new Deck("program",gameController);
 
         program = new CommandCardField[NO_REGISTERS];
         for (int i = 0; i < program.length; i++) {
-            program[i] = new CommandCardField(this);
+            program[i] = new CommandCardField(this,"program");
         }
 
         cards = new CommandCardField[NO_CARDS];
         for (int i = 0; i < cards.length; i++) {
-            cards[i] = new CommandCardField(this);
+            cards[i] = new CommandCardField(this,"program");
         }
 
-        PlayerUpgradeTmp = new CommandCardField(this);
-        PlayerUpgradePerm = new CommandCardField(this);
+        upgrades = new CommandCardField[3];
+        for (int i = 0; i < upgrades.length; i++) {
+             upgrades[i] = new CommandCardField(this,"upgrade");
+        }
+
+        upgradeInv  = new CommandCardField[6];
+        for (int i = 0; i < upgradeInv.length; i++) {
+            upgradeInv[i] = new CommandCardField(this,"upgrade");
+        }
+
+
+
     }
+
+
+
 
     /**
      * Gets the name of the player.
@@ -156,7 +185,7 @@ public class Player extends Subject {
             if (space != null) {
                 space.setPlayer(this);
             }
-            notifyChange();
+
         }
     }
 
@@ -200,6 +229,13 @@ public class Player extends Subject {
         return cards[i];
     }
 
+    public CommandCardField getUpgradeField(int i) {
+        return upgrades[i];
+    }
+    public CommandCardField getUpgradeInv(int i) {
+        return upgradeInv[i];
+    }
+
     public void incrementIndex() {
         index++;
     }
@@ -222,6 +258,9 @@ public class Player extends Subject {
             return;
         else if(nextSpace.getType() == ActionField.CHECKPOINT)
             incrementIndex();
+        else if(nextSpace.getType() == ActionField.BOARD_LASER)
+            deck.sendToDiscardPile(gameController.generateDamageCard());
+            System.out.println("1 card sent to discard-pile");
 
         setSpace(nextSpace);
     }
@@ -229,4 +268,31 @@ public class Player extends Subject {
     public int getIndex() {
         return index;
     }
+
+    /**
+     * Gets the amount of energy cubes the player has
+     * @return returns the amount of energy cubes
+     */
+    public int getEnergy(){
+        return this.energyCubes;
+    }
+
+    /**
+     * increments or decrements the players energy cubes
+     * @param amount can be either negative or positive
+     * @return returns the amount of energy cubes
+     */
+    public void incrementEnergy(int amount){
+
+        this.energyCubes += amount;
+
+        notifyChange();
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
 }
+
+
+

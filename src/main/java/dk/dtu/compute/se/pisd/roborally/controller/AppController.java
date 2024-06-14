@@ -1,3 +1,9 @@
+
+
+
+
+
+
 /*
  *  This file is part of the initial project provided for the
  *  course "Project in Software Development (02362)" held at
@@ -27,9 +33,7 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 
-import dk.dtu.compute.se.pisd.roborally.model.Board;
-import dk.dtu.compute.se.pisd.roborally.model.Player;
-import dk.dtu.compute.se.pisd.roborally.model.Course;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 
 
 import javafx.application.Platform;
@@ -125,18 +129,21 @@ public class AppController implements Observer {
         try {
             String jsonContent = new String(Files.readAllBytes(courseFile.toPath()));
             Course course = gson.fromJson(jsonContent,Course.class);
-            System.out.println(course.width);
-            System.out.println(course.height);
+
 
             gameController = new GameController(new Board(course,"e"));
 
             Board board =  gameController.board;
             int no = result.get();
             for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1));
+                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1),gameController);
                 board.addPlayer(player);
                 player.setSpace(board.getSpace(i % board.width, i));
             }
+
+            board.determineTurn(2,2);
+            board.setCurrentPlayer(board.getPlayer(0));
+
         } catch (IOException e){
 
         }
@@ -147,25 +154,26 @@ public class AppController implements Observer {
 
 
 
-        gameController.startProgrammingPhase();
 
-       roboRally.createBoardView(gameController);
+        gameController.board.setPhase(Phase.INITIALISATION);
+
+        roboRally.createBoardView(gameController);
     }
 
     /**
      * Saves the current game state. This method is intended for future implementation.
      */
     public void saveGame() {
-    // making the board into a Json String
+        // making the board into a Json String
         Board board = gameController.board;
         Gson gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
                 .create();
         String gsonString = gson.toJson(board);
-     //
 
-    // making a directory path by combining the static driectoryoath and the filename provided by the user through the dialogue box
-        String directoryPath = "src/main/saves/";
+        // making a directory path by combining the static driectoryoath and the filename provided by the user through the dialogue box
+        String directoryPath = "src/main/resources/saves/";
+
 
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Save game");
@@ -229,9 +237,18 @@ public class AppController implements Observer {
             String jsonContent = new String(Files.readAllBytes(selectedFile.toPath()));
 
             // Create a Gson object
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .create();
+
+            System.out.println(jsonContent);
 
             Board board = gson.fromJson(jsonContent,Board.class);
+
+
+
+
+
 
             Board newBoard = new Board(board.width,board.height);
             gameController = new GameController(newBoard);
@@ -239,18 +256,18 @@ public class AppController implements Observer {
 
             int no = board.getPlayerAmount();
             for (int i = 0; i < no; i++) {
-                Player player = new Player(newBoard, PLAYER_COLORS.get(i), "Player " + (i + 1));
+                Player player = new Player(newBoard, PLAYER_COLORS.get(i), "Player " + (i + 1),gameController);
                 newBoard.addPlayer(player);
                 player.setSpace(newBoard.getSpace(i % board.width, i));
-                gameController.moveTo(player,board.getPlayer(i).getSpace().x,board.getPlayer(i).getSpace().y);
+                gameController.moveTo(player,board.findCorrespondingPlayer(player).getSpace().x,board.findCorrespondingPlayer(player).getSpace().y);
                 player.setHeading(board.getPlayer(i).getHeading());
             }
 
+            newBoard.setCurrentPlayer(board.getPlayer(0));
 
-            gameController = new GameController(newBoard);
             gameController.reInitialize(board);
-
             roboRally.createBoardView(gameController);
+
 
 
 

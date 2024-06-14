@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,6 +32,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -46,21 +52,17 @@ public class PlayerView extends Tab implements ViewObserver {
 
     private VBox top;
 
-    private Label temporaryUpgrade;
-    private Label PermanentUpgrade;
-
-    private HBox Upgrade;
-
-    private HBox upgradeLabels;
-
-    private HBox labels;
     private Label programLabel;
     private GridPane programPane;
     private Label cardsLabel;
     private GridPane cardsPane;
+    private GridPane upgradesPane;
+    private GridPane upgradesInvPane;
 
     private CardFieldView[] programCardViews;
     private CardFieldView[] cardViews;
+    private CardFieldView[] upgradesViews;
+    private CardFieldView[] upgradesInvViews;
 
     private VBox buttonPanel;
 
@@ -69,6 +71,8 @@ public class PlayerView extends Tab implements ViewObserver {
     private Button stepButton;
 
     private VBox playerInteractionPanel;
+
+    private GridPane energyCubes;
 
     private GameController gameController;
 
@@ -136,34 +140,88 @@ public class PlayerView extends Tab implements ViewObserver {
             }
         }
 
-            // added the labels of the upgrade cardfields
 
-            temporaryUpgrade = new Label("TempUp");
-            PermanentUpgrade = new Label("PermUp");
-
-            upgradeLabels = new HBox();
-            upgradeLabels.setSpacing(30);
-
-            upgradeLabels.getChildren().add(temporaryUpgrade);
-            upgradeLabels.getChildren().add(PermanentUpgrade);
-            //
-
-            // adding the CardFieldViews for the Upgrade panel
-
-            Upgrade = new HBox(10,new CardFieldView(gameController,player.PlayerUpgradeTmp),new CardFieldView(gameController,player.PlayerUpgradePerm));
-            Upgrade.setSpacing(10);
+        Label currentUpgrades = new Label("Current Upgrades");
+        upgradesPane = new GridPane();
+        upgradesPane.setVgap(2.0);
+        upgradesPane.setHgap(2.0);
+        upgradesViews = new CardFieldView[Player.NO_UPGRADES];
+        for (int i = 0; i < Player.NO_UPGRADES; i++) {
+            CommandCardField cardField = player.getUpgradeField(i);
+            if (cardField != null) {
+                upgradesViews[i] = new CardFieldView(gameController, cardField);
+                upgradesPane.add(upgradesViews[i], i, 0);
+            }
+        }
 
 
-            //CardFieldView tmp = new CardFieldView(gameController,player.PlayerUpgradeTmp);
-           // CardFieldView perm = new CardFieldView(gameController,player.PlayerUpgradePerm);
+
+        Label upgradeCards = new Label("Available upgrades");
+        upgradesInvPane = new GridPane();
+        upgradesInvPane.setVgap(2.0);
+        upgradesInvPane.setHgap(2.0);
+        upgradesInvViews = new CardFieldView[Player.NO_UPGRADE_INV];
+        for (int i = 0; i < Player.NO_UPGRADE_INV; i++) {
+            CommandCardField cardField = player.getUpgradeInv(i);
+            if (cardField != null) {
+                upgradesInvViews[i] = new CardFieldView(gameController, cardField);
+                upgradesInvPane.add(upgradesInvViews[i], i, 0);
+            }
+        }
+
+        energyCubes = new GridPane();
+        energyCubes.setPadding(new Insets(4.0, 4.0, 4.0, 4.0));
+        energyCubes.setHgap(2.0);
 
 
-            //
+        for (int i = 0; i < player.getEnergy(); i++) {
+            Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
+
+            // Create a radial gradient for the shine effect
+            RadialGradient gradient = new RadialGradient(
+                    0,
+                    0,
+                    0.5,
+                    0.5,
+                    0.5,
+                    true,
+                    CycleMethod.NO_CYCLE,
+                    new Stop(0, Color.WHITE),
+                    new Stop(1, Color.GREEN)
+            );
+            rectangle.setFill(gradient);
 
 
+
+
+            energyCubes.add(rectangle,i,0);
+        }
+
+
+        // Set the fill of the rectangle to the gradient
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        top.getChildren().add(energyCubes);
         top.getChildren().add(playerInteractionPanel);
-        top.getChildren().add(upgradeLabels);
-        top.getChildren().add(Upgrade);
+        top.getChildren().add(currentUpgrades);
+        top.getChildren().add(upgradesPane);
+        top.getChildren().add(upgradeCards);
+        top.getChildren().add(upgradesInvPane);
         top.getChildren().add(programLabel);
         top.getChildren().add(programPane);
         top.getChildren().add(cardsLabel);
@@ -171,18 +229,24 @@ public class PlayerView extends Tab implements ViewObserver {
 
         if (player.board != null) {
             player.board.attach(this);
+            player.attach(this);
             update(player.board);
         }
+
+
 
         this.setOnSelectionChanged(event -> {
             if (isSelected()) {
                 this.player.board.setCurrentPlayer(this.player);
+                System.out.println(this.player.board.getCurrentPlayer().getName());
+                System.out.println(this.player.board.getCurrentTurn().getName());
                 this.player.board.getStatusMessage();
-                // Perform actions specific to when PlayerView tab is selected
             }
         });
 
     }
+
+
 
     /**
      * Updates the view based on changes to the observed player's state.
@@ -192,28 +256,30 @@ public class PlayerView extends Tab implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == player.board) {
-            for (int i = 0; i < Player.NO_REGISTERS; i++) {
-                CardFieldView cardFieldView = programCardViews[i];
-                if (cardFieldView != null) {
-                    if (player.board.getPhase() == Phase.PROGRAMMING ) {
-                        cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
-                    } else {
-                        if (i < player.board.getStep()) {
-                            cardFieldView.setBackground(CardFieldView.BG_DONE);
-                        } else if (i == player.board.getStep()) {
-                            if (player.board.getCurrentPlayer() == player) {
-                                cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
-                            } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
+
+                for (int i = 0; i < Player.NO_REGISTERS; i++) {
+                    CardFieldView cardFieldView = programCardViews[i];
+                    if (cardFieldView != null) {
+                        if (player.board.getPhase() == Phase.PROGRAMMING) {
+                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                        } else {
+                            if (i < player.board.getStep()) {
                                 cardFieldView.setBackground(CardFieldView.BG_DONE);
+                            } else if (i == player.board.getStep()) {
+                                if (player.board.getCurrentPlayer() == player) {
+                                    cardFieldView.setBackground(CardFieldView.BG_ACTIVE);
+                                } else if (player.board.getPlayerNumber(player.board.getCurrentPlayer()) > player.board.getPlayerNumber(player)) {
+                                    cardFieldView.setBackground(CardFieldView.BG_DONE);
+                                } else {
+                                    cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
+                                }
                             } else {
                                 cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                             }
-                        } else {
-                            cardFieldView.setBackground(CardFieldView.BG_DEFAULT);
                         }
                     }
                 }
-            }
+
 
             if (player.board.getPhase() != Phase.PLAYER_INTERACTION) {
                 if (!programPane.getChildren().contains(buttonPanel)) {
@@ -223,8 +289,6 @@ public class PlayerView extends Tab implements ViewObserver {
                 switch (player.board.getPhase()) {
                     case INITIALISATION:
                         finishButton.setDisable(true);
-                        // XXX just to make sure that there is a way for the player to get
-                        //     from the initialization phase to the programming phase somehow!
                         executeButton.setDisable(false);
                         stepButton.setDisable(true);
                         break;
@@ -271,6 +335,34 @@ public class PlayerView extends Tab implements ViewObserver {
                     playerInteractionPanel.getChildren().add(optionButton);
                 }
             }
+        } else if (subject == player){
+
+            energyCubes.getChildren().clear();
+            for (int i = 0; i < player.getEnergy(); i++) {
+                Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
+
+                // Create a radial gradient for the shine effect
+                RadialGradient gradient = new RadialGradient(
+                        0,
+                        0,
+                        0.5,
+                        0.5,
+                        0.5,
+                        true,
+                        CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.WHITE),
+                        new Stop(1, Color.GREEN)
+                );
+                rectangle.setFill(gradient);
+
+
+
+
+                energyCubes.add(rectangle,i,0);
+            }
+
+
+
         }
     }
 }

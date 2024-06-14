@@ -1,3 +1,4 @@
+
 /*
  *  This file is part of the initial project provided for the
  *  course "Project in Software Development (02362)" held at
@@ -23,10 +24,12 @@ package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
-import dk.dtu.compute.se.pisd.roborally.model.*;
+import dk.dtu.compute.se.pisd.roborally.model.Board;
+import dk.dtu.compute.se.pisd.roborally.model.Phase;
+import dk.dtu.compute.se.pisd.roborally.model.Player;
+import dk.dtu.compute.se.pisd.roborally.model.Space;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -52,6 +55,8 @@ public class BoardView extends VBox implements ViewObserver {
 
     private SpaceEventHandler spaceEventHandler;
 
+    private Shop shop;
+
     /**
      * Constructs a BoardView associated with a given game controller, initializing
      * the visual components for each space on the board and setting up event handlers
@@ -65,10 +70,7 @@ public class BoardView extends VBox implements ViewObserver {
         mainBoardPane = new GridPane();
         playersView = new PlayersView(gameController);
         statusLabel = new Label("<no status>");
-
-        this.getChildren().add(mainBoardPane);
-        this.getChildren().add(playersView);
-        this.getChildren().add(statusLabel);
+        shop = new Shop(gameController);
 
         spaces = new SpaceView[board.width][board.height];
 
@@ -97,38 +99,16 @@ public class BoardView extends VBox implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == board) {
+            this.getChildren().clear();
             Phase phase = board.getPhase();
-            for (int x = 0; x < board.width; x++) {
-                for(int y = 0; y < board.height; y++) {
-                    SpaceView s = spaces[x][y];
-                    Space s1 = board.getSpace(x, y);
-                    if(s1.getType() == ActionField.BOARD_LASER_START && phase == Phase.PROGRAMMING){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START_OFF" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER && phase == Phase.PROGRAMMING){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "NORMAL" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER_END && phase == Phase.PROGRAMMING){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "WALL" + ".png" )));
-                    }
-
-
-                    if(s1.getType() == ActionField.BOARD_LASER_START && phase == Phase.ACTIVATION){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_START" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER && phase == Phase.ACTIVATION){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png" )));
-                    }
-                    else if(s1.getType() == ActionField.BOARD_LASER_END && phase == Phase.ACTIVATION){
-                        s.image.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER_END" + ".png" )));
-                    }
-                }
-            }
             statusLabel.setText(board.getStatusMessage());
+            if(phase == Phase.INITIALISATION){
+                this.getChildren().addAll(shop,playersView,statusLabel);
+            } else{
+                this.getChildren().addAll(mainBoardPane,playersView,statusLabel);
+            }
         }
     }
-
-
 
     // XXX this handler and its uses should eventually be deleted! This is just to help test the
     //     behaviour of the game by being able to explicitly move the players on the board!
