@@ -9,6 +9,7 @@ public class Deck {
 
     private List<CommandCard> deck = new ArrayList<>();
     private List<CommandCard> discardPile = new ArrayList<>();
+    private List<CommandCard> upgradeDeck = new ArrayList<>();
 
    private GameController gameController;
 
@@ -20,6 +21,15 @@ public class Deck {
 
             deck.add(gameController.generateRandomCommandCard());
         }
+    }
+
+    public Deck generateUpgradeDeck(GameController gameController) {
+        this.gameController = gameController;
+
+        for (int i = 0; i < 33; i++) {
+            upgradeDeck.add(gameController.generateUpgradeCard());
+        }
+        return (Deck) upgradeDeck;
     }
 
     public void shuffleDeck(){

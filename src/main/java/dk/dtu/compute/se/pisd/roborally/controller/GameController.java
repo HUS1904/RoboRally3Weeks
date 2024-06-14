@@ -25,6 +25,8 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 /**
  * The GameController class is responsible for managing the game logic and state transitions
  * within the RoboRally game. It coordinates the execution of game phases, handling player
@@ -120,6 +122,20 @@ public class GameController {
         }
 
         return new CommandCard(commands[index], "damage");
+    }
+
+    public CommandCard generateUpgradeCard() {
+        Command[] commands = Command.values();
+        int index;
+
+        CommandCard upgradeCard = null;
+        for (int i = 0; i < commands.length; i++) {
+            if (commands[i] == Command.valueOf("RECHARGE")) {
+                index = i;
+                upgradeCard = new CommandCard(commands[index], "upgrade");
+            }
+        }
+        return upgradeCard;
     }
 
 
