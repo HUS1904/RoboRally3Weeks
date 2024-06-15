@@ -182,7 +182,6 @@ public class Board extends Subject {
      */
     public void determineTurn(int x, int y) {
         int counter = 0;
-        System.out.println("size of players at the start of determineTurn: " + players.size());
         double[] distances = new double[players.size()];
         ArrayList<Player> temp = new ArrayList<>();
 
@@ -217,7 +216,6 @@ public class Board extends Subject {
         players.clear();
         players.addAll(temp);
         setCurrentTurn(players.get(0));
-        System.out.println(currentTurn.getName());
     }
 
 

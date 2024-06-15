@@ -90,7 +90,6 @@ public class GameController {
      */
     public void startProgrammingPhase() {
         board.setPhase(Phase.PROGRAMMING);
-        board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
         for (int i = 0; i < board.getPlayersNumber(); i++) {
@@ -167,7 +166,6 @@ public class GameController {
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
-        board.setCurrentPlayer(board.getPlayer(0));
         board.setStep(0);
 
     }
@@ -186,20 +184,33 @@ public class GameController {
                 if (step >= 0 && step < Player.NO_REGISTERS) {
                     CommandCard card = currentPlayer.getProgramField(step).getCard();
                     if (card != null) {
-                        Command command = card.command;
-                        executeCommand(currentPlayer, command);
+                        if (card.command.isInteractive()) {
+                            // Set to interaction phase, but don't advance the step
+                            board.setPhase(Phase.PLAYER_INTERACTION);
+                            // Interaction handling will occur here (show dialog, etc.)
+                        } else {
+                            // Execute non-interactive command
+                            executeCommand(currentPlayer, card.command);
+                            // Optionally wait for user to trigger next step manually
+                            // If automatically proceeding:
+
+
+
+                        }
                     }
+
                 }
             }
         }
+        advanceStep();
+        
 
-        if (board.getStep() != 5) {
-            activateSpaces();
+
+
             //activateRobotLasers();
 
-            if (board.getStep() != 4) {
-                board.setStep(board.getStep() + 1);
-            } else {
+
+
                 for (int i = 0; i < board.getPlayersNumber(); i++) {
                     Player player = board.getPlayer(i);
                     if (player != null) {
@@ -218,30 +229,15 @@ public class GameController {
                             }
                         }
                     }
-                }
-            }
+
+
 
         }
-        startProgrammingPhase();
-        int currentStep = board.getStep();
-        Player currentPlayer = board.getCurrentPlayer();
-        if (currentStep >= 0 && currentStep < Player.NO_REGISTERS && currentPlayer != null) {
-            CommandCard card = currentPlayer.getProgramField(currentStep).getCard();
-            if (card != null) {
-                if (card.command.isInteractive()) {
-                    // Set to interaction phase, but don't advance the step
-                    board.setPhase(Phase.PLAYER_INTERACTION);
-                    // Interaction handling will occur here (show dialog, etc.)
-                } else {
-                    // Execute non-interactive command
-                    executeCommand(currentPlayer, card.command);
-                    // Optionally wait for user to trigger next step manually
-                    // If automatically proceeding:
-                    advanceStep();
-                }
-            }
-        }
+
+
     }
+
+
 
 //    private void activateRobotLasers() {
 //        Set<ActionField> invalidValues = new HashSet<>();
@@ -497,19 +493,11 @@ public class GameController {
         int newY = currentSpace.y;
         int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
 
-        Heading heading = player.getHeading();
-        if (board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName() != null) {
-            if (board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("Back up")) {
-                heading = heading.next().next();
-                ;
-            }
-        }
 
-        int currentX = currentSpace.x;
-        int currentY = currentSpace.y;
 
-        int nextX = currentX;
-        int nextY = currentY;
+
+
+
 
         for (int i = 0; i < Math.abs(numSpaces); i++) {
             // Calculate the new position based on the player's heading and the direction multiplier
@@ -689,7 +677,6 @@ public class GameController {
                     if (secondNextSpace.getPlayer() == null) {
                         currentSpace.setPlayer(null);
                         secondNextSpace.setPlayer(player);
-                        board.setCurrentPlayer(player);
                     }
                 }
             }

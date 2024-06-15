@@ -215,8 +215,6 @@ public class PlayerView extends Tab implements ViewObserver {
         this.setOnSelectionChanged(event -> {
             if (isSelected()) {
                 this.player.board.setCurrentPlayer(this.player);
-                System.out.println(this.player.board.getCurrentPlayer().getName());
-                System.out.println(this.player.board.getCurrentTurn().getName());
                 this.player.board.getStatusMessage();
             }
         });
@@ -291,6 +289,28 @@ public class PlayerView extends Tab implements ViewObserver {
                 // Handle player interaction phase
                 handlePlayerInteraction();
             }
+        } else{
+            energyCubes.getChildren().clear();
+            for (int i = 0; i < player.getEnergy(); i++) {
+                Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
+
+                // Create a radial gradient for the shine effect
+                RadialGradient gradient = new RadialGradient(
+                        0,
+                        0,
+                        0.5,
+                        0.5,
+                        0.5,
+                        true,
+                        CycleMethod.NO_CYCLE,
+                        new Stop(0, Color.WHITE),
+                        new Stop(1, Color.GREEN)
+                );
+                rectangle.setFill(gradient);
+
+                energyCubes.add(rectangle,i,0);
+            }
+
         }
     }
 
