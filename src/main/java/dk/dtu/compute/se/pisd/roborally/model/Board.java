@@ -135,7 +135,7 @@ public class Board extends Subject {
      *         at the specified coordinates on the game board.
      * @author Hussein Jarrah
      */
-    private Space createSpaceFromType(int x, int y, Space courseSpace) {
+    public Space createSpaceFromType(int x, int y, Space courseSpace) {
         if(courseSpace.getType() != null){
             switch (courseSpace.getType()) {
                 case ENERGY_SPACE,
@@ -171,6 +171,12 @@ public class Board extends Subject {
             }
         }
         return null;
+    }
+
+
+
+    public Course getCourse(){
+        return Course;
     }
 
 
@@ -281,6 +287,8 @@ public class Board extends Subject {
         }
         return spaces[x][y];
     }
+
+
 
     /**
      * Returns the number of players currently on the board.

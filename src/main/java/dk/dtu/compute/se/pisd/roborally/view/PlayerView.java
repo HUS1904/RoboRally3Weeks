@@ -50,6 +50,11 @@ public class PlayerView extends Tab implements ViewObserver {
 
     private VBox top;
 
+    private HBox programCards;
+
+    private VBox progLabelAndCards;
+    private VBox progInvLabelAndCards;
+
     private Label programLabel;
     private GridPane programPane;
     private Label cardsLabel;
@@ -190,6 +195,12 @@ public class PlayerView extends Tab implements ViewObserver {
             energyCubes.add(rectangle,i,0);
         }
 
+        progInvLabelAndCards = new VBox(cardsLabel,cardsPane);
+        progLabelAndCards = new VBox(programLabel
+        ,programPane);
+
+        programCards = new HBox(30,progInvLabelAndCards,progLabelAndCards);
+
 
         // Set the fill of the rectangle to the gradient
 
@@ -199,10 +210,7 @@ public class PlayerView extends Tab implements ViewObserver {
         top.getChildren().add(upgradesPane);
         top.getChildren().add(upgradeCards);
         top.getChildren().add(upgradesInvPane);
-        top.getChildren().add(programLabel);
-        top.getChildren().add(programPane);
-        top.getChildren().add(cardsLabel);
-        top.getChildren().add(cardsPane);
+        top.getChildren().add(programCards);
 
         if (player.board != null) {
             player.board.attach(this);

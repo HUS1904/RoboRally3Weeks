@@ -595,6 +595,8 @@ public class GameController {
             }
 
             public void reInitialize (Board board){
+
+
                 Phase phase = board.getPhase();
                 switch (phase) {
                     case PROGRAMMING:
@@ -635,51 +637,34 @@ public class GameController {
 
                         }
                     }
-                }
-            }
 
-            /**
-             * Moves the player's robot forward by two spaces, if possible, to simulate the Fast Forward command.
-             * @param player the player whose robot should move forward quickly
-             */
-            public void fastForward (Player player){
-                Space currentSpace = player.getSpace();
-                Heading heading = player.getHeading();
+                    for (int k = 0; k < Player.NO_UPGRADES; k++) {
+                        CommandCardField field = player.getUpgradeField(k);
+                        CommandCardField otherField = otherPlayer.getUpgradeField(k);
+                        CommandCard card = otherField.getCard();
+                        if (card != null) {
+                            field.setCard(new CommandCard(card.command, "upgrade"));
+                            field.setVisible(true);
 
 
-                int currentX = currentSpace.x;
-                int currentY = currentSpace.y;
+                        }
+                    }
 
-                int secondNextX = currentX;
-                int secondNextY = currentY;
+                    for (int k = 0; k < Player.NO_UPGRADE_INV; k++) {
+                        CommandCardField field = player.getUpgradeInv(k);
+                        CommandCardField otherField = otherPlayer.getUpgradeInv(k);
+                        CommandCard card = otherField.getCard();
+                        if (card != null) {
+                            field.setCard(new CommandCard(card.command, "upgrade"));
+                            field.setVisible(true);
 
-                // Calculate the second next space coordinates based on the player's heading
-                switch (heading) {
-                    case NORTH:
-                        secondNextY -= 2;
-                        break;
-                    case EAST:
-                        secondNextX += 2;
-                        break;
-                    case SOUTH:
-                        secondNextY += 2;
-                        break;
-                    case WEST:
-                        secondNextX -= 2;
-                        break;
-                }
 
-                // Check if the second next space is within the board boundaries
-                if (secondNextX >= 0 && secondNextX < board.width && secondNextY >= 0 && secondNextY < board.height) {
-                    Space secondNextSpace = board.getSpace(secondNextX, secondNextY);
-
-                    // If the second next space is empty, move the player to that space
-                    if (secondNextSpace.getPlayer() == null) {
-                        currentSpace.setPlayer(null);
-                        secondNextSpace.setPlayer(player);
+                        }
                     }
                 }
             }
+
+
 
             /**
              * Rotates the player's robot 90 degrees to the right.

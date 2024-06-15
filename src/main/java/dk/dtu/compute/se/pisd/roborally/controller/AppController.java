@@ -246,16 +246,16 @@ public class AppController implements Observer {
                     .excludeFieldsWithoutExposeAnnotation()
                     .create();
 
-            System.out.println(jsonContent);
 
             Board board = gson.fromJson(jsonContent,Board.class);
 
+            Course course = board.getCourse();
 
 
 
 
 
-            Board newBoard = new Board(board.width,board.height);
+            Board newBoard = new Board(course,"game1");
             gameController = new GameController(newBoard);
 
 
