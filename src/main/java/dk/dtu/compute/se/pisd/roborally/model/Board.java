@@ -208,10 +208,12 @@ public class Board extends Subject {
     // moves the current turn to the next players in the current order of turns
     public void moveCurrentTurn(){
         Iterator<Player> iter = getPlayers().iterator();
+        Player player = iter.next();
         while (iter.hasNext()) {
-            if(iter.next() == currentTurn && iter.hasNext()){
-                setCurrentTurn(iter.next());
-            }
+            if(player == currentTurn){
+                player = iter.next();
+                setCurrentTurn(player);
+            } else player = iter.next();
         }
     }
 
