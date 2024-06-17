@@ -225,7 +225,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                     this.getChildren().clear(); // Clear any existing content
                     this.add(imageView, 0, 0);
                     label.setText(card.getName());
-                }
+                } else this.getChildren().clear();
             }, this.getChildren()::clear
             );
         }
