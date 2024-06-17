@@ -21,16 +21,13 @@
  */
 package dk.dtu.compute.se.pisd.roborally.model;
 
-import com.beust.ah.A;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
-import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
-import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
@@ -75,10 +72,6 @@ public class Board extends Subject {
     private static final int MAX_PLAYERS = 6;
     private Player currentTurn;
 
-
-
-
-
     /**
      * Constructs a new Board with the given dimensions and name.
      * Initializes the spaces within the board.
@@ -102,11 +95,9 @@ public class Board extends Subject {
     }
 
     /**
-     * Constructs a new Board with the given Course and then retrives the Width and Height
+     * Constructs a new Board with the given Course and then retrieves the Width and Height
      *
      */
-
-
     public Board(int width, int height) {
         this.boardName = "default";
         this.width = width;
@@ -165,21 +156,12 @@ public class Board extends Subject {
     }
 
     public Player findCorrespondingPlayer(Player player) {
-        for(int i = 0; i< this.getPlayerAmount();i++){
-            if(player.getName().equals(this.getPlayer(i).getName())){
-                return this.getPlayer(i);
-            }
-        }
-        return null;
+        return getPlayers().stream().filter(p -> p.getName().equals(player.getName())).findAny().orElse(null);
     }
-
-
 
     public Course getCourse(){
         return Course;
     }
-
-
 
     /**
      * Gets the unique game identifier for this board.
@@ -204,8 +186,8 @@ public class Board extends Subject {
 
         double[] distancesSorted = Arrays.stream(distances).sorted().toArray();
 
-        for(int q = 0; q < distancesSorted.length;q++){
-            System.out.print("/" + distancesSorted[q]+ "/");
+        for (double v : distancesSorted) {
+            System.out.print("/" + v + "/");
         }
 
         for (int i = 0; i < distances.length; i++) {
@@ -218,42 +200,30 @@ public class Board extends Subject {
             }
         }
 
-
         players.clear();
         players.addAll(temp);
         setCurrentTurn(players.get(0));
     }
 
-
-
-        // moves the current turn to the next players in the current order of turns
-        public void moveCurrentTurn(){
-        Player currentTurn = getCurrentTurn();
-
-        for(Player player: players){
-            if(player == currentTurn){
-                if(!(players.indexOf(player) + 1 >= players.size())) {
-                    setCurrentTurn(players.get((players.indexOf(player)) + 1));
-                }
+    // moves the current turn to the next players in the current order of turns
+    public void moveCurrentTurn(){
+        Iterator<Player> iter = getPlayers().iterator();
+        while (iter.hasNext()) {
+            if(iter.next() == currentTurn && iter.hasNext()){
+                setCurrentTurn(iter.next());
             }
         }
+    }
 
-        }
+    // sets the current turn
+    public void setCurrentTurn(Player player){
+        this.currentTurn = player;
+    }
 
-
-
-        // sets the current turn
-
-        public void setCurrentTurn(Player player){
-            this.currentTurn = player;
-        }
-
-
-
-        // gets the player who's supposed to play
-       public Player getCurrentTurn(){
+    // gets the player who's supposed to play
+    public Player getCurrentTurn(){
         return currentTurn;
-       }
+    }
 
 
     /**
@@ -330,6 +300,10 @@ public class Board extends Subject {
         }
     }
 
+    /**
+     * Returns an ArrayList of players
+     * @return an ArrayList of players
+     */
     public ArrayList<Player> getPlayers() {
         return new ArrayList<>(players);
     }
@@ -349,7 +323,6 @@ public class Board extends Subject {
     public void setCurrentPlayer(Player player) {
         if (player != this.current && players.contains(player)) {
             this.current = player;
-
         }
     }
 

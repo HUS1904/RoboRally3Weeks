@@ -92,13 +92,14 @@ public class CardFieldView extends GridPane implements ViewObserver {
         this.gameController = gameController;
         this.field = field;
 
-        if(field.getCard() != null) {
-            imageView = field.getCard().getCardImage();
+        field.getCard().ifPresent(card -> {
+            imageView = card.getCardImage();
             imageView.setFitWidth(45);
             imageView.setFitHeight(60);
             imageView.setPreserveRatio(true);
             this.add(imageView, 0, 0);
-        }
+        });
+
         this.setAlignment(Pos.CENTER);
         this.setPadding(new Insets(5, 5, 5, 5));
 
@@ -214,20 +215,19 @@ public class CardFieldView extends GridPane implements ViewObserver {
     @Override
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
-            CommandCard card = field.getCard();
-            if (card != null && field.isVisible()) {
-                // If the field has a card, set the ImageView to display the card image
-                imageView = card.getCardImage();
-                imageView.setFitWidth(45);
-                imageView.setFitHeight(60);
-                imageView.setPreserveRatio(true);
-                this.getChildren().clear(); // Clear any existing content
-                this.add(imageView, 0, 0);
-                label.setText(card.getName());
-            } else {
-                // If the field doesn't have a card, clear the ImageView and label
-                this.getChildren().clear();
-            }
+            field.getCard().ifPresentOrElse(card -> {
+                if (field.isVisible()) {
+                    // If the field has a card, set the ImageView to display the card image
+                    imageView = card.getCardImage();
+                    imageView.setFitWidth(45);
+                    imageView.setFitHeight(60);
+                    imageView.setPreserveRatio(true);
+                    this.getChildren().clear(); // Clear any existing content
+                    this.add(imageView, 0, 0);
+                    label.setText(card.getName());
+                }
+            }, this.getChildren()::clear
+            );
         }
     }
 
@@ -245,7 +245,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 cardField = source.field;
             }
                 if (cardField != null &&
-                        cardField.getCard() != null &&
+                        cardField.getCard().isPresent() &&
                         cardField.player != null &&
                         cardField.player.board != null) {
                     Dragboard db = source.startDragAndDrop(TransferMode.MOVE);
@@ -278,10 +278,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
                 // checking the phase becasue the turn nature differs from phase to phase
                 if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
-                    if (cardField != null &&
-                            (cardField.getCard() == null || event.getGestureSource() == target) &&
-                            cardField.player != null &&
-                            cardField.player.board != null && target.field.player == gameController.board.getCurrentTurn()) {
+                    if ((cardField.getCard().isEmpty() || event.getGestureSource() == target) && target.field.player == gameController.board.getCurrentTurn()) {
                         CardFieldView source = (CardFieldView) event.getGestureSource();
                         CommandCardField field = source.field;
                         if (event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)  && field.getType().equals(cardField.getType())) {
@@ -289,10 +286,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                         }
                     }
                 } else {
-                    if (cardField != null &&
-                            (cardField.getCard() == null || event.getGestureSource() == target) &&
-                            cardField.player != null &&
-                            cardField.player.board != null) {
+                    if (cardField.getCard().isEmpty() || event.getGestureSource() == target) {
                         CardFieldView source = (CardFieldView) event.getGestureSource();
                         CommandCardField field = source.field;
                         if (event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE) && field.getType().equals(cardField.getType())) {
@@ -312,18 +306,11 @@ public class CardFieldView extends GridPane implements ViewObserver {
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
-            if (t instanceof CardFieldView) {
-                CardFieldView target = (CardFieldView) t;
+            if (t instanceof CardFieldView target) {
                 CommandCardField cardField = target.field;
-                // checking the phase becasue the turn nature differs from phase to phase
+                // checking the phase because the turn nature differs from phase to phase
                 if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
-
-
-
-                    if (cardField != null &&
-                            cardField.getCard() == null &&
-                            cardField.player != null &&
-                            cardField.player.board != null) {
+                    if (cardField.getCard().isEmpty()) {
                         CardFieldView source = (CardFieldView) event.getGestureSource();
 
                         if (event.getGestureSource() != target &&
@@ -331,20 +318,14 @@ public class CardFieldView extends GridPane implements ViewObserver {
                             target.setBackground(BG_DROP);
                         }
                     }
-
-
-                } else{
-                    if (cardField != null &&
-                            cardField.getCard() == null &&
-                            cardField.player != null &&
-                            cardField.player.board != null) {
+                } else {
+                    if (cardField.getCard().isEmpty()) {
                         CardFieldView source = (CardFieldView) event.getGestureSource();
                         if (event.getGestureSource() != target &&
                                 event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)) {
                             target.setBackground(BG_DROP);
                         }
                     }
-
                 }
             }
             event.consume();
@@ -357,11 +338,10 @@ public class CardFieldView extends GridPane implements ViewObserver {
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
-            if (t instanceof CardFieldView) {
-                CardFieldView target = (CardFieldView) t;
+            if (t instanceof CardFieldView target) {
                 CommandCardField cardField = target.field;
                 if (cardField != null &&
-                        cardField.getCard() == null &&
+                        cardField.getCard().isEmpty() &&
                         cardField.player != null &&
                         cardField.player.board != null) {
                     if (event.getGestureSource() != target &&
@@ -389,10 +369,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
 
 
-                    if (cardField != null &&
-                            cardField.getCard() == null &&
-                            cardField.player != null &&
-                            cardField.player.board != null && target.field.player == gameController.board.getCurrentTurn()) {
+                    if (cardField.getCard().isEmpty() && target.field.player == gameController.board.getCurrentTurn()) {
                         if (event.getGestureSource() != target &&
                                 db.hasContent(ROBO_RALLY_CARD_UPGRADE)) {
                             Object object = db.getContent(ROBO_RALLY_CARD_UPGRADE);
@@ -408,10 +385,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                     }
 
                 } else {
-                    if (cardField != null &&
-                            cardField.getCard() == null &&
-                            cardField.player != null &&
-                            cardField.player.board != null) {
+                    if (cardField.getCard().isEmpty()) {
                         if (event.getGestureSource() != target &&
                                 db.hasContent(ROBO_RALLY_CARD_UPGRADE)) {
                             Object object = db.getContent(ROBO_RALLY_CARD_UPGRADE);
@@ -441,8 +415,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
         @Override
         public void handle(DragEvent event) {
             Object t = event.getTarget();
-            if (t instanceof CardFieldView) {
-                CardFieldView source = (CardFieldView) t;
+            if (t instanceof CardFieldView source) {
                 source.setBackground(BG_DEFAULT);
             }
             event.consume();

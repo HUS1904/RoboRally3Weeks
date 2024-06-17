@@ -26,6 +26,9 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static dk.dtu.compute.se.pisd.roborally.model.Command.SPAM;
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
 
@@ -221,12 +224,28 @@ public class Player extends Subject {
     }
 
     /**
+     * Gets all the programming fields
+     * @return an ArrayList of programming fields
+     */
+    public ArrayList<CommandCardField> getProgramFields() {
+        return new ArrayList<>(List.of(program));
+    }
+
+    /**
      * Gets the command card field at the specified index.
      * @param i the index of the command card field
      * @return the command card field at the specified index
      */
     public CommandCardField getCardField(int i) {
         return cards[i];
+    }
+
+    /**
+     * Gets all the card fields
+     * @return an ArrayList of card fields
+     */
+    public ArrayList<CommandCardField> getCardFields() {
+        return new ArrayList<>(List.of(cards));
     }
 
     public CommandCardField getUpgradeField(int i) {
@@ -283,7 +302,6 @@ public class Player extends Subject {
      * @return returns the amount of energy cubes
      */
     public void incrementEnergy(int amount){
-
         this.energyCubes += amount;
 
         notifyChange();

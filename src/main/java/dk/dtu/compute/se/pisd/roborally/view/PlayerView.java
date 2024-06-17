@@ -329,38 +329,39 @@ public class PlayerView extends Tab implements ViewObserver {
     private void handlePlayerInteraction() {
         if (player.board.getCurrentPlayer() == player) {
             int currentStep = player.board.getStep();
-            CommandCard card = player.getProgramField(currentStep).getCard();
-            if (card != null && card.command.isInteractive()) {
-                // Create a dialog for the command options
-                Dialog<ButtonType> dialog = new Dialog<>();
-                dialog.setTitle("Choose an Option");
-                dialog.setHeaderText("Select your command:");
+            player.getProgramField(currentStep).getCard().ifPresent(card -> {
+                if (card.command.isInteractive()) {
+                    // Create a dialog for the command options
+                    Dialog<ButtonType> dialog = new Dialog<>();
+                    dialog.setTitle("Choose an Option");
+                    dialog.setHeaderText("Select your command:");
 
-                // Set up a custom pane for button layout
-                GridPane grid = new GridPane();
-                grid.setHgap(10);
-                grid.setVgap(10);
-                grid.setPadding(new Insets(20, 150, 10, 10));
+                    // Set up a custom pane for button layout
+                    GridPane grid = new GridPane();
+                    grid.setHgap(10);
+                    grid.setVgap(10);
+                    grid.setPadding(new Insets(20, 150, 10, 10));
 
-                int row = 0;
-                for (Command option : card.command.getOptions()) {
-                    Button optionButton = new Button(option.displayName);
-                    GridPane.setConstraints(optionButton, 0, row++);
-                    optionButton.setMaxWidth(Double.MAX_VALUE);
-                    grid.getChildren().add(optionButton);
+                    int row = 0;
+                    for (Command option : card.command.getOptions()) {
+                        Button optionButton = new Button(option.displayName);
+                        GridPane.setConstraints(optionButton, 0, row++);
+                        optionButton.setMaxWidth(Double.MAX_VALUE);
+                        grid.getChildren().add(optionButton);
 
-                    // Set action on button to execute command option and continue with the game
-                    optionButton.setOnAction(e -> {
-                        dialog.close();
-                        gameController.executeCommandOptionAndContinue(player, option);
-                    });
+                        // Set action on button to execute command option and continue with the game
+                        optionButton.setOnAction(e -> {
+                            dialog.close();
+                            gameController.executeCommandOptionAndContinue(player, option);
+                        });
+                    }
+
+                    dialog.getDialogPane().setContent(grid);
+                    dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL); // Add a cancel button to the dialog
+
+                    dialog.showAndWait(); // Show dialog and wait for user response
                 }
-
-                dialog.getDialogPane().setContent(grid);
-                dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL); // Add a cancel button to the dialog
-
-                dialog.showAndWait(); // Show dialog and wait for user response
-            }
+            });
         }
     }
 }

@@ -45,8 +45,6 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.event.ActionEvent;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -98,7 +96,6 @@ public class AppController implements Observer {
         dialog.setTitle("Player number");
         dialog.setHeaderText("Select number of players");
         result = dialog.showAndWait();
-        int no = result.get();
 
         if (result.isPresent()) {
             if (gameController != null) {
@@ -109,21 +106,15 @@ public class AppController implements Observer {
                 }
             }
 
-
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
             Board board = new Board(8,8);
             gameController = new GameController(board);
             roboRally.createMapSlectionView();
-
-
-
-
         }
     }
 
     public void startGame(String Course)  {
-
         String directoryPath = "src/main/resources/courses/" + Course + ".json";
 
         Gson gson = new GsonBuilder()
@@ -149,7 +140,7 @@ public class AppController implements Observer {
             board.determineTurn(2,2);
             board.setCurrentPlayer(board.getPlayer(0));
 
-        } catch (IOException e){
+        } catch (IOException ignored){
 
         }
 

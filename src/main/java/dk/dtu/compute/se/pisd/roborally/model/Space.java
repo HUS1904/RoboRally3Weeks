@@ -146,8 +146,7 @@ public class Space extends Subject {
      */
     public void setPlayer(Player player) {
         Player oldPlayer = this.player;
-        if (player != oldPlayer &&
-                (player == null || board == player.board)) {
+        if (player != oldPlayer && (player == null || board == player.board)) {
             this.player = player;
             if (oldPlayer != null) {
                 // this should actually not happen
@@ -180,12 +179,7 @@ public class Space extends Subject {
                     p.move(1);
                     p.setHeading(oldHeading);
                     break;
-                case CONVEYOR_BELT:
-                    p.setHeading(heading);
-                    p.move(1);
-                    p.setHeading(oldHeading);
-                    break;
-                case PUSH_PANEL:
+                case CONVEYOR_BELT, PUSH_PANEL:
                     p.setHeading(heading);
                     p.move(1);
                     p.setHeading(oldHeading);

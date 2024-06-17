@@ -8,11 +8,11 @@ import java.util.Objects;
 
 public class Deck {
 
-    private List<CommandCard> deck = new ArrayList<>();
-    private List<CommandCard> discardPile = new ArrayList<>();
-    private List<CommandCard> upgradeDeck = new ArrayList<>();
+    private ArrayList<CommandCard> deck = new ArrayList<>();
+    private ArrayList<CommandCard> discardPile = new ArrayList<>();
+    private ArrayList<CommandCard> upgradeDeck = new ArrayList<>();
 
-   private GameController gameController;
+    private GameController gameController;
 
 
     public Deck(String type,GameController gameController) {
@@ -20,7 +20,6 @@ public class Deck {
 
         if (!Objects.equals(type, "upgrade")) {
             for (int i = 0; i < 52; i++) {
-
                 deck.add(gameController.generateRandomCommandCard());
             }
         } else {
@@ -45,7 +44,6 @@ public class Deck {
         for(int i = 0; i < discardPile.size();i++){
             int random = (int) (Math.random() * discardPile.size());
             deck.add(discardPile.remove(random));
-
         }
     }
 
@@ -54,20 +52,14 @@ public class Deck {
     }
 
     public void addToDeck(CommandCard card){
-
         int random = (int) (Math.random() * deck.size());
         deck.add(random,card);
-
     }
 
-
     public CommandCard deal() {
-
         if(deck.size() != 8){
             shuffleDeck();
         }
-        CommandCard card = deck.remove(deck.size() - 1);
-        return card;
+        return deck.remove(deck.size() - 1);
     }
 }
-

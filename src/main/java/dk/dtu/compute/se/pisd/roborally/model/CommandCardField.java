@@ -24,6 +24,8 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
+import java.util.Optional;
+
 /**
  * Represents a field on a player's programming board in the RoboRally game. Each field
  * can contain a CommandCard, representing a part of the robot's programmed actions for
@@ -49,17 +51,17 @@ public class CommandCardField extends Subject {
      */
     public CommandCardField(Player player,String type) {
         this.player = player;
-        this. card = null;
+        this.card = null;
         this.visible = true;
         this.type = type;
     }
 
     /**
      * Gets the command card currently placed in this field.
-     * @return The command card in this field, or null if the field is empty.
+     * @return Optional that may or may not contain a card, depending on if the field is empty or not.
      */
-    public CommandCard getCard() {
-        return card;
+    public Optional<CommandCard> getCard() {
+        return Optional.ofNullable(card);
     }
 
     /**

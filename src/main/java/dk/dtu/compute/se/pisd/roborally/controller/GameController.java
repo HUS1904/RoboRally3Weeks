@@ -25,16 +25,12 @@ package dk.dtu.compute.se.pisd.roborally.controller;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * The GameController class is responsible for managing the game logic and state transitions
@@ -92,64 +88,40 @@ public class GameController {
         board.setPhase(Phase.PROGRAMMING);
         board.setStep(0);
 
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
-            if (player != null) {
-                for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                    CommandCardField field = player.getProgramField(j);
-                    field.setCard(null);
-                    field.setVisible(true);
-                }
-                for (int j = 0; j < Player.NO_CARDS; j++) {
-                    CommandCardField field = player.getCardField(j);
-                    CommandCard card = player.getDeck().deal();
-                    field.setCard(card);
-                    field.setVisible(true);
-                }
-            }
-        }
+        board.getPlayers().forEach(player -> {
+            player.getProgramFields().forEach(field -> {
+                field.setCard(null);
+                field.setVisible(true);
+            });
+            player.getCardFields().forEach(field -> {
+                field.setCard(player.getDeck().deal());
+                field.setVisible(true);
+            });
+        });
     }
 
     // XXX: implemented in the current version
     public CommandCard generateRandomCommandCard() {
-        Command[] commands = Command.values();
+        ArrayList<Command> damageCards = new ArrayList<>(List.of(
+                Command.SPAM,
+                Command.RAMMINGGEAR,
+                Command.RECHARGE
+        ));
+        ArrayList<Command> commands = new ArrayList<>(List.of(Command.values()));
+        commands.removeAll(damageCards);
 
-        // Make sure no damage-cards are generated
-        for (int i = 0; i < commands.length; i++) {
-            if (commands[i] == Command.valueOf("SPAM") || commands[i] == Command.valueOf("RAMMINGGEAR")
-                    || commands[i] == Command.valueOf("RECHARGE")) {
-                commands[i] = commands[i - 1];
-            }
-        }
-
-        int random = (int) (Math.random() * commands.length);
-        return new CommandCard(commands[random], "program");
+        int random = (int) (Math.random() * commands.size());
+        return new CommandCard(commands.get(random), "program");
     }
 
 
     // Helper-method to generate a damage-card
     public CommandCard generateDamageCard() {
-        Command[] commands = Command.values();
-        int index = 0;
-
-        for (int i = 0; i < commands.length; i++) {
-            if (commands[i] == Command.valueOf("SPAM")) {
-                index = i;
-            }
-        }
-
-        return new CommandCard(commands[index], "damage");
+        return new CommandCard(Command.SPAM, "damage");
     }
 
     public CommandCard generateUpgradeCard() {
-        Command[] commands = Command.values();
-        List<Command> upgrades = new ArrayList<>();
-
-        for (Command command : commands) {
-            if (command == Command.valueOf("RECHARGE") || command == Command.valueOf("RAMMINGGEAR")) {
-                upgrades.add(command);
-            }
-        }
+        List<Command> upgrades = List.of(Command.RECHARGE, Command.RAMMINGGEAR);
 
         int random = (int) (Math.random() * upgrades.size());
         return new CommandCard(upgrades.get(random), "upgrade");
@@ -177,67 +149,43 @@ public class GameController {
     public void executeRegister() {
         this.board.getCurrentPlayer().incrementEnergy(1);
         makeProgramFieldsVisible(board.getStep() + 1);
-        for (int i = 0; i < board.getPlayerAmount(); i++) {
-            Player currentPlayer = board.getPlayer(i);
-            if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
+
+        if(board.getPhase() == Phase.ACTIVATION) {
+            board.getPlayers().forEach(player -> {
                 int step = board.getStep();
                 if (step >= 0 && step < Player.NO_REGISTERS) {
-                    CommandCard card = currentPlayer.getProgramField(step).getCard();
-                    if (card != null) {
+                    player.getProgramField(step).getCard().ifPresent(card -> {
                         if (card.command.isInteractive()) {
                             // Set to interaction phase, but don't advance the step
                             board.setPhase(Phase.PLAYER_INTERACTION);
                             // Interaction handling will occur here (show dialog, etc.)
                         } else {
                             // Execute non-interactive command
-                            executeCommand(currentPlayer, card.command);
+                            executeCommand(player, card.command);
                             // Optionally wait for user to trigger next step manually
                             // If automatically proceeding:
-
-
-
                         }
-                    }
-
+                    });
                 }
-            }
+            });
         }
+
         advanceStep();
-        
+        //activateRobotLasers();
 
-
-
-            //activateRobotLasers();
-
-
-
-                for (int i = 0; i < board.getPlayersNumber(); i++) {
-                    Player player = board.getPlayer(i);
-                    if (player != null) {
-                        for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                            CommandCardField field = player.getProgramField(j);
-                            if (field.getCard() != null) {
-                                CommandCard card = field.getCard();
-                                player.getDeck().sendToDiscardPile(card);
-                            }
-                        }
-                        for (int j = 0; j < Player.NO_CARDS; j++) {
-                            CommandCardField field = player.getCardField(j);
-                            if (field.getCard() != null) {
-                                CommandCard card = field.getCard();
-                                player.getDeck().sendToDiscardPile(card);
-                            }
-                        }
-                    }
-
-
-
-        }
-
-
+        discardCards();
     }
 
-
+    private void discardCards() {
+        board.getPlayers().forEach(player -> {
+            player.getProgramFields().forEach(field -> {
+                field.getCard().ifPresent(player.getDeck()::sendToDiscardPile);
+            });
+            player.getCardFields().forEach(field -> {
+                field.getCard().ifPresent(player.getDeck()::sendToDiscardPile);
+            });
+        });
+    }
 
 //    private void activateRobotLasers() {
 //        Set<ActionField> invalidValues = new HashSet<>();
@@ -299,7 +247,9 @@ public class GameController {
             // Wrap up activation phase or reset for a new cycle
             startProgrammingPhase();  // Assuming this method resets for a new cycle
         }
+    }
 
+    public Optional<Player> getWinner() {
         int checkpoints = (int) board
                 .getSpacesList()
                 .stream()
@@ -307,41 +257,22 @@ public class GameController {
                 .filter(ActionField.CHECKPOINT::equals)
                 .count();
 
-        if (board.getPlayers().stream().map(Player::getIndex).anyMatch(index -> index == checkpoints)) {
-            winGame();
-        }
-    }
-
-    public void winGame() {
-
+        return board.getPlayers().stream().map(Player::getIndex).anyMatch(index -> index == checkpoints)
+                ? Optional.of(board.getCurrentPlayer())
+                : Optional.empty();
     }
 
     public void activateSpaces() {
-        for (int x = 0; x < board.width; x++) {
-            for (int y = 0; y < board.height; y++) {
-                board.getSpace(x, y).activate();
-            }
-        }
+        board.getSpacesList().forEach(Space::activate);
     }
 
     private void makeProgramFieldsVisible(int register) {
-        if (register >= 0 && register < Player.NO_REGISTERS) {
-            for (int i = 0; i < board.getPlayersNumber(); i++) {
-                Player player = board.getPlayer(i);
-                CommandCardField field = player.getProgramField(register);
-                field.setVisible(true);
-            }
-        }
+        if (register >= 0 && register < Player.NO_REGISTERS)
+            board.getPlayers().forEach(player -> player.getProgramField(register).setVisible(true));
     }
 
     private void makeProgramFieldsInvisible() {
-        for (int i = 0; i < board.getPlayersNumber(); i++) {
-            Player player = board.getPlayer(i);
-            for (int j = 0; j < Player.NO_REGISTERS; j++) {
-                CommandCardField field = player.getProgramField(j);
-                field.setVisible(false);
-            }
-        }
+        board.getPlayers().stream().flatMap(player -> player.getProgramFields().stream()).forEach(field -> field.setVisible(false));
     }
 
     /**
@@ -365,7 +296,7 @@ public class GameController {
 
     private void continuePrograms() {
         do {
-            if (board.getStep() >= board.getCurrentPlayer().NO_REGISTERS) {
+            if (board.getStep() >= Player.NO_REGISTERS) {
                 this.startProgrammingPhase();
             } else {
                 executeNextStep();
@@ -379,8 +310,7 @@ public class GameController {
             if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
                 int step = board.getStep();
                 if (step >= 0 && step < Player.NO_REGISTERS) {
-                    CommandCard card = currentPlayer.getProgramField(step).getCard();
-                    if (card != null) {
+                    currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
                         Command command = card.command;
                         if (command.isInteractive()) {
                             // Switch to interactive mode and break loop
@@ -390,7 +320,7 @@ public class GameController {
                             // Execute non-interactive command
                             executeCommand(currentPlayer, command);
                         }
-                    }
+                    });
 
                     // Move to the next player
                     int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
@@ -466,7 +396,7 @@ public class GameController {
                 case Again:
                     // Execute the previous command again
                     if (board.getStep() - 1 >= 0) {
-                        executeCommand(player, player.getProgramField(board.getStep() - 1).getCard().command);
+                        player.getProgramField(board.getStep() - 1).getCard().ifPresent(card -> executeCommand(player, card.command));
                     }
                 default:
                     // DO NOTHING (for now)
@@ -492,12 +422,6 @@ public class GameController {
         int newX = currentSpace.x;
         int newY = currentSpace.y;
         int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
-
-
-
-
-
-
 
         for (int i = 0; i < Math.abs(numSpaces); i++) {
             // Calculate the new position based on the player's heading and the direction multiplier
@@ -551,173 +475,155 @@ public class GameController {
         }
     }
 
-            private boolean canPush (Player player, Heading heading,boolean forward){
-                Space currentSpace = player.getSpace();
-                int newX = currentSpace.x;
-                int newY = currentSpace.y;
-                int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
+    private boolean canPush (Player player, Heading heading,boolean forward){
+        Space currentSpace = player.getSpace();
+        int newX = currentSpace.x;
+        int newY = currentSpace.y;
+        int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
 
-                // Calculate the position to which the player would be pushed
-                switch (heading) {
-                    case NORTH:
-                        newY -= directionMultiplier;
-                        break;
-                    case EAST:
-                        newX += directionMultiplier;
-                        break;
-                    case SOUTH:
-                        newY += directionMultiplier;
-                        break;
-                    case WEST:
-                        newX -= directionMultiplier;
-                        break;
-                }
+        // Calculate the position to which the player would be pushed
+        switch (heading) {
+            case NORTH:
+                newY -= directionMultiplier;
+                break;
+            case EAST:
+                newX += directionMultiplier;
+                break;
+            case SOUTH:
+                newY += directionMultiplier;
+                break;
+            case WEST:
+                newX -= directionMultiplier;
+                break;
+        }
 
-                if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
-                    return false;  // Return false if out of bounds
-                }
+        if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
+            return false;  // Return false if out of bounds
+        }
 
-                Space nextSpace = board.getSpace(newX, newY);
-                if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null && nextSpace.getType() != ActionField.WALL) {
-                    // Push the player to the new space if it is empty and not a wall
-                    currentSpace.setPlayer(null);
-                    nextSpace.setPlayer(player);
-                    player.setSpace(nextSpace);
-                    return true;
-                }
-                return false;
-            }
-
-
-            public void moveTo (Player player,int x, int y){
-                Space nextSpace = board.getSpace(x, y);
-                player.setSpace(nextSpace);
-            }
-
-            public void reInitialize (Board board){
-
-
-                Phase phase = board.getPhase();
-                switch (phase) {
-                    case PROGRAMMING:
-                        this.board.setPhase(Phase.PROGRAMMING);
-                        this.board.setCurrentPlayer(board.getPlayer(0));
-                        this.board.setStep(board.getStep());
-                        break;
-                    case ACTIVATION:
-                        this.finishProgrammingPhase();
-                        break;
-                    default:
-                }
-                this.board.setStep(board.getStep());
-                this.board.setStepMode(board.isStepMode());
-
-                for (int i = 0; i < this.board.getPlayerAmount(); i++) {
-                    Player player = this.board.getPlayer(i);
-                    Player otherPlayer = board.getPlayer(i);
-
-                    for (int j = 0; j < Player.NO_CARDS; j++) {
-                        CommandCardField field = player.getCardField(j);
-                        CommandCardField otherField = otherPlayer.getCardField(j);
-                        CommandCard card = otherField.getCard();
-                        if (card != null) {
-                            field.setCard(new CommandCard(card.command, "program"));
-                            field.setVisible(true);
-
-                        }
-                    }
-                    for (int k = 0; k < Player.NO_REGISTERS; k++) {
-                        CommandCardField field = player.getProgramField(k);
-                        CommandCardField otherField = otherPlayer.getProgramField(k);
-                        CommandCard card = otherField.getCard();
-                        if (card != null) {
-                            field.setCard(new CommandCard(card.command, "program"));
-                            field.setVisible(true);
-
-
-                        }
-                    }
-
-                    for (int k = 0; k < Player.NO_UPGRADES; k++) {
-                        CommandCardField field = player.getUpgradeField(k);
-                        CommandCardField otherField = otherPlayer.getUpgradeField(k);
-                        CommandCard card = otherField.getCard();
-                        if (card != null) {
-                            field.setCard(new CommandCard(card.command, "upgrade"));
-                            field.setVisible(true);
-
-
-                        }
-                    }
-
-                    for (int k = 0; k < Player.NO_UPGRADE_INV; k++) {
-                        CommandCardField field = player.getUpgradeInv(k);
-                        CommandCardField otherField = otherPlayer.getUpgradeInv(k);
-                        CommandCard card = otherField.getCard();
-                        if (card != null) {
-                            field.setCard(new CommandCard(card.command, "upgrade"));
-                            field.setVisible(true);
-
-
-                        }
-                    }
-                }
-            }
-
-
-
-            /**
-             * Rotates the player's robot 90 degrees to the right.
-             * @param player the player whose robot should turn right
-             */
-            public void turnRight (Player player){
-                Heading heading = player.getHeading();
-                if (board.getCurrentPlayer().getProgramField(board.getStep()).getCard().getName().equals("U-Turn")) {
-                    player.setHeading(heading.next().next());
-                    ;
-                } else {
-                    player.setHeading(heading.next());
-                }
-            }
-
-            /**
-             * Rotates the player's robot 90 degrees to the left.
-             * @param player the player whose robot should turn left
-             */
-            public void turnLeft (Player player){
-                Heading heading = player.getHeading();
-                player.setHeading(heading.prev());
-            }
-
-            /**
-             * Moves a command card from a source field to a target field. This method is used to
-             * simulate the player's action of organizing their command cards during the programming phase.
-             *
-             * @param source the source CommandCardField from which the card will be moved
-             * @param target the target CommandCardField to which the card will be moved
-             * @return true if the card was successfully moved, false otherwise
-             */
-            public boolean moveCards (@NotNull CommandCardField source, @NotNull CommandCardField target){
-                CommandCard sourceCard = source.getCard();
-                CommandCard targetCard = target.getCard();
-                if (sourceCard != null && targetCard == null) {
-                    target.setCard(sourceCard);
-                    source.setCard(null);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-
-            /**
-             * A method called when no corresponding controller operation is implemented yet. This
-             * should eventually be removed.
-             */
-            public void notImplemented () {
-                // XXX just for now to indicate that the actual method is not yet implemented
-                assert false;
-            }
-
+        Space nextSpace = board.getSpace(newX, newY);
+        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null && nextSpace.getType() != ActionField.WALL) {
+            // Push the player to the new space if it is empty and not a wall
+            currentSpace.setPlayer(null);
+            nextSpace.setPlayer(player);
+            player.setSpace(nextSpace);
+            return true;
+        }
+        return false;
     }
 
 
+    public void moveTo (Player player,int x, int y){
+        Space nextSpace = board.getSpace(x, y);
+        player.setSpace(nextSpace);
+    }
+
+    public void reInitialize (Board board){
+        switch (board.getPhase()) {
+            case PROGRAMMING:
+                this.board.setPhase(Phase.PROGRAMMING);
+                this.board.setCurrentPlayer(board.getPlayer(0));
+                this.board.setStep(board.getStep());
+                break;
+            case ACTIVATION:
+                this.finishProgrammingPhase();
+                break;
+            default:
+        }
+        this.board.setStep(board.getStep());
+        this.board.setStepMode(board.isStepMode());
+
+        for (int i = 0; i < this.board.getPlayerAmount(); i++) {
+            Player player = this.board.getPlayer(i);
+            Player otherPlayer = board.getPlayer(i);
+
+            for (int j = 0; j < Player.NO_CARDS; j++) {
+                CommandCardField field = player.getCardField(j);
+                CommandCardField otherField = otherPlayer.getCardField(j);
+                otherField.getCard().ifPresent(card -> {
+                    field.setCard(new CommandCard(card.command, "program"));
+                    field.setVisible(true);
+                });
+            }
+            for (int k = 0; k < Player.NO_REGISTERS; k++) {
+                CommandCardField field = player.getProgramField(k);
+                CommandCardField otherField = otherPlayer.getProgramField(k);
+                otherField.getCard().ifPresent(card -> {
+                    field.setCard(new CommandCard(card.command, "program"));
+                    field.setVisible(true);
+                });
+            }
+
+            for (int k = 0; k < Player.NO_UPGRADES; k++) {
+                CommandCardField field = player.getUpgradeField(k);
+                CommandCardField otherField = otherPlayer.getUpgradeField(k);
+                otherField.getCard().ifPresent(card -> {
+                    field.setCard(new CommandCard(card.command, "upgrade"));
+                    field.setVisible(true);
+                });
+            }
+
+            for (int k = 0; k < Player.NO_UPGRADE_INV; k++) {
+                CommandCardField field = player.getUpgradeInv(k);
+                CommandCardField otherField = otherPlayer.getUpgradeInv(k);
+                otherField.getCard().ifPresent(card -> {
+                    field.setCard(new CommandCard(card.command, "upgrade"));
+                    field.setVisible(true);
+                });
+            }
+        }
+    }
+
+    /**
+     * Rotates the player's robot 90 degrees to the right.
+     * @param player the player whose robot should turn right
+     */
+    public void turnRight (Player player){
+        Heading heading = player.getHeading();
+        board.getCurrentPlayer().getProgramField(board.getStep()).getCard().ifPresent(card -> {
+            if (card.getName().equals("U-Turn")) {
+                player.setHeading(heading.next().next());
+            } else {
+                player.setHeading(heading.next());
+            }
+        });
+    }
+
+    /**
+     * Rotates the player's robot 90 degrees to the left.
+     * @param player the player whose robot should turn left
+     */
+    public void turnLeft (Player player){
+        Heading heading = player.getHeading();
+        player.setHeading(heading.prev());
+    }
+
+    /**
+     * Moves a command card from a source field to a target field. This method is used to
+     * simulate the player's action of organizing their command cards during the programming phase.
+     *
+     * @param source the source CommandCardField from which the card will be moved
+     * @param target the target CommandCardField to which the card will be moved
+     * @return true if the card was successfully moved, false otherwise
+     */
+    public boolean moveCards (@NotNull CommandCardField source, @NotNull CommandCardField target){
+        Optional<CommandCard> sourceCard = source.getCard();
+        Optional<CommandCard> targetCard = target.getCard();
+        if (sourceCard.isPresent() && targetCard.isEmpty()) {
+            target.setCard(sourceCard.get());
+            source.setCard(null);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * A method called when no corresponding controller operation is implemented yet. This
+     * should eventually be removed.
+     */
+    public void notImplemented () {
+        // XXX just for now to indicate that the actual method is not yet implemented
+        assert false;
+    }
+}
