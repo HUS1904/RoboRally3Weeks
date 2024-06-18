@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 
+import java.util.List;
 import java.util.Optional;
 
 /**

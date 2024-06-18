@@ -32,6 +32,9 @@ import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
+import static dk.dtu.compute.se.pisd.roborally.model.Command.RAMMINGGEAR;
+import static dk.dtu.compute.se.pisd.roborally.model.Command.SPAM;
+
 /**
  * The GameController class is responsible for managing the game logic and state transitions
  * within the RoboRally game. It coordinates the execution of game phases, handling player
@@ -104,7 +107,7 @@ public class GameController {
     public CommandCard generateRandomCommandCard() {
         ArrayList<Command> damageCards = new ArrayList<>(List.of(
                 Command.SPAM,
-                Command.RAMMINGGEAR,
+                RAMMINGGEAR,
                 Command.RECHARGE
         ));
         ArrayList<Command> commands = new ArrayList<>(List.of(Command.values()));
@@ -121,7 +124,7 @@ public class GameController {
     }
 
     public CommandCard generateUpgradeCard() {
-        List<Command> upgrades = List.of(Command.RECHARGE, Command.RAMMINGGEAR);
+        List<Command> upgrades = List.of(Command.RECHARGE, RAMMINGGEAR);
 
         int random = (int) (Math.random() * upgrades.size());
         return new CommandCard(upgrades.get(random), "upgrade");
@@ -310,6 +313,10 @@ public class GameController {
             if (board.getPhase() == Phase.ACTIVATION && currentPlayer != null) {
                 int step = board.getStep();
                 if (step >= 0 && step < Player.NO_REGISTERS) {
+                    currentPlayer.getPermUpgradeField(step).getCard().ifPresent(upgCard -> {
+                        Command command = upgCard.command;
+                        executeCommand(currentPlayer, command);
+                    });
                     currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
                         Command command = card.command;
                         if (command.isInteractive()) {
@@ -398,6 +405,13 @@ public class GameController {
                     if (board.getStep() - 1 >= 0) {
                         player.getProgramField(board.getStep() - 1).getCard().ifPresent(card -> executeCommand(player, card.command));
                     }
+
+                case RAMMINGGEAR:
+                    // Handle ram-gear logic
+                    if (canPush(player, player.getHeading(), true)) {
+                        moveForward(player, 1, true);
+                    }
+
                 default:
                     // DO NOTHING (for now)
             }
@@ -462,6 +476,14 @@ public class GameController {
                     currentSpace.setPlayer(null);
                     nextSpace.setPlayer(player);
                     player.setSpace(nextSpace);
+
+                    for (int k = 0; k < 4; k++) {
+                        if (player.containsUpgradeCardWithCommand(player.getPermUpgradeField(k), RAMMINGGEAR)) {
+                            // Insert logic for distributing SPAM-cards to player being pushed
+                            otherPlayer.getDeck().addToDeck(generateDamageCard());
+                        }
+                    }
+
                 } else {
                     System.out.println("Move stopped: Cannot push player.");
                     return;
@@ -554,18 +576,18 @@ public class GameController {
                 });
             }
 
-            for (int k = 0; k < Player.NO_UPGRADES; k++) {
-                CommandCardField field = player.getUpgradeField(k);
-                CommandCardField otherField = otherPlayer.getUpgradeField(k);
+            for (int k = 0; k < Player.TEMPORARY_UPGRADES; k++) {
+                CommandCardField field = player.getPermUpgradeField(k);
+                CommandCardField otherField = otherPlayer.getPermUpgradeField(k);
                 otherField.getCard().ifPresent(card -> {
                     field.setCard(new CommandCard(card.command, "upgrade"));
                     field.setVisible(true);
                 });
             }
 
-            for (int k = 0; k < Player.NO_UPGRADE_INV; k++) {
-                CommandCardField field = player.getUpgradeInv(k);
-                CommandCardField otherField = otherPlayer.getUpgradeInv(k);
+            for (int k = 0; k < Player.PERMANENT_UPGRADES; k++) {
+                CommandCardField field = player.getTempUpgradeInv(k);
+                CommandCardField otherField = otherPlayer.getTempUpgradeInv(k);
                 otherField.getCard().ifPresent(card -> {
                     field.setCard(new CommandCard(card.command, "upgrade"));
                     field.setVisible(true);

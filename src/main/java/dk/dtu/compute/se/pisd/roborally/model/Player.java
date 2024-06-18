@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Command.SPAM;
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
@@ -43,8 +44,8 @@ public class Player extends Subject {
 
     final public static int NO_REGISTERS = 5;
     final public static int NO_CARDS = 8;
-    final public static int NO_UPGRADES = 3;
-    final public static int NO_UPGRADE_INV = 6;
+    final public static int TEMPORARY_UPGRADES = 3;
+    final public static int PERMANENT_UPGRADES = 3;
 
 
     final transient public Board board;
@@ -61,9 +62,9 @@ public class Player extends Subject {
     @Expose
     private CommandCardField[] cards;
     @Expose
-    private CommandCardField[] upgrades;
+    private CommandCardField[] permUpgrades;
     @Expose
-    private CommandCardField[] upgradeInv;
+    private CommandCardField[] tempUpgrades;
     private int index = 0;
     @Expose
     public double distance;
@@ -106,14 +107,14 @@ public class Player extends Subject {
             cards[i] = new CommandCardField(this,"program");
         }
 
-        upgrades = new CommandCardField[3];
-        for (int i = 0; i < upgrades.length; i++) {
-             upgrades[i] = new CommandCardField(this,"upgrade");
+        permUpgrades = new CommandCardField[3];
+        for (int i = 0; i < permUpgrades.length; i++) {
+             permUpgrades[i] = new CommandCardField(this,"upgrade");
         }
 
-        upgradeInv  = new CommandCardField[6];
-        for (int i = 0; i < upgradeInv.length; i++) {
-            upgradeInv[i] = new CommandCardField(this,"upgrade");
+        tempUpgrades  = new CommandCardField[3];
+        for (int i = 0; i < tempUpgrades.length; i++) {
+            tempUpgrades[i] = new CommandCardField(this,"upgrade");
         }
 
 
@@ -248,12 +249,20 @@ public class Player extends Subject {
         return new ArrayList<>(List.of(cards));
     }
 
-    public CommandCardField getUpgradeField(int i) {
-        return upgrades[i];
+    public CommandCardField getPermUpgradeField(int i) {
+        return permUpgrades[i];
     }
-    public CommandCardField getUpgradeInv(int i) {
-        return upgradeInv[i];
+    public CommandCardField getTempUpgradeInv(int i) {
+        return tempUpgrades[i];
     }
+
+//    public ArrayList<CommandCardField> getPermUpgradeFields() {
+//        return new ArrayList<>(List.of(permUpgrades));
+//    }
+//
+//    public ArrayList<CommandCardField> getTempUpgradeFields() {
+//        return new ArrayList<>(List.of(tempUpgrades));
+//    }
 
     public void incrementIndex() {
         index++;
@@ -309,6 +318,23 @@ public class Player extends Subject {
 
     public Deck getDeck() {
         return deck;
+    }
+
+    public boolean containsUpgradeCardWithCommand(CommandCardField field, Command command) {
+        for (CommandCardField permField : permUpgrades) {
+            Optional<CommandCard> card = permField.getCard();
+            if (card.isPresent() && card.get().command == command) {
+                return true;
+            }
+        }
+
+        for (CommandCardField tempField : tempUpgrades) {
+            Optional<CommandCard> card = tempField.getCard();
+            if (card.isPresent() && card.get().command == command) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
