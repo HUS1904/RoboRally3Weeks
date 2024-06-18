@@ -90,8 +90,7 @@ public class SpaceView extends StackPane implements ViewObserver {
         space.attach(this);
         update(space);
     }
-
-    // Ændring af polygon/trekant figur til en avatar karakter
+    
     private void updatePlayer() {
         this.getChildren().clear();
         Player player = space.getPlayer();
@@ -136,6 +135,11 @@ public class SpaceView extends StackPane implements ViewObserver {
         invalidValues.add(ActionField.BOARD_LASER_END);
         invalidValues.add(ActionField.PRIORITY_ANTENNA);
 
+        Set<ActionField> laserValues = new HashSet<>();
+        laserValues.add(ActionField.BOARD_LASER_START);
+        laserValues.add(ActionField.BOARD_LASER);
+        laserValues.add(ActionField.BOARD_LASER_END);
+
         if (subject == s) {
             switch (s.getHeading()) {
                 case EAST -> image.setRotate(90);
@@ -143,71 +147,32 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case SOUTH -> image.setRotate(180);
             }
 
+            if (laserValues.contains(s.getType())){
+                String img = "/" + s.getType() + ".png";
 
-            String img = "/" + s.getType() + ".png";
-
-            //LASERS OFF
-            if (phase == Phase.PROGRAMMING) {
-                img = switch (s.getType()) {
-                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START_OFF" + ".png";
-                    case BOARD_LASER -> "/" + "NORMAL" + ".png";
-                    case BOARD_LASER_END -> "/" + "WALL" + ".png";
-                    default -> img;
-                };
+                //LASERS OFF
+                if (phase == Phase.PROGRAMMING) {
+                    img = switch (s.getType()) {
+                        case BOARD_LASER_START -> "/" + "BOARD_LASER_START_OFF" + ".png";
+                        case BOARD_LASER -> "/" + "NORMAL" + ".png";
+                        case BOARD_LASER_END -> "/" + "WALL" + ".png";
+                        default -> img;
+                    };
+                }
+                //LASERS ON
+                if (phase == Phase.ACTIVATION) {
+                    img = switch (s.getType()) {
+                        case BOARD_LASER_START -> "/" + "BOARD_LASER_START" + ".png";
+                        case BOARD_LASER -> "/" + "BOARD_LASER" + ".png";
+                        case BOARD_LASER_END -> "/" + "BOARD_LASER_END" + ".png";
+                        default -> img;
+                    };
+                }
+                //img = changeImage ? altImage : img;
+                image.setImage(new Image(getClass().getResourceAsStream(img)));
+                //changeImage = false;
             }
-            //LASERS ON
-            if (phase == Phase.ACTIVATION) {
-                img = switch (s.getType()) {
-                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START" + ".png";
-                    case BOARD_LASER -> "/" + "BOARD_LASER" + ".png";
-                    case BOARD_LASER_END -> "/" + "BOARD_LASER_END" + ".png";
-                    default -> img;
-                };
-            }
-//            img = changeImage ? altImage : img;
-            image.setImage(new Image(getClass().getResourceAsStream(img)));
-//
-//            changeImage = false;
-
-//            //ROBOTLASERS
-//            for(int i = 0; i < board.getPlayerAmount(); i++){
-//                Player p = board.getPlayer(i);
-//                int x = p.getSpace().x;
-//                int y = p.getSpace().y;
-//
-//                while (board.getSpace(x,y).getType() != null && !invalidValues.contains(board.getSpace(x,y).getType())){
-//                    if ((x >= 0 && x < board.width) && (y >= 0 && y < board.height)) {
-//                        //PHASE = PROGRAMMING | LASERS = OFF
-//                        if(phase == Phase.PROGRAMMING){
-//                            insertHere.image.setImage(new Image(getClass().getResourceAsStream("/" + board.getSpace(x,y).getType() + ".png" )));
-//                        }
-//
-//                        //PHASE = ACTIVATION | LASERS = ON
-//                        if(phase == Phase.ACTIVATION && !p.getSpace().equals(s)){
-//                            insertHere.setImage(new Image(getClass().getResourceAsStream("/" + "BOARD_LASER" + ".png" )));
-//                        }
-//                    }
-//
-//                    switch (p.getHeading()) {
-//                        case NORTH:
-//                            y--;
-//                            break;
-//                        case EAST:
-//                            x++;
-//                            break;
-//                        case SOUTH:
-//                            y++;
-//                            break;
-//                        case WEST:
-//                            x--;
-//                            break;
-//                    }
-//                }
-//            }
-            updatePlayer();
-
         }
-
         updatePlayer();
     }
 
