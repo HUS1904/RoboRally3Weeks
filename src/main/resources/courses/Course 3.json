@@ -251,7 +251,7 @@
         "y": 8,
         "type": "CHECKPOINT",
         "heading": "NORTH",
-        "index": 0
+        "index": 3
       },
       {
         "x": 2,
@@ -458,7 +458,7 @@
         "y": 11,
         "type": "CHECKPOINT",
         "heading": "NORTH",
-        "index": 0
+        "index": 1
       },
       {
         "x": 4,
@@ -502,7 +502,7 @@
         "y": 4,
         "type": "CHECKPOINT",
         "heading": "NORTH",
-        "index": 0
+        "index": 2
       },
       {
         "x": 5,
@@ -716,7 +716,7 @@
         "y": 8,
         "type": "CHECKPOINT",
         "heading": "NORTH",
-        "index": 0
+        "index": 4
       },
       {
         "x": 7,
