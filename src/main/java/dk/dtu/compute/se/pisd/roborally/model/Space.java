@@ -99,7 +99,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.index = index;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
+        image = new Image(getClass().getResourceAsStream("/" + this.index + ".png" ));
     }
 
     public int getIndex() {
@@ -209,7 +209,8 @@ public class Space extends Subject {
                     // TODO: Implement ENERGY_SPACE
                     return;
                 case CHECKPOINT:
-                    // Checkpoint logic handled in move
+                    p.incrementIndex();
+                    System.out.println(p.getIndex());
                     return;
                 case WALL:
                     // This doesn't do anything here but any action having to do with movement will eventually need to check for its presence

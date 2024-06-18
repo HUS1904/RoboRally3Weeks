@@ -109,7 +109,7 @@ public class AppController implements Observer {
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
             Board board = new Board(8,8);
-            gameController = new GameController(board);
+            gameController = new GameController(board, this);
             roboRally.createMapSlectionView();
         }
     }
@@ -127,7 +127,7 @@ public class AppController implements Observer {
             Course course = gson.fromJson(jsonContent,Course.class);
 
 
-            gameController = new GameController(new Board(course,"e"));
+            gameController = new GameController(new Board(course,"e"), this);
 
             Board board =  gameController.board;
             int no = result.get();
@@ -247,7 +247,7 @@ public class AppController implements Observer {
 
 
             Board newBoard = new Board(course,"game1");
-            gameController = new GameController(newBoard);
+            gameController = new GameController(newBoard, this);
 
 
             int no = board.getPlayerAmount();
@@ -380,6 +380,12 @@ public class AppController implements Observer {
             System.out.println("Failed to set light mode: " + e.getMessage());
         }
     }
+
+
+    public void announceWinner(Player winner) {
+        roboRally.displayWinner(winner);  // Delegate to RoboRally to update UI
+    }
+
 
 
 

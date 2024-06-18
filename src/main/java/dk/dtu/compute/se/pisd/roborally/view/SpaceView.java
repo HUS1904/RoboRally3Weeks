@@ -90,7 +90,8 @@ public class SpaceView extends StackPane implements ViewObserver {
         space.attach(this);
         update(space);
     }
-    
+
+    // Ændring af polygon/trekant figur til en avatar karakter
     private void updatePlayer() {
         this.getChildren().clear();
         Player player = space.getPlayer();
@@ -147,7 +148,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case SOUTH -> image.setRotate(180);
             }
 
-            if (laserValues.contains(s.getType())){
+            if (laserValues.contains(s.getType())) {
                 String img = "/" + s.getType() + ".png";
 
                 //LASERS OFF
@@ -172,8 +173,10 @@ public class SpaceView extends StackPane implements ViewObserver {
                 image.setImage(new Image(getClass().getResourceAsStream(img)));
                 //changeImage = false;
             }
+
+            if (s.getType() == ActionField.CHECKPOINT)
+                image.setImage(new Image(getClass().getResourceAsStream("/" + s.getIndex() + ".png")));
         }
         updatePlayer();
     }
-
 }

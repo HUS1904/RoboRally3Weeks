@@ -41,17 +41,18 @@ import org.jetbrains.annotations.NotNull;
  */
 public class GameController {
     private boolean gearPhase = true;
-
+    private AppController appController;
     public Board board;
-   private BoardView boardView;
+    private BoardView boardView;
 
     /**
      * Constructs a GameController with the specified game board.
      *
      * @param board the game board that this controller will manage
      */
-    public GameController(@NotNull Board board) {
+    public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
+        this.appController = appController;
     }
 
     /**
@@ -172,8 +173,9 @@ public class GameController {
 
         advanceStep();
         //activateRobotLasers();
-
         discardCards();
+
+        if (getWinner().isPresent()) appController.announceWinner(getWinner().get());
     }
 
     private void discardCards() {
