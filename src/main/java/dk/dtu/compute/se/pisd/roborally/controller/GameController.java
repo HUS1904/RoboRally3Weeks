@@ -175,7 +175,7 @@ public class GameController {
         //activateRobotLasers();
         discardCards();
 
-        if (getWinner().isPresent()) appController.announceWinner(getWinner().get());
+
     }
 
     private void discardCards() {
@@ -373,7 +373,7 @@ public class GameController {
     }
 
     void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
+        if (player.board == board && command != null) {
             // Handle different commands
             switch (command) {
                 case FORWARD:
@@ -410,6 +410,8 @@ public class GameController {
                 board.getSpace(i, j).activate();
             }
         }
+
+        getWinner().ifPresent(appController::announceWinner);
     }
 
     /**

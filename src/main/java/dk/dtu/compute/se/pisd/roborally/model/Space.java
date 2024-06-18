@@ -210,7 +210,7 @@ public class Space extends Subject {
                     return;
                 case CHECKPOINT:
                     p.incrementIndex();
-                    System.out.println(p.getIndex());
+                    System.out.println("Checkpoint reached:" + p.getIndex());
                     return;
                 case WALL:
                     // This doesn't do anything here but any action having to do with movement will eventually need to check for its presence
