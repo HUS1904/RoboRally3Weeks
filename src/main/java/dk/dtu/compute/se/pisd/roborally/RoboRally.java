@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally;
 
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
+import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.MapSelection;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
@@ -228,6 +229,37 @@ public class RoboRally extends Application {
             primaryScene.getStylesheets().add(url.toExternalForm());
         }
     }
+
+    public void displayWinner(Player winner) {
+        Platform.runLater(() -> {
+            boardRoot.getChildren().clear();  // Clear current UI components
+
+            VBox layout = new VBox(20);
+            layout.setAlignment(Pos.CENTER);
+            layout.setPadding(new Insets(20));
+
+            Label winnerLabel = new Label("Winner: " + winner.getName());
+            winnerLabel.setFont(new Font("Arial", 24));
+
+            Image playerImage = new Image(getClass().getResourceAsStream("/robot-" + winner.getColor() + ".png"));
+            ImageView imageView = new ImageView(playerImage);
+            imageView.setFitHeight(100);
+            imageView.setFitWidth(100);
+
+            Button stopButton = new Button("Stop Game");
+            stopButton.setOnAction(event -> {
+                appController.stopGame();
+                //stage.close();  // Optionally close the game window
+            });
+
+            layout.getChildren().addAll(winnerLabel, imageView, stopButton);
+            boardRoot.setCenter(layout);
+
+            stage.sizeToScene();
+            stage.show();
+        });
+    }
+
 
     /**
      * Called when the application should stop, and provides a convenient place

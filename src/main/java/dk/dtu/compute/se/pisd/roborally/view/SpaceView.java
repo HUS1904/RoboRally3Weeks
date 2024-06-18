@@ -164,6 +164,8 @@ public class SpaceView extends StackPane implements ViewObserver {
                     default -> img;
                 };
             }
+
+            if(s.getType() == ActionField.CHECKPOINT) img = "/" + s.getIndex() + ".png";
 //            img = changeImage ? altImage : img;
             image.setImage(new Image(getClass().getResourceAsStream(img)));
 //
