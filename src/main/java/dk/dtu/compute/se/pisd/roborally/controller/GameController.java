@@ -259,9 +259,7 @@ public class GameController {
                 .filter(ActionField.CHECKPOINT::equals)
                 .count();
 
-        return board.getPlayers().stream().map(Player::getIndex).anyMatch(index -> index == checkpoints)
-                ? Optional.of(board.getCurrentPlayer())
-                : Optional.empty();
+        return board.getPlayers().stream().filter(player -> player.getIndex() == checkpoints).findAny();
     }
 
     public void activateSpaces() {
