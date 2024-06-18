@@ -27,6 +27,8 @@
  */
 package dk.dtu.compute.se.pisd.roborally.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.GsonBuilder;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Observer;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
@@ -43,6 +45,11 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
@@ -73,7 +80,6 @@ public class AppController implements Observer {
 
     final private RoboRally roboRally;
     Optional<Integer> result;
-
     private GameController gameController;
     public String course = null;
     private boolean isLightMode = true;
@@ -91,27 +97,30 @@ public class AppController implements Observer {
      * Starts a new game by allowing the user to select the number of players and
      * initializing the game board and players accordingly.
      */
-    public void newGame() {
-        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-        dialog.setTitle("Player number");
-        dialog.setHeaderText("Select number of players");
-        result = dialog.showAndWait();
+    public void newGame() throws JsonProcessingException {
 
-        if (result.isPresent()) {
-            if (gameController != null) {
+        roboRally.createLobbySelectionView();
+
+       // ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
+        //dialog.setTitle("Player number");
+        //dialog.setHeaderText("Select number of players");
+      //  result = dialog.showAndWait();
+
+        //if (result.isPresent()) {
+          //  if (gameController != null) {
                 // The UI should not allow this, but in case this happens anyway.
                 // give the user the option to save the game or abort this operation!
-                if (!stopGame()) {
+            //    if (!stopGame()) {
                     return;
-                }
-            }
+              //  }
+           // }
 
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
-            Board board = new Board(8,8);
-            gameController = new GameController(board);
-            roboRally.createMapSlectionView();
-        }
+            //Board board = new Board(8,8);
+            //gameController = new GameController(board);
+            //roboRally.createMapSlectionView();
+        //}
     }
 
     public void startGame(String Course)  {
@@ -216,7 +225,7 @@ public class AppController implements Observer {
      * Loads a previously saved game state. Currently, this method starts a new game
      * as a placeholder for future functionality.
      */
-    public void loadGame() {
+    public void loadGame() throws JsonProcessingException {
         JFileChooser fileChooser = new JFileChooser();
         File selectedFile = null;
 

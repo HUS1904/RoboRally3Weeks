@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally;
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
+import dk.dtu.compute.se.pisd.roborally.view.LobbySelecter;
 import dk.dtu.compute.se.pisd.roborally.view.MapSelection;
 import dk.dtu.compute.se.pisd.roborally.view.RoboRallyMenuBar;
 import javafx.application.Application;
@@ -153,6 +154,21 @@ public class RoboRally extends Application {
         stage.sizeToScene();
         stage.show();
     }
+
+
+    public void createLobbySelectionView(){
+        boardRoot.getChildren().clear();
+
+        LobbySelecter lobby = new LobbySelecter();
+
+        boardRoot.setCenter(lobby);
+
+        // Waiting witch calling sizeToScene and shows, until everything is fully updated
+        stage.sizeToScene();
+        stage.show();
+
+    }
+
 
     private Scene createLoadingScene() {
         VBox loadingRoot = new VBox(5);

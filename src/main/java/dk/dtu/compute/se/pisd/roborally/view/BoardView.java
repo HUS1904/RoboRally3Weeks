@@ -74,6 +74,7 @@ public class BoardView extends VBox implements ViewObserver {
         statusLabel = new Label("<no status>");
         shop = new Shop(gameController);
 
+
         spaces = new SpaceView[board.width][board.height];
 
         spaceEventHandler = new SpaceEventHandler(gameController);
