@@ -229,22 +229,19 @@ public class GameController {
 
     void executeCommand(@NotNull Player player, Command command) {
         if (player != null && player.board == board && command != null) {
-            // XXX This is a very simplistic way of dealing with some basic cards and
-            //     their execution. This should eventually be done in a more elegant way
-            //     (this concerns the way cards are modelled as well as the way they are executed).
-
+            // Handle different commands
             switch (command) {
                 case FORWARD:
-                    this.moveForward(player,1);
+                    this.moveForward(player,1, true);
                     break;
                 case FORWARD1:
-                    this.moveForward(player,2);
+                    this.moveForward(player,2, true);
                     break;
                 case FORWARD2:
-                    this.moveForward(player,3);
+                    this.moveForward(player,3, true);
                     break;
                 case Back:
-                    this.moveForward(player,1);
+                    this.moveForward(player,1, false);
                     break;
                 case RIGHT:
                 case UTURN:
@@ -254,23 +251,20 @@ public class GameController {
                     this.turnLeft(player);
                     break;
                 case Again:
+                    // Execute the previous command again
                     if(board.getStep() - 1 >= 0){
                         executeCommand(player,player.getProgramField(board.getStep() - 1).getCard().command);
                     }
-
-
                 default:
                     // DO NOTHING (for now)
             }
         }
+        // Activate all spaces
         for(int i = 0; i < board.width; i++) {
             for(int j = 0; j < board.height; j++) {
                 board.getSpace(i, j).activate();
             }
         }
-        /*if(player.getIndex() == board.maxIndex) {
-            end();
-        }*/
     }
 
     /**
