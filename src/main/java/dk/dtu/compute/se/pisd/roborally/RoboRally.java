@@ -31,18 +31,15 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.stage.StageStyle;
-
 import java.net.URL;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -60,12 +57,9 @@ public class RoboRally extends Application {
     private static final int MIN_APP_WIDTH = 600;
     private Stage stage;
     private BorderPane boardRoot;
-    // private RoboRallyMenuBar menuBar;
-
     public AppController appController;
-    private URL url;
-    private ImageView imgMode = new ImageView();
-    private ImageView youWinImageView = new ImageView();
+    private final ImageView imgMode = new ImageView();
+    private final ImageView youWinImageView = new ImageView();
     private Scene primaryScene;
 
     /**
@@ -191,7 +185,7 @@ public class RoboRally extends Application {
         boardRoot = new BorderPane();
         boardRoot.setId("root");
 
-        Image image = new Image(getClass().getResourceAsStream("/dark.png" ));
+        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/dark.png")));
         imgMode.setImage(image);
 
         imgMode.setFitHeight(25);  // Set the height of the image
@@ -241,8 +235,9 @@ public class RoboRally extends Application {
             layout.setAlignment(Pos.CENTER);
             layout.setPadding(new Insets(20));
 
-            //String imgName = ""
-            Image youWinImage = new Image(getClass().getResourceAsStream("/youWinDark.gif"));
+            String imgName;
+            imgName = appController.isLightMode() ? "/youWinDark.gif" : "/youWinLight.gif";
+            Image youWinImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imgName)));
             setyouWinImg(youWinImage);
             youWinImageView.setFitHeight(100);
             youWinImageView.setFitWidth(300);
@@ -250,7 +245,7 @@ public class RoboRally extends Application {
             Label winnerLabel = new Label(winner.getName().toUpperCase());
             winnerLabel.setId("winner-label");
 
-            Image playerImage = new Image(getClass().getResourceAsStream("/robot-" + winner.getColor() + ".png"));
+            Image playerImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/robot-" + winner.getColor() + ".png")));
             ImageView imageView = new ImageView(playerImage);
             imageView.setRotate(180);
             imageView.setFitHeight(100);
@@ -294,10 +289,6 @@ public class RoboRally extends Application {
      */
     public static void main(String[] args) {
         launch(args);
-    }
-
-    public void setUrl(URL url) {
-        this.url = url;
     }
 
     public void setImgMode(Image img) {

@@ -329,6 +329,10 @@ public class AppController implements Observer {
         return gameController != null;
     }
 
+    public boolean isLightMode() {
+        return isLightMode;
+    }
+
     public void changeMode() {
         System.out.println("Attempting to change mode.");
         isLightMode = !isLightMode;
@@ -385,13 +389,9 @@ public class AppController implements Observer {
         }
     }
 
-
     public void announceWinner(Player winner) {
         roboRally.displayWinner(winner);  // Delegate to RoboRally to update UI
     }
-
-
-
 
     /**
      * Responds to updates from subjects this observer is observing. Currently does nothing.
@@ -402,5 +402,4 @@ public class AppController implements Observer {
     public void update(Subject subject) {
         // XXX do nothing for now
     }
-
 }
