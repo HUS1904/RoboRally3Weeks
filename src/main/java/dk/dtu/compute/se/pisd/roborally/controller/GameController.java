@@ -271,11 +271,8 @@ public class GameController {
      * Moves the player's robot forward by one space, if possible, based on the robot's current heading and position.
      *
      * @param player the player whose robot should move forward
-     */
-    /**
-     * Moves the player's robot forward by one space, if possible, based on the robot's current heading and position.
-     *
-     * @param player the player whose robot should move forward
+     * @param numSpaces the amount of spaces the player should move
+     * @param forward determines if its a move or a backwards move
      */
     public void moveForward(Player player, int numSpaces, boolean forward) {
         if (player == null) return;
@@ -312,6 +309,7 @@ public class GameController {
 
             // Check if the next position is within board limits
             if (nextX < 0 || nextX >= board.width || nextY < 0 || nextY >= board.height) {
+                //Print for debugging
                 System.out.println("Move stopped: Reached board limits.");
                 return;
             }
@@ -319,6 +317,8 @@ public class GameController {
             Space nextSpace = board.getSpace(nextX, nextY);
 
             // Check if there is a wall between currentSpace and nextSpace
+            // Checks both the direction we are trying to enter from, and the opposite direction of the space itself
+            // so that if a wall is on the east heading of a space, we cant go trough it from the east or west
             if (currentSpace.hasWall(heading) || nextSpace.hasWall(heading.opposite())) {
                 System.out.println("Move stopped: Wall ahead.");
                 return;
@@ -332,10 +332,12 @@ public class GameController {
                     currentSpace.setPlayer(null);
                     nextSpace.setPlayer(player);
                     player.setSpace(nextSpace);
-                    currentSpace = nextSpace; // Update current space after successful move
-                    currentX = nextX; // Update current coordinates after successful move
-                    currentY = nextY; // Update current coordinates after successful move
+                    // Update current space after successful move
+                    currentSpace = nextSpace;
+                    currentX = nextX;
+                    currentY = nextY;
                 } else {
+                    //Print for debugging
                     System.out.println("Move stopped: Cannot push player.");
                     return;
                 }
@@ -344,13 +346,22 @@ public class GameController {
                 currentSpace.setPlayer(null);
                 nextSpace.setPlayer(player);
                 player.setSpace(nextSpace);
-                currentSpace = nextSpace; // Update current space after successful move
-                currentX = nextX; // Update current coordinates after successful move
-                currentY = nextY; // Update current coordinates after successful move
+                // Update current space after successful move
+                currentSpace = nextSpace;
+                currentX = nextX;
+                currentY = nextY;
             }
         }
     }
 
+    /**
+     * @param player is the current player
+     * @param heading is the players heading
+     * @param forward is the direction, either forwards or backwards movement
+     * @return if the player on the target space can be pushed or not
+     * If the player can be pushed, that players position is changed, but that players heading
+     * stays the same
+     */
     private boolean canPush(Player player, Heading heading, boolean forward) {
         Space currentSpace = player.getSpace();
         int newX = currentSpace.x;
@@ -384,7 +395,7 @@ public class GameController {
             return false; // Return false if there is a wall
         }
 
-        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null && nextSpace.getType() != ActionField.WALL) {
+        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null) {
             // Push the player to the new space if it is empty and not a wall
             currentSpace.setPlayer(null);
             nextSpace.setPlayer(player);
