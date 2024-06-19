@@ -1,5 +1,6 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import javafx.collections.FXCollections;
@@ -20,7 +21,11 @@ public class MapSelection extends VBox {
     ImageView imageView;
     StackPane stackPane;
 
-    public MapSelection(AppController controller) {
+    private LobbySelecter lobbySelecter;
+
+    public MapSelection(LobbySelecter lobbySelecter) {
+
+        this.lobbySelecter = lobbySelecter;
         // Create a ChoiceBox with selectable options
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.setItems(FXCollections.observableArrayList(
@@ -47,7 +52,13 @@ public class MapSelection extends VBox {
         // Create a button to get the selected option
         Button selectButton = new Button("Select");
         selectButton.setOnAction(e -> {
-           controller.startGame(choiceBox.getValue());
+
+           lobbySelecter.setCourse(choiceBox.getValue());
+            try {
+                lobbySelecter.sendRequest();
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         this.getChildren().addAll(choiceBox,stackPane, selectButton);

@@ -45,13 +45,31 @@ public class GameController {
     public Board board;
    private BoardView boardView;
 
+
+
+    private Lobby lobby;
+
     /**
      * Constructs a GameController with the specified game board.
      *
      * @param board the game board that this controller will manage
      */
+    public GameController(@NotNull Board board, Lobby lobby) {
+        this.board = board;
+        this.lobby = lobby;
+    }
+
     public GameController(@NotNull Board board) {
         this.board = board;
+    }
+
+
+    public Lobby getLobby() {
+        return lobby;
+    }
+
+    public void setLobby(Lobby lobby) {
+        this.lobby = lobby;
     }
 
     /**

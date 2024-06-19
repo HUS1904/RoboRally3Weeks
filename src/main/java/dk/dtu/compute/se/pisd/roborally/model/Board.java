@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.view.CardFieldView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -41,7 +42,6 @@ import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
  */
 public class Board extends Subject {
     @Expose
-
     public final int width;
     @Expose
     public final int height;
@@ -63,12 +63,17 @@ public class Board extends Subject {
     private Player current;
     @Expose
     private Phase phase = INITIALISATION;
-    @Expose
-    private String course;
+
     @Expose
     private int step = 0;
     @Expose
     private boolean stepMode;
+
+
+
+    private Deck shop;
+
+    private List<CardFieldView> shopViews = new ArrayList<>();
     private static final int MAX_PLAYERS = 6;
     private Player currentTurn;
 
@@ -153,6 +158,14 @@ public class Board extends Subject {
             }
         }
         return new Space(this, x, y);
+    }
+
+    public Deck getShop() {
+        return shop;
+    }
+
+    public void setShop(Deck shop) {
+        this.shop = shop;
     }
 
     public Player findCorrespondingPlayer(Player player) {

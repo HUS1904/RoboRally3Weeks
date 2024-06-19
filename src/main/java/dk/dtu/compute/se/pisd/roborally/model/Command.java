@@ -61,4 +61,14 @@ public enum Command {
 
     public boolean isInteractive() {return !options.isEmpty(); }
     public List<Command> getOptions() {return options; }
+
+    public static Command fromDisplayName(String displayName) {
+        for (Command command : Command.values()) {
+            if (command.displayName.equals(displayName)) {
+                return command;
+            }
+        }
+        return null;
+    }
+
 }

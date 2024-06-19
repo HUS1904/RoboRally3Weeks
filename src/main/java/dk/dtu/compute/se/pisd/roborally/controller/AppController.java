@@ -75,14 +75,15 @@ import java.io.IOException;
  */
 public class AppController implements Observer {
 
-    final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
     final private List<String> PLAYER_COLORS = Arrays.asList("red", "green", "blue", "orange", "grey", "magenta");
 
     final private RoboRally roboRally;
-    Optional<Integer> result;
+
     private GameController gameController;
     public String course = null;
     private boolean isLightMode = true;
+
+    public Lobby lobby  = new Lobby();
 
     /**
      * Initializes a new AppController instance with the specified RoboRally game instance.
@@ -100,31 +101,14 @@ public class AppController implements Observer {
     public void newGame() throws JsonProcessingException {
 
         roboRally.createLobbySelectionView();
-
-       // ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);
-        //dialog.setTitle("Player number");
-        //dialog.setHeaderText("Select number of players");
-      //  result = dialog.showAndWait();
-
-        //if (result.isPresent()) {
-          //  if (gameController != null) {
-                // The UI should not allow this, but in case this happens anyway.
-                // give the user the option to save the game or abort this operation!
-            //    if (!stopGame()) {
-                    return;
-              //  }
-           // }
-
-            // XXX the board should eventually be created programmatically or loaded from a file
-            //     here we just create an empty board with the required number of players.
-            //Board board = new Board(8,8);
-            //gameController = new GameController(board);
-            //roboRally.createMapSlectionView();
-        //}
     }
 
-    public void startGame(String Course)  {
-        String directoryPath = "src/main/resources/courses/" + Course + ".json";
+    public void startGame(Lobby lobby) {
+
+
+        this.lobby = lobby;
+
+        String directoryPath = "src/main/resources/courses/" + lobby.getCourse() + ".json";
 
         Gson gson = new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
@@ -133,37 +117,101 @@ public class AppController implements Observer {
 
         try {
             String jsonContent = new String(Files.readAllBytes(courseFile.toPath()));
-            Course course = gson.fromJson(jsonContent,Course.class);
+            Course course = gson.fromJson(jsonContent, Course.class);
 
+            System.out.print(lobby.getId());
 
-            gameController = new GameController(new Board(course,"e"));
+            gameController = new GameController(new Board(course, "e"),lobby);
 
-            Board board =  gameController.board;
-            int no = result.get();
-            for (int i = 0; i < no; i++) {
-                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1),gameController);
+            Board board = gameController.board;
+
+            Deck shop = new Deck("upgrade", gameController);
+            shop.generateUpgradeDeck(gameController);
+            board.setShop(shop);
+            for (int i = 0; i < lobby.getMaxPlayers(); i++) {
+                Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1), gameController);
                 board.addPlayer(player);
                 player.setSpace(board.getSpace(i % board.width, i));
             }
-
-            board.determineTurn(2,2);
+            board.determineTurn(4, 0);
             board.setCurrentPlayer(board.getPlayer(0));
+            lobby.setCards(board.getShop().deckIntoString(board.getShop()));
+            lobby.setCurrentPlayer(gameController.board.getPlayer(0).getName());
 
-        } catch (IOException ignored){
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(lobby);
+            // Create an HttpClient
+            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+                // Create a HttpPost request
+                HttpPost postRequest = new HttpPost("http://localhost:8080/api/lobby");
+                postRequest.setEntity(new StringEntity(requestBody));
+                postRequest.setHeader("Content-Type", "application/json");
+
+                // Execute the request
+                try (CloseableHttpResponse response = httpClient.execute(postRequest)) {
+                    // Print the response status code and body
+                    System.out.println("Status code: " + response.getStatusLine().getStatusCode());
+                    System.out.println("Response body: " + response.getEntity().getContent().toString());
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (IOException ignored) {
 
         }
-
-
-
-
-
-
-
 
         gameController.board.setPhase(Phase.INITIALISATION);
 
         roboRally.createBoardView(gameController);
-    }
+}
+
+        public void startGameFromJoinLobby (Lobby lobby) {
+
+            this.lobby = lobby;
+
+            String directoryPath = "src/main/resources/courses/" + lobby.getCourse() + ".json";
+
+            Gson gson = new GsonBuilder()
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .create();
+            File courseFile = new File(directoryPath);
+
+            try {
+                String jsonContent = null;
+                try {
+                    jsonContent = new String(Files.readAllBytes(courseFile.toPath()));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                Course course = gson.fromJson(jsonContent, Course.class);
+
+
+                gameController = new GameController(new Board(course, "e"),lobby);
+
+                Board board = gameController.board;
+
+                Deck shop = new Deck("upgrade", gameController);
+                board.setShop(shop.turnStringToDeck(lobby.getCards()));
+                for (int i = 0; i < lobby.getMaxPlayers(); i++) {
+                    Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1), gameController);
+                    board.addPlayer(player);
+                    player.setSpace(board.getSpace(i % board.width, i));
+                }
+                board.determineTurn(2, 2);
+                board.setCurrentPlayer(board.getPlayer(0));
+                gameController.getLobby().setCards(board.getShop().deckIntoString(board.getShop()));
+
+
+                gameController.board.setPhase(Phase.INITIALISATION);
+
+                roboRally.createBoardView(gameController);
+
+            } catch(IllegalArgumentException e){
+
+            }
+        }
 
     /**
      * Saves the current game state. This method is intended for future implementation.

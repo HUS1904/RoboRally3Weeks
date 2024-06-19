@@ -56,10 +56,34 @@ public class Deck {
         deck.add(random,card);
     }
 
+    public ArrayList<CommandCard> getDeck(){
+        return deck;
+    }
+
     public CommandCard deal() {
-        if(deck.size() != 8){
+        if(deck.isEmpty()){
             shuffleDeck();
         }
-        return deck.remove(deck.size() - 1);
+        CommandCard card = deck.remove(deck.size() - 1);
+        sendToDiscardPile(card);
+        return card;
+    }
+
+    public List<String> deckIntoString(Deck deck){
+        List<CommandCard> cards = deck.getDeck();
+        List<String> cardsFormatted = new ArrayList<>();
+
+        for(CommandCard card : cards){
+            cardsFormatted.add(card.getName());
+        }
+        return cardsFormatted;
+    }
+
+    public Deck turnStringToDeck(List<String> list){
+        this.deck.clear();
+        for(String string : list){
+            this.deck.add(new CommandCard(Command.fromDisplayName(string),"upgrade"));
+        }
+        return this;
     }
 }

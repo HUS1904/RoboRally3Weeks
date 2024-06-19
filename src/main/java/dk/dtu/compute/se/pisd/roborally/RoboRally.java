@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally;
 
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
+import dk.dtu.compute.se.pisd.roborally.model.Deck;
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.LobbySelecter;
 import dk.dtu.compute.se.pisd.roborally.view.MapSelection;
@@ -142,11 +143,11 @@ public class RoboRally extends Application {
 
     }
 
-    public void createMapSlectionView(){
+    public void createMapSlectionView(LobbySelecter lobbySelecter){
         boardRoot.getChildren().clear();
 
             // create and add view for new board
-            MapSelection mapselection = new MapSelection(appController);
+            MapSelection mapselection = new MapSelection(lobbySelecter);
             mapselection.setId("mapselect");
             boardRoot.setCenter(mapselection);
 
@@ -159,7 +160,7 @@ public class RoboRally extends Application {
     public void createLobbySelectionView(){
         boardRoot.getChildren().clear();
 
-        LobbySelecter lobby = new LobbySelecter();
+        LobbySelecter lobby = new LobbySelecter(this,appController);
 
         boardRoot.setCenter(lobby);
 
