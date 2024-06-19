@@ -354,10 +354,12 @@ public class AppController implements Observer {
                 throw new Exception("Resource not found: DarkMode.css");
             }
             final Image image = new Image(getClass().getResourceAsStream("/light.png"));
+            final Image youWingImage = new Image(getClass().getResourceAsStream("/youWinLight.gif"));
             Platform.runLater(() -> {
                 roboRally.getPrimaryScene().getStylesheets().clear();
                 roboRally.getPrimaryScene().getStylesheets().add(url.toExternalForm());
                 roboRally.setImgMode(image);
+                roboRally.setyouWinImg(youWingImage);
             });
         } catch (Exception e) {
             System.out.println("Failed to set dark mode: " + e.getMessage());
@@ -371,10 +373,12 @@ public class AppController implements Observer {
                 throw new Exception("Resource not found: LightMode.css");
             }
             final Image image = new Image(getClass().getResourceAsStream("/dark.png"));
+            final Image youWingImage = new Image(getClass().getResourceAsStream("/youWinDark.gif"));
             Platform.runLater(() -> {
                 roboRally.getPrimaryScene().getStylesheets().clear();
                 roboRally.getPrimaryScene().getStylesheets().add(url.toExternalForm());
                 roboRally.setImgMode(image);
+                roboRally.setyouWinImg(youWingImage);
             });
         } catch (Exception e) {
             System.out.println("Failed to set light mode: " + e.getMessage());

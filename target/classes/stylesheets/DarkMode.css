@@ -106,6 +106,10 @@
     -fx-background-color: #007acc;
 }
 
+#root{
+    -fx-background-color: #2d2d30;
+}
+
 #board{
     -fx-background-color: #2d2d30;
 }
@@ -142,4 +146,14 @@
     -fx-background-color: #2d2d30; /* Light blue for each tab */
 }
 
+#winner-label{
+    -fx-text-fill: white;
+    -fx-font-size: 15.0 pt;
+    -fx-font-family: "poppins";
+    -fx-font-weight: bold;
+}
+
+#layout{
+    -fx-background-color: #2d2d30;
+}
 

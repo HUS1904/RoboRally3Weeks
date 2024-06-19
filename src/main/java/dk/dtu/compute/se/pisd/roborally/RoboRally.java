@@ -64,7 +64,8 @@ public class RoboRally extends Application {
 
     public AppController appController;
     private URL url;
-    private ImageView imgMode = new ImageView();;
+    private ImageView imgMode = new ImageView();
+    private ImageView youWinImageView = new ImageView();
     private Scene primaryScene;
 
     /**
@@ -233,26 +234,35 @@ public class RoboRally extends Application {
     public void displayWinner(Player winner) {
         Platform.runLater(() -> {
             boardRoot.getChildren().clear();  // Clear current UI components
+            boardRoot.setId("root");
 
             VBox layout = new VBox(20);
+            layout.setId("layout");
             layout.setAlignment(Pos.CENTER);
             layout.setPadding(new Insets(20));
 
-            Label winnerLabel = new Label("Winner: " + winner.getName());
-            winnerLabel.setFont(new Font("Arial", 24));
+            //String imgName = ""
+            Image youWinImage = new Image(getClass().getResourceAsStream("/youWinDark.gif"));
+            setyouWinImg(youWinImage);
+            youWinImageView.setFitHeight(100);
+            youWinImageView.setFitWidth(300);
+
+            Label winnerLabel = new Label(winner.getName().toUpperCase());
+            winnerLabel.setId("winner-label");
 
             Image playerImage = new Image(getClass().getResourceAsStream("/robot-" + winner.getColor() + ".png"));
             ImageView imageView = new ImageView(playerImage);
+            imageView.setRotate(180);
             imageView.setFitHeight(100);
             imageView.setFitWidth(100);
 
-            Button stopButton = new Button("Stop Game");
+            Button stopButton = new Button("STOP GAME");
             stopButton.setOnAction(event -> {
                 appController.stopGame();
                 //stage.close();  // Optionally close the game window
             });
 
-            layout.getChildren().addAll(winnerLabel, imageView, stopButton);
+            layout.getChildren().addAll(youWinImageView, winnerLabel, imageView, stopButton);
             boardRoot.setCenter(layout);
 
             stage.sizeToScene();
@@ -292,6 +302,10 @@ public class RoboRally extends Application {
 
     public void setImgMode(Image img) {
         imgMode.setImage(img);
+    }
+
+    public void setyouWinImg(Image img) {
+        youWinImageView.setImage(img);
     }
 
     public Scene getPrimaryScene() {
