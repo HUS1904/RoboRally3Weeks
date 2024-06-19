@@ -293,10 +293,11 @@ public class GameController {
             heading = heading.next().next();
         }
 
-        int nextX = currentX;
-        int nextY = currentY;
-
         for (int i = 0; i < num; i++) {
+            int nextX = currentX;
+            int nextY = currentY;
+
+            // Determine the next coordinates based on the heading
             switch (heading) {
                 case NORTH:
                     nextY--;
@@ -311,28 +312,32 @@ public class GameController {
                     nextX--;
                     break;
             }
-        }
 
-        // Check if the next space is within the board boundaries
-        if (nextX >= 0 && nextX < board.width && nextY >= 0 && nextY < board.height) {
-            Space nextSpace = board.getSpace(nextX, nextY);
+            // Check if the next space is within the board boundaries
+            if (nextX >= 0 && nextX < board.width && nextY >= 0 && nextY < board.height) {
+                Space nextSpace = board.getSpace(nextX, nextY);
 
-            // Check if there is a wall in the current direction or opposite direction
-            boolean hasWall = false;
-            for (int i = 0; i < num; i++) {
+                // Check if there is a wall in the current direction or opposite direction
                 if (currentSpace.hasWall(heading) || nextSpace.hasWall(heading.opposite())) {
-                    hasWall = true;
-                    break;
+                    break; // Stop movement if there is a wall
                 }
-            }
 
-            // If there is no wall, move the player to the next space
-            if (!hasWall && nextSpace.getPlayer() == null) {
-                player.setSpace(nextSpace);
-                board.setCurrentPlayer(player);
+                // If there are no walls and the next space is not occupied, move the player to the next space
+                if (nextSpace.getPlayer() == null) {
+                    player.setSpace(nextSpace);
+                    board.setCurrentPlayer(player);
+                    currentSpace = nextSpace; // Update currentSpace for the next iteration
+                    currentX = nextX; // Update currentX for the next iteration
+                    currentY = nextY; // Update currentY for the next iteration
+                } else {
+                    break; // Stop movement if there is another player in the way
+                }
+            } else {
+                break; // Stop movement if the next space is out of bounds
             }
         }
     }
+
 
 
     public void moveTo(Player player,int x ,int y) {
