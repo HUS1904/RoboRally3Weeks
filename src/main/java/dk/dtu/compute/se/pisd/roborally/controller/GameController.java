@@ -23,6 +23,7 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -32,8 +33,7 @@ import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
 
-import static dk.dtu.compute.se.pisd.roborally.model.Command.RAMMINGGEAR;
-import static dk.dtu.compute.se.pisd.roborally.model.Command.SPAM;
+import static dk.dtu.compute.se.pisd.roborally.model.Command.*;
 
 /**
  * The GameController class is responsible for managing the game logic and state transitions
@@ -47,6 +47,8 @@ public class GameController {
 
     public Board board;
    private BoardView boardView;
+
+    final private List<String> POSSIBLEMOVES = Arrays.asList("Up", "Down", "Left", "Right");
 
     /**
      * Constructs a GameController with the specified game board.
@@ -108,7 +110,9 @@ public class GameController {
         ArrayList<Command> damageCards = new ArrayList<>(List.of(
                 Command.SPAM,
                 RAMMINGGEAR,
-                Command.RECHARGE
+                Command.RECHARGE,
+                VIRUSMODULE,
+                BOINK
         ));
         ArrayList<Command> commands = new ArrayList<>(List.of(Command.values()));
         commands.removeAll(damageCards);
@@ -123,8 +127,12 @@ public class GameController {
         return new CommandCard(Command.SPAM, "damage");
     }
 
+    public CommandCard generateVirusCard() {
+        return new CommandCard(Command.VIRUSMODULE, "virus");
+    }
+
     public CommandCard generateUpgradeCard() {
-        List<Command> upgrades = List.of(Command.RECHARGE, RAMMINGGEAR);
+        List<Command> upgrades = List.of(Command.RECHARGE, RAMMINGGEAR, VIRUSMODULE, BOINK);
 
         int random = (int) (Math.random() * upgrades.size());
         return new CommandCard(upgrades.get(random), "upgrade");
@@ -317,6 +325,10 @@ public class GameController {
                         Command command = upgCard.command;
                         executeCommand(currentPlayer, command);
                     });
+                    currentPlayer.getTempUpgradeInv(step).getCard().ifPresent(tempUpg -> {
+                       Command command = tempUpg.command;
+                       executeCommand(currentPlayer, command);
+                    });
                     currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
                         Command command = card.command;
                         if (command.isInteractive()) {
@@ -412,6 +424,31 @@ public class GameController {
                         moveForward(player, 1, true);
                     }
 
+                case VIRUSMODULE:
+                    // Handle virus logic
+
+                case BOINK:
+                    // Handle Boink logic
+                    ChoiceDialog<String> dialog = new ChoiceDialog<>(POSSIBLEMOVES.get(0), POSSIBLEMOVES);
+                    dialog.setHeaderText("Select preferred move");
+                    Optional<String> result = dialog.showAndWait();
+
+                    if (result.isPresent()) {
+                        if (result.equals(POSSIBLEMOVES.get(0))) {
+                            moveForward(player, 1, true);
+                        } else if (result.equals(POSSIBLEMOVES.get(1))) {
+                            moveForward(player, 1, false);
+                        } else if (result.equals(POSSIBLEMOVES.get(2))) {
+                            turnLeft(player);
+                            moveForward(player, 1, true);
+                            turnRight(player);
+                        } else if (result.equals(POSSIBLEMOVES.get(3))) {
+                            turnRight(player);
+                            moveForward(player, 1, true);
+                            turnLeft(player);
+                        }
+                    }
+
                 default:
                     // DO NOTHING (for now)
             }
@@ -481,6 +518,11 @@ public class GameController {
                         if (player.containsUpgradeCardWithCommand(player.getPermUpgradeField(k), RAMMINGGEAR)) {
                             // Insert logic for distributing SPAM-cards to player being pushed
                             otherPlayer.getDeck().addToDeck(generateDamageCard());
+                            //otherPlayer.getDeck().sendToDiscardPile(generateDamageCard());
+                        } else if (player.containsUpgradeCardWithCommand(player.getPermUpgradeField(k), VIRUSMODULE)) {
+                            otherPlayer.getDeck().addToDeck(generateVirusCard());
+                            otherPlayer.getDeck().addToDeck(generateVirusCard());
+                            //otherPlayer.getDeck().sendToDiscardPile(generateVirusCard());
                         }
                     }
 
