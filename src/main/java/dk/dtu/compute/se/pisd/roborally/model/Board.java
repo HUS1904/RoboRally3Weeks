@@ -164,9 +164,12 @@ public class Board extends Subject {
 
 
     public void readjustShop(List<String> cardFields){
-        for(CommandCardField shopCardField:shopFields){
-            if(cardFields.get(shopFields.indexOf(shopCardField)).equals("null")){
-                shopCardField.setCard(null);
+
+        if(cardFields != null) {
+            for (CommandCardField shopCardField : shopFields) {
+                if (cardFields.get(shopFields.indexOf(shopCardField)).equals("null")) {
+                    shopCardField.setCard(null);
+                }
             }
         }
     }

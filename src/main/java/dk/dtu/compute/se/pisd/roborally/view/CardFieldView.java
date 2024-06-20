@@ -315,9 +315,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
                     // Perform your action here
                    gameController.setLobby(getLobby(gameController.getLobby().getId()));
                    Lobby lobby = gameController.getLobby();
-                   for(String string: lobby.getCardField()){
-                       System.out.println(string);
-                   }
+                  gameController.board.setTurnIndex(lobby.getPlayerIndex());
                     gameController.board.setCurrentTurn(gameController.board.findCorrespondingPlayer(lobby.getCurrentPlayer()));
                     gameController.board.readjustShop(lobby.getCardField());
                     timeline.stop();
