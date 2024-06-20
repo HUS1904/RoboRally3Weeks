@@ -21,9 +21,14 @@
  */
 package dk.dtu.compute.se.pisd.roborally.view;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -33,9 +38,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.io.IOException;
 
 /**
  * The CardFieldView class provides the visual representation of a command card
@@ -208,6 +219,28 @@ public class CardFieldView extends GridPane implements ViewObserver {
         return null;
     }
 
+    private Lobby getLobby(long id) {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            // Create a HttpGet request
+            HttpGet getRequest = new HttpGet("http://localhost:8080/api/lobby/" + id);
+            getRequest.setHeader("Content-Type", "application/json");
+
+            // Execute the request
+            try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
+                // Print the response status code
+                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
+
+                // Parse the JSON response into a list of Lobby objects
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<Lobby>() {});
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Updates the view based on changes to the observed command card field.
      * @param subject The subject (command card field) being observed for changes.
@@ -234,194 +267,205 @@ public class CardFieldView extends GridPane implements ViewObserver {
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent event) {
-            Object t = event.getTarget();
-            CardFieldView source = null;
-            CommandCardField cardField = null;
-            if (t instanceof CardFieldView) {
-                source = (CardFieldView) t;
-                cardField = source.field;
-            } else if (t instanceof ImageView) {
-                source = (CardFieldView)((ImageView) t).getParent();
-                cardField = source.field;
+            CardFieldView source = getSource(event.getTarget());
+            if (source == null) return;
+
+            CommandCardField cardField = source.field;
+            if (isValidCardField(cardField)) {
+                initiateDragAndDrop(source, cardField);
             }
-                if (cardField != null &&
-                        cardField.getCard().isPresent() &&
-                        cardField.player != null &&
-                        cardField.player.board != null) {
-                    Dragboard db = source.startDragAndDrop(TransferMode.MOVE);
-                    Image image = source.snapshot(null, null);
-                    db.setDragView(image);
-
-                    ClipboardContent content = new ClipboardContent();
-                    content.put(ROBO_RALLY_CARD_UPGRADE, cardFieldRepresentation(cardField));
-
-                    db.setContent(content);
-                    source.setBackground(BG_DRAG);
-                }
-
             event.consume();
-            }
-
         }
 
+        private CardFieldView getSource(Object target) {
+            if (target instanceof CardFieldView) {
+                return (CardFieldView) target;
+            } else if (target instanceof ImageView) {
+                return (CardFieldView) ((ImageView) target).getParent();
+            }
+            return null;
+        }
 
+        private boolean isValidCardField(CommandCardField cardField) {
+            return cardField != null && cardField.getCard().isPresent() &&
+                    cardField.player != null && cardField.player.board != null;
+        }
+
+        private void initiateDragAndDrop(CardFieldView source, CommandCardField cardField) {
+            Dragboard db = source.startDragAndDrop(TransferMode.MOVE);
+            Image image = source.snapshot(null, null);
+            db.setDragView(image);
+
+            ClipboardContent content = new ClipboardContent();
+            content.put(ROBO_RALLY_CARD_UPGRADE, cardFieldRepresentation(cardField));
+
+            db.setContent(content);
+            source.setBackground(BG_DRAG);
+        }
+    }
 
     private class OnDragOverHandler implements EventHandler<DragEvent> {
+        private Timeline timeline;
+
+        public OnDragOverHandler() {
+            // Create a timeline that runs every 3 seconds
+            timeline = new Timeline(new KeyFrame(Duration.seconds(3), new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    // Perform your action here
+                   gameController.setLobby(getLobby(gameController.getLobby().getId()));
+                   Lobby lobby = gameController.getLobby();
+                   for(String string: lobby.getCardField()){
+                       System.out.println(string);
+                   }
+                    gameController.board.setCurrentTurn(gameController.board.findCorrespondingPlayer(lobby.getCurrentPlayer()));
+                    gameController.board.readjustShop(lobby.getCardField());
+                    timeline.stop();
+                }
+            }));
+            timeline.setCycleCount(Timeline.INDEFINITE);
+        }
 
         @Override
         public void handle(DragEvent event) {
+            if (!(event.getTarget() instanceof CardFieldView target)) return;
 
-            Object t = event.getTarget();
-            if (t instanceof CardFieldView) {
-                CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
-
-                // checking the phase becasue the turn nature differs from phase to phase
-                if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
-                    if ((cardField.getCard().isEmpty() || event.getGestureSource() == target) && target.field.player == gameController.board.getCurrentTurn()) {
-                        CardFieldView source = (CardFieldView) event.getGestureSource();
-                        CommandCardField field = source.field;
-                        if (event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)  && field.getType().equals(cardField.getType())) {
-                            event.acceptTransferModes(TransferMode.MOVE);
-                        }
-                    }
-                } else {
-                    if (cardField.getCard().isEmpty() || event.getGestureSource() == target) {
-                        CardFieldView source = (CardFieldView) event.getGestureSource();
-                        CommandCardField field = source.field;
-                        if (event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE) && field.getType().equals(cardField.getType())) {
-                            event.acceptTransferModes(TransferMode.MOVE);
-                        }
-                    }
-
+            CommandCardField cardField = target.field;
+            if (isValidForDragOver(cardField, event)) {
+                event.acceptTransferModes(TransferMode.MOVE);
+                // Stop the timeline if it's running
+                if (timeline.getStatus() == Timeline.Status.RUNNING) {
+                    timeline.stop();
+                }
+            } else {
+                // Start the timeline if it's not already running
+                if (timeline.getStatus() != Timeline.Status.RUNNING) {
+                    timeline.play();
                 }
             }
             event.consume();
         }
 
+        private boolean isValidForDragOver(CommandCardField cardField, DragEvent event) {
+            if (cardField.player.board.getPhase() == Phase.INITIALISATION) {
+                return isValidInitializationPhase(cardField, event);
+            } else {
+                return isValidGeneralPhase(cardField, event);
+            }
+        }
+
+        private boolean isValidInitializationPhase(CommandCardField cardField, DragEvent event) {
+            return (cardField.getCard().isEmpty() || event.getGestureSource() == cardField)
+                    && cardField.player == gameController.board.getCurrentTurn()
+                    && event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)
+                    && ((CardFieldView) event.getGestureSource()).field.getType().equals(cardField.getType());
+        }
+
+        private boolean isValidGeneralPhase(CommandCardField cardField, DragEvent event) {
+            return (cardField.getCard().isEmpty() || event.getGestureSource() == cardField)
+                    && event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)
+                    && ((CardFieldView) event.getGestureSource()).field.getType().equals(cardField.getType());
+        }
     }
 
     private class OnDragEnteredHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
-            Object t = event.getTarget();
-            if (t instanceof CardFieldView target) {
-                CommandCardField cardField = target.field;
-                // checking the phase because the turn nature differs from phase to phase
-                if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
-                    if (cardField.getCard().isEmpty()) {
-                        CardFieldView source = (CardFieldView) event.getGestureSource();
+            if (!(event.getTarget() instanceof CardFieldView target)) return;
 
-                        if (event.getGestureSource() != target &&
-                                event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)   && target.field.player == gameController.board.getCurrentTurn()) {
-                            target.setBackground(BG_DROP);
-                        }
-                    }
-                } else {
-                    if (cardField.getCard().isEmpty()) {
-                        CardFieldView source = (CardFieldView) event.getGestureSource();
-                        if (event.getGestureSource() != target &&
-                                event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)) {
-                            target.setBackground(BG_DROP);
-                        }
-                    }
-                }
+            CommandCardField cardField = target.field;
+            if (shouldSetBackgroundDrop(cardField, event)) {
+                target.setBackground(BG_DROP);
             }
             event.consume();
         }
 
+        private boolean shouldSetBackgroundDrop(CommandCardField cardField, DragEvent event) {
+            if (cardField.player.board.getPhase() == Phase.INITIALISATION) {
+                return cardField.getCard().isEmpty()
+                        && event.getGestureSource() != cardField
+                        && event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)
+                        && cardField.player == gameController.board.getCurrentTurn();
+            } else {
+                return cardField.getCard().isEmpty()
+                        && event.getGestureSource() != cardField
+                        && event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE);
+            }
+        }
     }
 
     private class OnDragExitedHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
-            Object t = event.getTarget();
-            if (t instanceof CardFieldView target) {
-                CommandCardField cardField = target.field;
-                if (cardField != null &&
-                        cardField.getCard().isEmpty() &&
-                        cardField.player != null &&
-                        cardField.player.board != null) {
-                    if (event.getGestureSource() != target &&
-                            event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE)) {
-                        target.setBackground(BG_DEFAULT);
-                    }
-                }
-            }
-            event.consume();
-        }
+            if (!(event.getTarget() instanceof CardFieldView target)) return;
 
-    }
-
-    private class OnDragDroppedHandler implements EventHandler<DragEvent> {
-
-        @Override
-        public void handle(DragEvent event) {
-            Object t = event.getTarget();
-            if (t instanceof CardFieldView) {
-                CardFieldView target = (CardFieldView) t;
-                CommandCardField cardField = target.field;
-
-                Dragboard db = event.getDragboard();
-                boolean success = false;
-                if(cardField.player.board.getPhase() == Phase.INITIALISATION) {
-
-
-                    if (cardField.getCard().isEmpty() && target.field.player == gameController.board.getCurrentTurn()) {
-                        if (event.getGestureSource() != target &&
-                                db.hasContent(ROBO_RALLY_CARD_UPGRADE)) {
-                            Object object = db.getContent(ROBO_RALLY_CARD_UPGRADE);
-                            if (object instanceof String) {
-                                CommandCardField source = cardFieldFromRepresentation((String) object);
-                                if (source != null && gameController.moveCards(source, cardField)) {
-                                    cardField.player.incrementEnergy(2);
-                                    success = true;
-                                    // }
-                                }
-                            }
-                        }
-                    }
-
-                } else {
-                    if (cardField.getCard().isEmpty()) {
-                        if (event.getGestureSource() != target &&
-                                db.hasContent(ROBO_RALLY_CARD_UPGRADE)) {
-                            Object object = db.getContent(ROBO_RALLY_CARD_UPGRADE);
-                            if (object instanceof String) {
-                                CommandCardField source = cardFieldFromRepresentation((String) object);
-                                if (source != null && gameController.moveCards(source, cardField)) {
-
-                                    success = true;
-                                    // }
-                                }
-                            }
-                        }
-                    }
-
-
-                }
-                event.setDropCompleted(success);
+            CommandCardField cardField = target.field;
+            if (shouldResetBackground(cardField, event)) {
                 target.setBackground(BG_DEFAULT);
             }
             event.consume();
         }
 
+        private boolean shouldResetBackground(CommandCardField cardField, DragEvent event) {
+            return cardField != null && cardField.getCard().isEmpty()
+                    && cardField.player != null && cardField.player.board != null
+                    && event.getGestureSource() != cardField
+                    && event.getDragboard().hasContent(ROBO_RALLY_CARD_UPGRADE);
+        }
+    }
+
+    private class OnDragDroppedHandler implements EventHandler<DragEvent> {
+        @Override
+        public void handle(DragEvent event) {
+            if (!(event.getTarget() instanceof CardFieldView target)) return;
+
+            CommandCardField cardField = target.field;
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            if (isDropAllowed(cardField, db)) {
+                success = handleDrop(cardField, db);
+            }
+
+            event.setDropCompleted(success);
+            target.setBackground(BG_DEFAULT);
+            event.consume();
+        }
+
+        private boolean isDropAllowed(CommandCardField cardField, Dragboard db) {
+            if (cardField.player.board.getPhase() == Phase.INITIALISATION) {
+                return cardField.getCard().isEmpty()
+                        && cardField.player == gameController.board.getCurrentTurn()
+                        && db.hasContent(ROBO_RALLY_CARD_UPGRADE);
+            } else {
+                return cardField.getCard().isEmpty()
+                        && db.hasContent(ROBO_RALLY_CARD_UPGRADE);
+            }
+        }
+
+        private boolean handleDrop(CommandCardField cardField, Dragboard db) {
+            Object object = db.getContent(ROBO_RALLY_CARD_UPGRADE);
+            if (object instanceof String representation) {
+                CommandCardField source = cardFieldFromRepresentation(representation);
+                if (source != null && gameController.moveCards(source, cardField)) {
+                    cardField.player.incrementEnergy(2);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     private class OnDragDoneHandler implements EventHandler<DragEvent> {
-
         @Override
         public void handle(DragEvent event) {
-            Object t = event.getTarget();
-            if (t instanceof CardFieldView source) {
+            if (event.getTarget() instanceof CardFieldView source) {
                 source.setBackground(BG_DEFAULT);
             }
             event.consume();
         }
-
     }
+
 
 }
 

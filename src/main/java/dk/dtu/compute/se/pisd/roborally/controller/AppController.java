@@ -312,7 +312,7 @@ public class AppController implements Observer {
                 Player player = new Player(newBoard, PLAYER_COLORS.get(i), "Player " + (i + 1),gameController);
                 newBoard.addPlayer(player);
                 player.setSpace(newBoard.getSpace(i % board.width, i));
-                gameController.moveTo(player,board.findCorrespondingPlayer(player).getSpace().x,board.findCorrespondingPlayer(player).getSpace().y);
+                gameController.moveTo(player,board.findCorrespondingPlayer(player.getName()).getSpace().x,board.findCorrespondingPlayer(player.getName()).getSpace().y);
                 player.setHeading(board.getPlayer(i).getHeading());
             }
 

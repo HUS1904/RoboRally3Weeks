@@ -92,6 +92,11 @@ public class Shop extends VBox {
 
             Lobby lobby = gameController.getLobby();
             gameController.board.getCurrentTurn().phase = Phase.PROGRAMMING;
+            if(gameController.board.getPlayers().indexOf(gameController.board.getCurrentPlayer()) == gameController.board.getPlayerAmount() -1 &&
+                    gameController.board.getCurrentTurn().phase == Phase.PROGRAMMING) {
+
+                gameController.startProgrammingPhase();
+            }
             gameController.board.moveCurrentTurn();
             lobby.setCurrentPlayer(gameController.board.getCurrentTurn().getName());
 
@@ -103,6 +108,7 @@ public class Shop extends VBox {
                 }
             }
             lobby.setCardField(cardFields);
+            lobby.setPlayerIndex(gameController.board.getTurnIndex());
 
             String url = "http://localhost:8080/api/lobby/shop/" + lobby.getId(); // Example URL with ID
 
@@ -137,11 +143,7 @@ public class Shop extends VBox {
 
 
 
-        if(gameController.board.getPlayers().indexOf(gameController.board.getCurrentPlayer()) == gameController.board.getPlayerAmount() -1 &&
-                gameController.board.getCurrentTurn().phase == Phase.PROGRAMMING) {
 
-            gameController.startProgrammingPhase();
-        }
 
         }
 

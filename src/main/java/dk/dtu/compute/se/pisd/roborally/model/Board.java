@@ -77,6 +77,8 @@ public class Board extends Subject {
     private static final int MAX_PLAYERS = 6;
     private Player currentTurn;
 
+    private int turnIndex = 0;
+
     /**
      * Constructs a new Board with the given dimensions and name.
      * Initializes the spaces within the board.
@@ -160,6 +162,14 @@ public class Board extends Subject {
         return new Space(this, x, y);
     }
 
+
+    public void readjustShop(List<String> cardFields){
+        for(CommandCardField shopCardField:shopFields){
+            if(cardFields.get(shopFields.indexOf(shopCardField)).equals("null")){
+                shopCardField.setCard(null);
+            }
+        }
+    }
     public Deck getShop() {
         return shop;
     }
@@ -168,8 +178,17 @@ public class Board extends Subject {
         this.shop = shop;
     }
 
-    public Player findCorrespondingPlayer(Player player) {
-        return getPlayers().stream().filter(p -> p.getName().equals(player.getName())).findAny().orElse(null);
+    public int getTurnIndex() {
+        return turnIndex;
+    }
+
+    public void setTurnIndex(int turnIndex) {
+        this.turnIndex = turnIndex;
+    }
+
+
+    public Player findCorrespondingPlayer(String playerName) {
+        return getPlayers().stream().filter(p -> p.getName().equals(playerName)).findAny().orElse(null);
     }
 
     public Course getCourse(){
@@ -220,14 +239,10 @@ public class Board extends Subject {
 
     // moves the current turn to the next players in the current order of turns
     public void moveCurrentTurn(){
-        Iterator<Player> iter = getPlayers().iterator();
-        Player player = iter.next();
-        while (iter.hasNext()) {
-            if(player == currentTurn){
-                player = iter.next();
-                setCurrentTurn(player);
-            } else player = iter.next();
-        }
+        int index = (players.indexOf(currentTurn) + 1) % ( players.size());
+        setCurrentTurn(players.get(index));
+       setTurnIndex(turnIndex + 1);
+
     }
 
     // sets the current turn

@@ -181,6 +181,7 @@ public class LobbySelecter extends VBox {
         lobby.setPlayerCount(1);
         lobby.setMaxPlayers(result.orElse(1));
         lobby.setCourse(course);
+        lobby.setPlayerIndex(0);
 
 
        appController.startGame(lobby);
