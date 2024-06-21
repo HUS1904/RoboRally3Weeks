@@ -32,6 +32,7 @@ import dk.dtu.compute.se.pisd.roborally.model.Space;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -39,10 +40,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Provides the graphical representation of the RoboRally game board, including all spaces and
@@ -61,7 +59,10 @@ public class BoardView extends VBox implements ViewObserver {
     private Shop shop;
     private HBox hBox = new HBox();
     private VBox checkPointStatusBox = new VBox();
-    private List<Player> players = new ArrayList<>();
+    private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<Label> playerLabels = new ArrayList<>();
+
+    private int max = 0;
 
     /**
      * Constructs a BoardView associated with a given game controller, initializing
@@ -90,23 +91,27 @@ public class BoardView extends VBox implements ViewObserver {
             }
         }
 
-
         // Calculate the maximum number of checkpoints
-        int max = board.getSpacesList().stream()
+        max = (int) board.getSpacesList().stream()
                 .filter(s -> s.getType() == ActionField.CHECKPOINT)
-                .mapToInt(s -> 1)
-                .sum();
+                .count();
+
+        Label checkPointTitle = new Label("Check Point Status");
+        checkPointTitle.setId("checkPointTitle");
+        checkPointStatusBox.getChildren().add(checkPointTitle);
 
         // Display each player's checkpoint progress
-        for (Player player : players) {
+        ListIterator<Player> playersIterator = players.listIterator(players.size());
+        while(playersIterator.hasPrevious()) {
+            Player player = playersIterator.previous();
             // Ensure there's no division by zero
             String progress = max > 0 ? player.getIndex() + "/" + max : "N/A";
             Label playerStatus = new Label(player.getName() + ":\t" + progress);
+            playerStatus.setId("checkPointPlayer");
+            playerLabels.add(playerStatus);
             checkPointStatusBox.getChildren().add(playerStatus);
         }
 
-        Label checkPointTitle = new Label("Check Point Status");
-        checkPointStatusBox.getChildren().add(checkPointTitle);
         hBox.getChildren().addAll(mainBoardPane,checkPointStatusBox);
 
         board.attach(this);
@@ -138,6 +143,15 @@ public class BoardView extends VBox implements ViewObserver {
                 this.getChildren().addAll(shop,playersView,statusLabel);
             } else{
                 this.getChildren().addAll(hBox,playersView,statusLabel);
+            }
+            try {
+                ListIterator<Player> playersIterator = players.listIterator(players.size());
+                Player player = playersIterator.previous();
+                for (Label playerLabel : playerLabels) {
+                    playerLabel.setText(player.getName() + ":\t" + player.getIndex() + "/" + max);
+                    player = playersIterator.previous();
+                }
+            } catch (Exception e) {
             }
         }
     }
