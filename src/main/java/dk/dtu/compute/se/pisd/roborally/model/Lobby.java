@@ -24,5 +24,8 @@ public class Lobby {
 
     private String currentPlayer;
 
+    private List<Integer> playersPosition ;
+
+
 
 }

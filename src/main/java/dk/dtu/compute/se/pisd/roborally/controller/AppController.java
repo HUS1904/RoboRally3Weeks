@@ -55,9 +55,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.google.gson.Gson;
 
@@ -107,7 +105,7 @@ public class AppController implements Observer {
 
 
         this.lobby = lobby;
-
+        List<Integer> playerPositions = new ArrayList<>();
         String directoryPath = "src/main/resources/courses/" + lobby.getCourse() + ".json";
 
         Gson gson = new GsonBuilder()
@@ -132,44 +130,38 @@ public class AppController implements Observer {
                 Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1), gameController);
                 board.addPlayer(player);
                 player.setSpace(board.getSpace(i % board.width, i));
+
+                playerPositions.add(player.getSpace().y);
+                playerPositions.add(player.getSpace().x);
             }
-            board.determineTurn(4, 0);
+            System.out.println(playerPositions);
+            lobby.setPlayersPosition(playerPositions);
+            Space antenna = board.getSpacesList().stream().filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA).findAny().orElseThrow(NoSuchElementException::new);
+            board.determineTurn(antenna.x, antenna.y);
             board.setCurrentPlayer(board.getPlayer(0));
             lobby.setCards(board.getShop().deckIntoString(board.getShop()));
             lobby.setCurrentPlayer(gameController.board.getPlayer(0).getName());
 
+            LobbyUtil.httpPost(lobby);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            String requestBody = objectMapper.writeValueAsString(lobby);
-            // Create an HttpClient
-            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-                // Create a HttpPost request
-                HttpPost postRequest = new HttpPost("http://localhost:8080/api/lobby");
-                postRequest.setEntity(new StringEntity(requestBody));
-                postRequest.setHeader("Content-Type", "application/json");
+            gameController.board.setCurrentPlayer( gameController.board.findCorrespondingPlayer("Player " + lobby.getPlayerCount()));
 
-                // Execute the request
-                try (CloseableHttpResponse response = httpClient.execute(postRequest)) {
-                    // Print the response status code and body
-                    System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-                    System.out.println("Response body: " + response.getEntity().getContent().toString());
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            gameController.board.setPhase(Phase.INITIALISATION);
+
+            roboRally.createBoardView(gameController);
 
         } catch (IOException ignored) {
 
         }
 
-        gameController.board.setPhase(Phase.INITIALISATION);
 
-        roboRally.createBoardView(gameController);
 }
 
         public void startGameFromJoinLobby (Lobby lobby) {
 
             this.lobby = lobby;
+
+            List<Integer> playerPositions = new ArrayList<>();
 
             String directoryPath = "src/main/resources/courses/" + lobby.getCourse() + ".json";
 
@@ -194,6 +186,7 @@ public class AppController implements Observer {
 
                 Deck shop = new Deck("upgrade", gameController);
                 board.setShop(shop.turnStringToDeck(lobby.getCards()));
+
                 for (int i = 0; i < lobby.getMaxPlayers(); i++) {
                     Player player = new Player(board, PLAYER_COLORS.get(i), "Player " + (i + 1), gameController);
                     board.addPlayer(player);

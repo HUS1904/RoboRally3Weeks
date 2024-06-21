@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.model.Lobby;
+import dk.dtu.compute.se.pisd.roborally.model.LobbyUtil;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
@@ -119,49 +120,7 @@ public class LobbySelecter extends VBox {
 
     }
 
-    public List<Lobby> getLobbies() {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Create a HttpGet request
-            HttpGet getRequest = new HttpGet("http://localhost:8080/api/lobby");
-            getRequest.setHeader("Content-Type", "application/json");
 
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
-                // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-
-                // Parse the JSON response into a list of Lobby objects
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<List<Lobby>>() {});
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Lobby getLobby(long id) {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Create a HttpGet request
-            HttpGet getRequest = new HttpGet("http://localhost:8080/api/lobby/" + id);
-            getRequest.setHeader("Content-Type", "application/json");
-
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
-                // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-
-                // Parse the JSON response into a list of Lobby objects
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<Lobby>() {});
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
     public void sendRequest() throws JsonProcessingException {
@@ -171,65 +130,41 @@ public class LobbySelecter extends VBox {
         dialog.setHeaderText("Select number of players");
         Optional<Integer> result = dialog.showAndWait();
 
-        List<String> cards = new ArrayList<>();
+        List<String> cardFields = new ArrayList<>();
 
-
-
+        cardFields.add("e");
+        cardFields.add("e");
+        cardFields.add("e");
+        cardFields.add("e");
+        cardFields.add("e");
+        cardFields.add("e");
+        cardFields.add("e");
+        cardFields.add("e");
 
         Lobby lobby = new Lobby();
         lobby.setId(5L);
         lobby.setPlayerCount(1);
-        lobby.setMaxPlayers(result.orElse(1));
+        lobby.setMaxPlayers(result.orElse(2));
         lobby.setCourse(course);
         lobby.setPlayerIndex(0);
+        lobby.setCardField(cardFields);
 
 
-       appController.startGame(lobby);
+        appController.startGame(lobby);
     }
 
 
-    public void joinLobby(long id) throws InterruptedException {
-        httpPut(id);
-        Lobby lobby = getLobby(id);
-        while (lobby.getPlayerCount() != lobby.getMaxPlayers()){
-            Thread.sleep(3000);
-            lobby = getLobby(lobby.getId());
-        }
-        appController.startGameFromJoinLobby(lobby);
 
 
 
-    }
 
-
-    public void httpPut(long id) {
-        String url = "http://localhost:8080/api/lobby/" + id; // Example URL with ID 1
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Create a HttpPut request with the URL
-            HttpPut putRequest = new HttpPut(url);
-
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
-                // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
 
 
     public void updateView() {
         lobbyBox.getChildren().clear(); // Clear the existing lobby views
 
-        List<Lobby> lobbies = getLobbies();
+        List<Lobby> lobbies = LobbyUtil.getLobbies();
 
         // Print the lobbies
         for (Lobby lobby : lobbies) {
@@ -239,7 +174,7 @@ public class LobbySelecter extends VBox {
             Label lobbyIdLabel = new Label("Lobby " + lobby.getId());
             lobbyIdLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;"); // Set font size and weight
 
-            Label playerCountLabel = new Label(lobby.getPlayerCount() + "/8");
+            Label playerCountLabel = new Label(lobby.getPlayerCount() + "/" + lobby.getMaxPlayers());
             playerCountLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;"); // Set font size and weight
 
             lobbyView.getChildren().addAll(lobbyIdLabel, playerCountLabel);
@@ -249,7 +184,8 @@ public class LobbySelecter extends VBox {
             lobbyView.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
                 if (event.getClickCount() == 2) {
                     try {
-                        joinLobby(lobby.getId());
+                       Lobby lobbyJoin = LobbyUtil.joinLobby(lobby.getId());
+                       appController.startGameFromJoinLobby(lobbyJoin);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }

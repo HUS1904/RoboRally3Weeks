@@ -23,8 +23,12 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.*;
 
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
@@ -44,6 +48,8 @@ public class GameController {
 
     public Board board;
    private BoardView boardView;
+
+   private Timeline timeline;
 
 
 
@@ -78,23 +84,23 @@ public class GameController {
      *
      * @param space the space to which the current player should move
      */
-    public void moveCurrentPlayerToSpace(@NotNull Space space)  {
-        if (!gearPhase) return;
-        Player currentPlayer = board.getCurrentPlayer();
+    public void movePlayerToSpace(Player player,@NotNull Space space)  {
+       // if (!gearPhase) return;
+        Player currentPlayer = player;
         if (currentPlayer != null) {
             // Check if the target space is occupied
-            if (space.getPlayer() == null && space.getType() == ActionField.STARTING_GEAR) {
+            if (space.getPlayer() == null) {
                 // Move the current player to the target space
                 currentPlayer.setSpace(space);
             }
         }
-        if (board.getPlayers()
-                 .stream()
-                 .map(Player::getSpace)
-                 .map(Space::getType)
-                 .allMatch(ActionField.STARTING_GEAR::equals)) {
-            gearPhase = !gearPhase;
-        }
+//        if (board.getPlayers()
+//                 .stream()
+//                 .map(Player::getSpace)
+//                 .map(Space::getType)
+//                 .allMatch(ActionField.STARTING_GEAR::equals)) {
+//            gearPhase = !gearPhase;
+//        }
     }
 
 
@@ -152,7 +158,8 @@ public class GameController {
      * the players visible for the current register.
      */
     public void finishProgrammingPhase() {
-        if (gearPhase) return;
+        Space antenna = board.getSpacesList().stream().filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA).findAny().orElseThrow(NoSuchElementException::new);
+        board.determineTurn(antenna.x, antenna.y);
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
         board.setPhase(Phase.ACTIVATION);
@@ -165,33 +172,73 @@ public class GameController {
      * one step in the activation phase, executing the command in the current register for each player.
      */
     public void executeRegister() {
-        this.board.getCurrentPlayer().incrementEnergy(1);
-        makeProgramFieldsVisible(board.getStep() + 1);
+            timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
+               lobby = LobbyUtil.getLobby(lobby.getId());
+                lobby = LobbyUtil.getLobby(lobby.getId());
+                List<Integer> cords = lobby.getPlayersPosition();
+                if (board.getCurrentPlayer().getName().equals(lobby.getCurrentPlayer())) {
+                    int maxPlayers = lobby.getMaxPlayers();
 
-        if(board.getPhase() == Phase.ACTIVATION) {
-            board.getPlayers().forEach(player -> {
-                int step = board.getStep();
-                if (step >= 0 && step < Player.NO_REGISTERS) {
-                    player.getProgramField(step).getCard().ifPresent(card -> {
-                        if (card.command.isInteractive()) {
-                            // Set to interaction phase, but don't advance the step
-                            board.setPhase(Phase.PLAYER_INTERACTION);
-                            // Interaction handling will occur here (show dialog, etc.)
-                        } else {
-                            // Execute non-interactive command
-                            executeCommand(player, card.command);
-                            // Optionally wait for user to trigger next step manually
-                            // If automatically proceeding:
+                    for (int i = maxPlayers; i > 0; i--) {
+                        int playerIndex = i - 1;
+                        if (playerIndex >= 0 && cords.size() >= 2) {
+                            // Remove the coordinates for the current player
+                            int y = cords.remove(cords.size() - 1);
+                            int x = cords.remove(cords.size() - 1);
+                            movePlayerToSpace(board.getPlayer(playerIndex), board.getSpace(x, y));
                         }
-                    });
-                }
-            });
-        }
+                    }
 
-        advanceStep();
-        //activateRobotLasers();
+                   this.board.getCurrentPlayer().incrementEnergy(1);
+                   makeProgramFieldsVisible(board.getStep() + 1);
+                   if(board.getPhase() == Phase.ACTIVATION) {
+                       Player player = this.board.getCurrentPlayer();
+                       int step = board.getStep();
+                       if (step >= 0 && step < Player.NO_REGISTERS) {
+                           player.getProgramField(step).getCard().ifPresent(card -> {
+                               if (card.command.isInteractive()) {
+                                   // Set to interaction phase, but don't advance the step
+                                   board.setPhase(Phase.PLAYER_INTERACTION);
+                                   // Interaction handling will occur here (show dialog, etc.)
+                               } else {
+                                   // Execute non-interactive command
+                                   executeCommand(player, card.command);
+                                   // Optionally wait for user to trigger next step manually
+                                   // If automatically proceeding:
+                               }
+                           });
+                       }
 
-        discardCards();
+                   }
+
+                   advanceStep();
+                   discardCards();
+
+                   for(Player player : board.getPlayers()){
+                       cords.add(player.getSpace().x);
+                       cords.add(player.getSpace().y);
+
+                   }
+                   lobby.setPlayersPosition(cords);
+                    board.moveCurrentTurn();
+                    System.out.println(board.getCurrentTurn().getName());
+                    lobby.setCurrentPlayer(board.getCurrentTurn().getName());
+                   try {
+                       LobbyUtil.httpPutLobby(lobby.getId(),lobby);
+                   } catch (IOException ex) {
+                       throw new RuntimeException(ex);
+                   }
+
+
+                   timeline.stop();
+
+               }
+            }));
+            timeline.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
+            timeline.play();
+
+
+
     }
 
     private void discardCards() {
