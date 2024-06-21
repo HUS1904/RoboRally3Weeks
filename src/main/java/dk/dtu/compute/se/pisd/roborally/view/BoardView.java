@@ -35,11 +35,13 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -56,8 +58,10 @@ public class BoardView extends VBox implements ViewObserver {
     private PlayersView playersView;
     private Label statusLabel;
     private SpaceEventHandler spaceEventHandler;
-
     private Shop shop;
+    private HBox hBox = new HBox();
+    private VBox checkPointStatusBox = new VBox();
+    private List<Player> players = new ArrayList<>();
 
     /**
      * Constructs a BoardView associated with a given game controller, initializing
@@ -68,15 +72,13 @@ public class BoardView extends VBox implements ViewObserver {
      */
     public BoardView(@NotNull GameController gameController) {
         board = gameController.board;
-
         mainBoardPane = new GridPane();
         playersView = new PlayersView(gameController);
         statusLabel = new Label("<no status>");
         shop = new Shop(gameController);
-
         spaces = new SpaceView[board.width][board.height];
-
         spaceEventHandler = new SpaceEventHandler(gameController);
+        players = board.getPlayers();
 
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
@@ -87,6 +89,25 @@ public class BoardView extends VBox implements ViewObserver {
                 spaceView.setOnMouseClicked(spaceEventHandler);
             }
         }
+
+
+        // Calculate the maximum number of checkpoints
+        int max = board.getSpacesList().stream()
+                .filter(s -> s.getType() == ActionField.CHECKPOINT)
+                .mapToInt(s -> 1)
+                .sum();
+
+        // Display each player's checkpoint progress
+        for (Player player : players) {
+            // Ensure there's no division by zero
+            String progress = max > 0 ? player.getIndex() + "/" + max : "N/A";
+            Label playerStatus = new Label(player.getName() + ":\t" + progress);
+            checkPointStatusBox.getChildren().add(playerStatus);
+        }
+
+        Label checkPointTitle = new Label("Check Point Status");
+        checkPointStatusBox.getChildren().add(checkPointTitle);
+        hBox.getChildren().addAll(mainBoardPane,checkPointStatusBox);
 
         board.attach(this);
         update(board);
@@ -116,16 +137,10 @@ public class BoardView extends VBox implements ViewObserver {
             if(phase == Phase.INITIALISATION){
                 this.getChildren().addAll(shop,playersView,statusLabel);
             } else{
-                this.getChildren().addAll(mainBoardPane,playersView,statusLabel);
+                this.getChildren().addAll(hBox,playersView,statusLabel);
             }
         }
     }
-
-    public SpaceView[][] getSpaceViews(){
-        return spaces;
-    }
-
-
 
     // XXX this handler and its uses should eventually be deleted! This is just to help test the
     //     behaviour of the game by being able to explicitly move the players on the board!

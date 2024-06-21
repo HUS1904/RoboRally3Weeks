@@ -133,8 +133,6 @@ public class RoboRally extends Application {
             // if stage shows, then its gonna maximize
             stage.setMaximized(true);
         }
-
-
     }
 
     public void createMapSlectionView(){

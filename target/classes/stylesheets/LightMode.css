@@ -148,3 +148,9 @@
 #layout{
     -fx-background-color: white;
 }
+
+#player-name{
+    -fx-text-fill: white;
+    -fx-font-family: "poppins";
+    -fx-font-weight: bold;
+}
