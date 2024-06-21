@@ -249,6 +249,10 @@ public class Player extends Subject {
         return new ArrayList<>(List.of(cards));
     }
 
+    public ArrayList<CommandCardField> getUpgradeFields() {
+        return new ArrayList<>(List.of(tempUpgrades));
+    }
+
     public CommandCardField getPermUpgradeField(int i) {
         return permUpgrades[i];
     }

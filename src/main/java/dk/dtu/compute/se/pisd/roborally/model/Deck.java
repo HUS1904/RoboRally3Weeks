@@ -5,12 +5,15 @@ import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Deck {
 
     private ArrayList<CommandCard> deck = new ArrayList<>();
     private ArrayList<CommandCard> discardPile = new ArrayList<>();
     private ArrayList<CommandCard> upgradeDeck = new ArrayList<>();
+
+    private ArrayList<CommandCard> discardUpgrade = new ArrayList<>();
     private String type;
 
     private GameController gameController;
@@ -51,6 +54,11 @@ public class Deck {
 
     public void sendToDiscardPile(CommandCard card){
         discardPile.add(card);
+    }
+
+    public void sendToDiscardUpgrade(CommandCard card) {
+        discardUpgrade.add(card);
+        upgradeDeck.remove(card);
     }
 
     public void addToDeck(CommandCard card){
