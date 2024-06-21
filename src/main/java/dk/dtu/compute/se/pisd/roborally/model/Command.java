@@ -36,29 +36,39 @@ public enum Command {
 
     // This is a very simplistic way of realizing different commands.
 
-    FORWARD("Fwd"),
-    FORWARD1("Fwd x2"),
-    FORWARD2("Fwd x3"),
-    RIGHT("Turn Right"),
-    LEFT("Turn Left"),
-    UTURN("U-Turn"),
-    Back("Back up"),
-    Again("Again"),
-    Power("Power Up"),
-    SPAM("Spam"),
-    RECHARGE("Recha"),
-    RAMMINGGEAR("Ram"),
-    OPTION_LEFT_RIGHT("Option Left or Right", LEFT, RIGHT),
-    OPTION_LEFT_FORWARD("Option Left or Forward", LEFT, FORWARD);
+    FORWARD("Fwd", "Move your robot in the direction it is facing by 1 space."),
+    FORWARD1("Fwd x2", "Move your robot in the direction it is facing by 2 spaces."),
+    FORWARD2("Fwd x3", "Move your robot in the direction it is facing by 3 spaces."),
+    RIGHT("Turn Right", "Turn your robot 90 degrees to the right."),
+    LEFT("Turn Left", "Turn your robot 90 degrees to the left."),
+    UTURN("U-Turn", "Turn your robot 180 degrees so it faces the opposite direction."),
+    Back("Back up", "Move your robot one space back."),
+    Again("Again", "Repeat the programming in your previous register."),
+    Power("Power Up", "Take one energy cube, and place it on your player mat."),
+    SPAM("Spam", "MANGLER DESCRIPTION"),
+    RECHARGE("Recha", "Gain three energy"),
+    RAMMINGGEAR("Ram", "Deal one SPAM damage card when you push a robot."),
+    OPTION_LEFT_RIGHT("Option Left or Right", "MANGLER DESCRIPTION", LEFT, RIGHT),
+    OPTION_LEFT_FORWARD("Option Left or Forward", "MANGLER DESCRIPTION", LEFT, FORWARD);
 
     final public String displayName;
+    final public String description;
     final private List<Command> options;
 
-    Command(String displayName, Command... options) {
+    Command(String displayName, String description, Command... options) {
         this.displayName = displayName;
+        this.description = description;
         this.options = Collections.unmodifiableList(Arrays.asList(options));
     }
 
     public boolean isInteractive() {return !options.isEmpty(); }
     public List<Command> getOptions() {return options; }
+
+    public String getName() {
+        return displayName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

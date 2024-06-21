@@ -74,7 +74,6 @@ public class Deck {
                 }
             }
         }
-        System.out.println(deck.size());
         return deck.remove(deck.size() - 1);
     }
 }

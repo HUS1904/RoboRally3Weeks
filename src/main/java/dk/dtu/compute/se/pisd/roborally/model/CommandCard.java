@@ -53,8 +53,8 @@ public class CommandCard extends Subject {
      */
     public CommandCard(@NotNull Command command, String type) {
         this.command = command;
-        if(command.displayName != null) {
-            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + command.displayName + ".png")));
+        if(command.getName() != null) {
+            Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + command.getName() + ".png")));
             cardImage = new ImageView(image);
 
         }
@@ -67,7 +67,11 @@ public class CommandCard extends Subject {
      * @return The display name of the command.
      */
     public String getName() {
-        return command.displayName;
+        return command.getName();
+    }
+
+    public String getDescription(){
+        return command.getDescription();
     }
 
 

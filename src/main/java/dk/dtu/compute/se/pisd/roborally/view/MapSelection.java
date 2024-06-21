@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -46,6 +47,7 @@ public class MapSelection extends VBox {
 
         // Create a button to get the selected option
         Button selectButton = new Button("Select");
+        selectButton.setTooltip(new Tooltip("Press me"));
         selectButton.setOnAction(e -> {
            controller.startGame(choiceBox.getValue());
         });

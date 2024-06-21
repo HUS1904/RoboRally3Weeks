@@ -28,6 +28,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -75,20 +76,18 @@ public class CardFieldView extends GridPane implements ViewObserver {
     private GameController gameController;
 
 
-
+//if (this.field != null) {
+//        if (this.field.getCard().isPresent()) {
+//            Tooltip cardToolTip = new Tooltip("this is a " + this.field.getCard().get().getName() + " card");
+//            Tooltip.install(imageView,cardToolTip);
+//        }
+//    }
     /**
      * Constructor for creating a view for a command card field.
      * @param gameController The game controller managing game logic and state.
      * @param field The command card field model associated with this view.
      */
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
-
-
-
-
-
-
-
         this.gameController = gameController;
         this.field = field;
 
@@ -222,6 +221,10 @@ public class CardFieldView extends GridPane implements ViewObserver {
                     imageView.setFitWidth(45);
                     imageView.setFitHeight(60);
                     imageView.setPreserveRatio(true);
+
+                    Tooltip tooltip = new Tooltip(card.getDescription()); // Assuming getDescription() gives the text you need
+                    Tooltip.install(imageView, tooltip);
+
                     this.getChildren().clear(); // Clear any existing content
                     this.add(imageView, 0, 0);
                     label.setText(card.getName());
@@ -230,6 +233,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
             );
         }
     }
+
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
         @Override
