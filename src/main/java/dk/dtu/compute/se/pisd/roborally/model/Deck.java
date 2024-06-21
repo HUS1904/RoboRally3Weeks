@@ -11,11 +11,13 @@ public class Deck {
     private ArrayList<CommandCard> deck = new ArrayList<>();
     private ArrayList<CommandCard> discardPile = new ArrayList<>();
     private ArrayList<CommandCard> upgradeDeck = new ArrayList<>();
+    private String type;
 
     private GameController gameController;
 
 
     public Deck(String type,GameController gameController) {
+        this.type = type;
         this.gameController = gameController;
 
         if (!Objects.equals(type, "upgrade")) {
@@ -60,6 +62,19 @@ public class Deck {
         if(deck.size() != 8){
             shuffleDeck();
         }
+
+        if(deck.isEmpty()){
+            if (!Objects.equals(type, "upgrade")) {
+                for (int i = 0; i < 52; i++) {
+                    deck.add(gameController.generateRandomCommandCard());
+                }
+            } else {
+                for (int j = 0; j < 33; j++) {
+                    deck.add(gameController.generateUpgradeCard());
+                }
+            }
+        }
+        System.out.println(deck.size());
         return deck.remove(deck.size() - 1);
     }
 }

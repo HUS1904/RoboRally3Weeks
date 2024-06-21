@@ -23,15 +23,22 @@ package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.image.ImageView;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
 import javafx.scene.image.Image;
+
+import java.awt.*;
 import java.io.InputStream;
 
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -90,11 +97,15 @@ public class SpaceView extends StackPane implements ViewObserver {
         space.attach(this);
         update(space);
     }
-    
+
+    // Ændring af polygon/trekant figur til en avatar karakter
     private void updatePlayer() {
         this.getChildren().clear();
         Player player = space.getPlayer();
         this.getChildren().add(image);
+
+        VBox playerBox = new VBox();
+
         if (player != null) {
             String color = player.getColor().toLowerCase();
             String playerImageFile = "/robot-" + color + ".png";
@@ -104,8 +115,8 @@ public class SpaceView extends StackPane implements ViewObserver {
                 return;
             }
             ImageView playerImage = new ImageView(new Image(imageStream));
-            playerImage.setFitWidth(55);
-            playerImage.setFitHeight(55);
+            playerImage.setFitWidth(45);
+            playerImage.setFitHeight(45);
 
             playerImage.setRotate(switch (player.getHeading()) {
                 case NORTH -> 0;
@@ -114,7 +125,12 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case WEST -> 270;
             });
 
-            this.getChildren().add(playerImage);
+            Label playerName = new Label(player.getName().toUpperCase());
+            playerName.setId("player-name");
+            playerBox.getChildren().addAll(playerName, playerImage);
+            playerBox.setAlignment(Pos.CENTER);
+
+            this.getChildren().add(playerBox);
         }
     }
 
@@ -147,7 +163,7 @@ public class SpaceView extends StackPane implements ViewObserver {
                 case SOUTH -> image.setRotate(180);
             }
 
-            if (laserValues.contains(s.getType())){
+            if (laserValues.contains(s.getType())) {
                 String img = "/" + s.getType() + ".png";
 
                 //LASERS OFF
@@ -172,8 +188,10 @@ public class SpaceView extends StackPane implements ViewObserver {
                 image.setImage(new Image(getClass().getResourceAsStream(img)));
                 //changeImage = false;
             }
+
+            if (s.getType() == ActionField.CHECKPOINT)
+                image.setImage(new Image(getClass().getResourceAsStream("/" + s.getIndex() + ".png")));
         }
         updatePlayer();
     }
-
 }

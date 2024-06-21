@@ -265,7 +265,9 @@ public class Player extends Subject {
 //    }
 
     public void incrementIndex() {
-        index++;
+        if (space.getIndex() == index + 1){
+            index++;
+        }
     }
 
     public void move(int n) {

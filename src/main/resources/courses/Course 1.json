@@ -370,9 +370,9 @@
       {
         "x": 3,
         "y": 12,
-        "type": "NORMAL",
+        "type": "CHECKPOINT",
         "heading": "NORTH",
-        "index": 0
+        "index": 1
       }
     ],
     [

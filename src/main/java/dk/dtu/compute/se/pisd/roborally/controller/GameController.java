@@ -44,9 +44,9 @@ import static dk.dtu.compute.se.pisd.roborally.model.Command.*;
  */
 public class GameController {
     private boolean gearPhase = true;
-
+    private AppController appController;
     public Board board;
-   private BoardView boardView;
+    private BoardView boardView;
 
     final private List<String> POSSIBLEMOVES = Arrays.asList("Up", "Down", "Left", "Right");
 
@@ -55,8 +55,9 @@ public class GameController {
      *
      * @param board the game board that this controller will manage
      */
-    public GameController(@NotNull Board board) {
+    public GameController(@NotNull Board board, AppController appController) {
         this.board = board;
+        this.appController = appController;
     }
 
     /**
@@ -183,8 +184,9 @@ public class GameController {
 
         advanceStep();
         //activateRobotLasers();
-
         discardCards();
+
+
     }
 
     private void discardCards() {
@@ -268,9 +270,7 @@ public class GameController {
                 .filter(ActionField.CHECKPOINT::equals)
                 .count();
 
-        return board.getPlayers().stream().map(Player::getIndex).anyMatch(index -> index == checkpoints)
-                ? Optional.of(board.getCurrentPlayer())
-                : Optional.empty();
+        return board.getPlayers().stream().filter(player -> player.getIndex() == checkpoints).findAny();
     }
 
     public void activateSpaces() {
@@ -390,7 +390,7 @@ public class GameController {
     }
 
     void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
+        if (player.board == board && command != null) {
             // Handle different commands
             switch (command) {
                 case FORWARD:
@@ -459,6 +459,8 @@ public class GameController {
                 board.getSpace(i, j).activate();
             }
         }
+
+        getWinner().ifPresent(appController::announceWinner);
     }
 
     /**

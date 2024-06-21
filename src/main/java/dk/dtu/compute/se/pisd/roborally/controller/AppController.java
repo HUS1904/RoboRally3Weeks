@@ -109,7 +109,7 @@ public class AppController implements Observer {
             // XXX the board should eventually be created programmatically or loaded from a file
             //     here we just create an empty board with the required number of players.
             Board board = new Board(8,8);
-            gameController = new GameController(board);
+            gameController = new GameController(board, this);
             roboRally.createMapSlectionView();
         }
     }
@@ -127,7 +127,7 @@ public class AppController implements Observer {
             Course course = gson.fromJson(jsonContent,Course.class);
 
 
-            gameController = new GameController(new Board(course,"e"));
+            gameController = new GameController(new Board(course,"e"), this);
 
             Board board =  gameController.board;
             int no = result.get();
@@ -247,7 +247,7 @@ public class AppController implements Observer {
 
 
             Board newBoard = new Board(course,"game1");
-            gameController = new GameController(newBoard);
+            gameController = new GameController(newBoard, this);
 
 
             int no = board.getPlayerAmount();
@@ -329,6 +329,10 @@ public class AppController implements Observer {
         return gameController != null;
     }
 
+    public boolean isLightMode() {
+        return isLightMode;
+    }
+
     public void changeMode() {
         System.out.println("Attempting to change mode.");
         isLightMode = !isLightMode;
@@ -354,10 +358,12 @@ public class AppController implements Observer {
                 throw new Exception("Resource not found: DarkMode.css");
             }
             final Image image = new Image(getClass().getResourceAsStream("/light.png"));
+            final Image youWingImage = new Image(getClass().getResourceAsStream("/youWinLight.gif"));
             Platform.runLater(() -> {
                 roboRally.getPrimaryScene().getStylesheets().clear();
                 roboRally.getPrimaryScene().getStylesheets().add(url.toExternalForm());
                 roboRally.setImgMode(image);
+                roboRally.setyouWinImg(youWingImage);
             });
         } catch (Exception e) {
             System.out.println("Failed to set dark mode: " + e.getMessage());
@@ -371,17 +377,21 @@ public class AppController implements Observer {
                 throw new Exception("Resource not found: LightMode.css");
             }
             final Image image = new Image(getClass().getResourceAsStream("/dark.png"));
+            final Image youWingImage = new Image(getClass().getResourceAsStream("/youWinDark.gif"));
             Platform.runLater(() -> {
                 roboRally.getPrimaryScene().getStylesheets().clear();
                 roboRally.getPrimaryScene().getStylesheets().add(url.toExternalForm());
                 roboRally.setImgMode(image);
+                roboRally.setyouWinImg(youWingImage);
             });
         } catch (Exception e) {
             System.out.println("Failed to set light mode: " + e.getMessage());
         }
     }
 
-
+    public void announceWinner(Player winner) {
+        roboRally.displayWinner(winner);  // Delegate to RoboRally to update UI
+    }
 
     /**
      * Responds to updates from subjects this observer is observing. Currently does nothing.
@@ -392,5 +402,4 @@ public class AppController implements Observer {
     public void update(Subject subject) {
         // XXX do nothing for now
     }
-
 }
