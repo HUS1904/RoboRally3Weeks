@@ -421,37 +421,48 @@ public class GameController {
         if (player == null) return;
 
         Space currentSpace = player.getSpace();
-        int newX = currentSpace.x;
-        int newY = currentSpace.y;
-        int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
+        int currentX = currentSpace.x;
+        int currentY = currentSpace.y;
+        int directionMultiplier = forward ? 1 : -1; // Positive for forward, negative for backward
+        Heading heading = player.getHeading();
+
+        if (!forward) {
+            heading = heading.opposite(); // Adjust heading for backward movement
+        }
 
         for (int i = 0; i < Math.abs(numSpaces); i++) {
-            // Calculate the new position based on the player's heading and the direction multiplier
-            switch (player.getHeading()) {
+            int nextX = currentX;
+            int nextY = currentY;
+
+            // Calculate the next position based on the player's heading and the direction multiplier
+            switch (heading) {
                 case NORTH:
-                    newY -= directionMultiplier;
+                    nextY -= directionMultiplier;
                     break;
                 case EAST:
-                    newX += directionMultiplier;
+                    nextX += directionMultiplier;
                     break;
                 case SOUTH:
-                    newY += directionMultiplier;
+                    nextY += directionMultiplier;
                     break;
                 case WEST:
-                    newX -= directionMultiplier;
+                    nextX -= directionMultiplier;
                     break;
             }
 
-            // Check if the new position is within board limits
-            if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
+            // Check if the next position is within board limits
+            if (nextX < 0 || nextX >= board.width || nextY < 0 || nextY >= board.height) {
+                //Print for debugging
                 System.out.println("Move stopped: Reached board limits.");
                 return;
             }
 
-            Space nextSpace = board.getSpace(newX, newY);
+            Space nextSpace = board.getSpace(nextX, nextY);
 
-            // Check if the next space is a wall
-            if (nextSpace.getType() == ActionField.WALL) {
+            // Check if there is a wall between currentSpace and nextSpace
+            // Checks both the direction we are trying to enter from, and the opposite direction of the space itself
+            // so that if a wall is on the east heading of a space, we cant go trough it from the east or west
+            if (currentSpace.hasWall(heading) || nextSpace.hasWall(heading.opposite())) {
                 System.out.println("Move stopped: Wall ahead.");
                 return;
             }
@@ -459,12 +470,17 @@ public class GameController {
             if (nextSpace.getPlayer() != null) {
                 // Attempt to push the player at nextPosition
                 Player otherPlayer = nextSpace.getPlayer();
-                if (canPush(otherPlayer, player.getHeading(), forward)) {
+                if (canPush(otherPlayer, heading, forward)) {
                     // Move the current player to the next space after pushing
                     currentSpace.setPlayer(null);
                     nextSpace.setPlayer(player);
                     player.setSpace(nextSpace);
+                    // Update current space after successful move
+                    currentSpace = nextSpace;
+                    currentX = nextX;
+                    currentY = nextY;
                 } else {
+                    //Print for debugging
                     System.out.println("Move stopped: Cannot push player.");
                     return;
                 }
@@ -473,15 +489,19 @@ public class GameController {
                 currentSpace.setPlayer(null);
                 nextSpace.setPlayer(player);
                 player.setSpace(nextSpace);
+                // Update current space after successful move
+                currentSpace = nextSpace;
+                currentX = nextX;
+                currentY = nextY;
             }
         }
     }
 
-    private boolean canPush (Player player, Heading heading,boolean forward){
+    private boolean canPush(Player player, Heading heading, boolean forward) {
         Space currentSpace = player.getSpace();
         int newX = currentSpace.x;
         int newY = currentSpace.y;
-        int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
+        int directionMultiplier = forward ? 1 : -1; // Positive for forward, negative for backward
 
         // Calculate the position to which the player would be pushed
         switch (heading) {
@@ -500,11 +520,18 @@ public class GameController {
         }
 
         if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
-            return false;  // Return false if out of bounds
+            return false; // Return false if out of bounds
         }
 
         Space nextSpace = board.getSpace(newX, newY);
-        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null && nextSpace.getType() != ActionField.WALL) {
+
+        // Check if there is a wall between currentSpace and nextSpace
+        if (currentSpace.hasWall(heading) || nextSpace.hasWall(heading.opposite())) {
+            System.out.println("Move stopped; Wall reached");
+            return false; // Return false if there is a wall
+        }
+
+        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null) {
             // Push the player to the new space if it is empty and not a wall
             currentSpace.setPlayer(null);
             nextSpace.setPlayer(player);

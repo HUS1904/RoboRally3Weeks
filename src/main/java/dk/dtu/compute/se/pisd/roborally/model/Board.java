@@ -25,10 +25,7 @@ import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
 
@@ -41,7 +38,6 @@ import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
  */
 public class Board extends Subject {
     @Expose
-
     public final int width;
     @Expose
     public final int height;
@@ -73,6 +69,25 @@ public class Board extends Subject {
     private Player currentTurn;
 
     /**
+     * Retrieves the walls for the space at coordinates (x, y) from the course data.
+     *
+     * @param x the x-coordinate of the space
+     * @param y the y-coordinate of the space
+     * @return a list of headings representing the walls
+     */
+    private EnumSet<Heading> getWalls(int x, int y) {
+        List<Heading> walls = new ArrayList<>();
+        if (Course != null && Course.getSpaces() != null && y < Course.getSpaces().size() && x < Course.getSpaces().get(y).size()) {
+            Space courseSpace = Course.getSpaces().get(y).get(x);
+            if (courseSpace != null && courseSpace.getWalls() != null) {
+                walls.addAll(courseSpace.getWalls());
+            }
+        }
+        return EnumSet.noneOf(Heading.class);
+    }
+
+
+    /**
      * Constructs a new Board with the given dimensions and name.
      * Initializes the spaces within the board.
      *
@@ -87,8 +102,9 @@ public class Board extends Subject {
         ArrayList<ArrayList<Space>> courseSpaces = course.getSpaces();
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++)  {
+                EnumSet<Heading> walls = getWalls(x,y);
                 Space courseSpace = courseSpaces.get(y).get(x);
-                spaces[x][y] = createSpaceFromType(x, y, courseSpace);
+                spaces[x][y] = createSpaceFromType(x, y, courseSpace, walls);
             }
         }
         this.stepMode = false;
@@ -126,7 +142,7 @@ public class Board extends Subject {
      *         at the specified coordinates on the game board.
      * @author Hussein Jarrah
      */
-    public Space createSpaceFromType(int x, int y, Space courseSpace) {
+    public Space createSpaceFromType(int x, int y, Space courseSpace, EnumSet<Heading> walls) {
         if(courseSpace.getType() != null){
             switch (courseSpace.getType()) {
                 case ENERGY_SPACE,
@@ -145,11 +161,11 @@ public class Board extends Subject {
                         BOARD_LASER,
                         BOARD_LASER_END,
                         PRIORITY_ANTENNA:
-                    return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading());
+                    return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading(), walls);
                 case CHECKPOINT:
-                    return new Space(this, x, y, courseSpace.getIndex());
+                    return new Space(this, x, y, courseSpace.getIndex(), walls);
                 default:
-                    return new Space(this, x, y);
+                    return new Space(this, x, y, walls);
             }
         }
         return new Space(this, x, y);

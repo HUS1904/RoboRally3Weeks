@@ -25,26 +25,32 @@ import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
 
+import java.io.InputStream;
+import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Represents a single space or tile on the RoboRally game board. Each space is
  * defined by its position on the board (x and y coordinates) and can hold a
  * single player (robot) at any given time.
- * @author Ekkart Kindler, ekki@dtu.dk
+ * Author: Ekkart Kindler, ekki@dtu.dk
  */
 public class Space extends Subject {
     public transient Board board;
     @Expose
-    public  int x;
+    public int x;
     @Expose
-    public  int y;
-    private  Player player;
+    public int y;
+    private Player player;
     @Expose
     private ActionField type;
     @Expose
     private final Heading heading;
     @Expose
     private final int index;
+    @Expose
+    private EnumSet<Heading> walls;
+
     public Image image;
 
     /**
@@ -54,52 +60,72 @@ public class Space extends Subject {
      * @param y The y coordinate of this space on the board.
      */
     public Space(Board board, int x, int y) {
-        this.board = board;
-        this.x = x;
-        this.y = y;
-        this.type = ActionField.NORMAL;
-        this.heading = Heading.NORTH;
-        this.index = 0;
-        player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
+        this(board, x, y, ActionField.NORMAL, Heading.NORTH, 0, EnumSet.noneOf(Heading.class));
     }
 
+    /**
+     * Constructs a new Space with walls specified.
+     * @param board The board to which this space belongs.
+     * @param x The x coordinate of this space on the board.
+     * @param y The y coordinate of this space on the board.
+     * @param walls The set of walls for this space.
+     */
+    public Space(Board board, int x, int y, EnumSet<Heading> walls) {
+        this(board, x, y, ActionField.NORMAL, Heading.NORTH, 0, walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class));
+    }
 
     /**
-     * Constructs a new Space with the specified board, coordinates, type and heading.
+     * Constructs a new Space with the specified board, coordinates, type, heading, and walls.
      * @param board The board to which this space belongs.
      * @param x The x coordinate of this space on the board.
      * @param y The y coordinate of this space on the board.
      * @param type The type of action field located at this space
      * @param heading The heading the field is facing in
+     * @param walls The set of walls for this space.
      */
-    public Space(Board board, int x, int y, ActionField type, Heading heading) {
+    public Space(Board board, int x, int y, ActionField type, Heading heading, EnumSet<Heading> walls) {
+        this(board, x, y, type, heading, 0, walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class));
+    }
+
+    /**
+     * Constructs a new Space with the specified board, coordinates, type, heading, index, and walls.
+     * @param board The board to which this space belongs.
+     * @param x The x coordinate of this space on the board.
+     * @param y The y coordinate of this space on the board.
+     * @param type The type of action field located at this space
+     * @param heading The heading the field is facing in
+     * @param index The index corresponding to this checkpoint
+     * @param walls The set of walls for this space.
+     */
+    public Space(Board board, int x, int y, ActionField type, Heading heading, int index, EnumSet<Heading> walls) {
         this.board = board;
         this.x = x;
         this.y = y;
         this.type = type;
         this.heading = heading;
-        this.index = 0;
-        player = null;
-        image = new Image(getClass().getResourceAsStream("/" + this.type + ".png" ));
+        this.index = index;
+        this.walls = walls;
+        this.player = null;
+        String imagePath = "/" + this.type + ".png";
+        InputStream inputStream = getClass().getResourceAsStream(imagePath);
+        if (inputStream != null) {
+            this.image = new Image(inputStream);
+        } else {
+            System.err.println("Failed to load image from path: " + imagePath);
+        }
+
     }
 
     /**
-     * Constructs a new CHECKPOINT type space
+     * Constructs a new CHECKPOINT type space with walls specified.
      * @param board The board to which this space belongs.
      * @param x The x coordinate of this space on the board.
      * @param y The y coordinate of this space on the board.
      * @param index The index corresponding to this checkpoint
+     * @param walls The set of walls for this space.
      */
-    public Space(Board board, int x, int y, int index) {
-        this.board = board;
-        this.x = x;
-        this.y = y;
-        this.type = ActionField.CHECKPOINT;
-        this.heading = Heading.NORTH;
-        this.index = index;
-        player = null;
-        image = new Image(getClass().getResourceAsStream("/" + this.index + ".png" ));
+    public Space(Board board, int x, int y, int index, EnumSet<Heading> walls) {
+        this(board, x, y, ActionField.CHECKPOINT, Heading.NORTH, index, walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class));
     }
 
     public int getIndex() {
@@ -111,8 +137,8 @@ public class Space extends Subject {
     }
 
     public void setType(ActionField t) {
-       this.type = t;
-       notifyChange();
+        this.type = t;
+        notifyChange();
     }
 
     /**
@@ -129,13 +155,13 @@ public class Space extends Subject {
      * This method is crucial for navigation and movement mechanics within the game, as it helps in determining the forward direction.
      *
      * @return The current heading of the object, represented as an {@link Heading} enum.
-     * @author Hussein Jarrah
+     * Author: Hussein Jarrah
      */
-    public Heading getHeading(){
+    public Heading getHeading() {
         return heading;
     }
 
-    public Board getBoard(){
+    public Board getBoard() {
         return board;
     }
 
@@ -165,7 +191,7 @@ public class Space extends Subject {
      * the controller every turn.
      */
     public void activate() {
-        if(player != null) {
+        if (player != null) {
             Heading oldHeading = player.getHeading();
             Player p = this.getPlayer();
             switch (type) {
@@ -185,8 +211,8 @@ public class Space extends Subject {
                     p.setHeading(oldHeading);
                     break;
                 case DOUBLE_CONVEYOR_BELT,
-                     DOUBLE_RIGHTTREE_CONVEYOR_BELT,
-                     DOUBLE_LEFTTREE_CONVEYOR_BELT:
+                        DOUBLE_RIGHTTREE_CONVEYOR_BELT,
+                        DOUBLE_LEFTTREE_CONVEYOR_BELT:
                     p.setHeading(heading);
                     p.move(2);
                     p.setHeading(oldHeading);
@@ -198,8 +224,8 @@ public class Space extends Subject {
                     p.setHeading(p.getHeading().next());
                     break;
                 case BOARD_LASER_START,
-                     BOARD_LASER,
-                     BOARD_LASER_END:
+                        BOARD_LASER,
+                        BOARD_LASER_END:
                     // TODO: Implement BOARD_LASER
                     return;
                 case PIT:
@@ -226,6 +252,18 @@ public class Space extends Subject {
         }
     }
 
+    public void addWall(Heading direction) {
+        walls.add(direction);
+    }
+
+    public boolean hasWall(Heading direction) {
+        return walls.contains(direction);
+    }
+
+    public EnumSet<Heading> getWalls() {
+        return walls;
+    }
+
     void playerChanged() {
         // This is a minor hack; since some views that are registered with the space
         // also need to update when some player attributes change, the player can
@@ -243,3 +281,4 @@ public class Space extends Subject {
         return this.player == null;
     }
 }
+

@@ -145,12 +145,6 @@ public class AppController implements Observer {
         }
 
 
-
-
-
-
-
-
         gameController.board.setPhase(Phase.INITIALISATION);
 
         roboRally.createBoardView(gameController);
