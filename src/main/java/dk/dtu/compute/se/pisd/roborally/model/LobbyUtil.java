@@ -33,7 +33,7 @@ public class LobbyUtil {
             // Execute the request
             try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
                 // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
+
 
                 // Parse the JSON response into a list of Lobby objects
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -55,7 +55,7 @@ public class LobbyUtil {
             // Execute the request
             try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
                 // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
+
 
                 // Parse the JSON response into a list of Lobby objects
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -83,8 +83,7 @@ public class LobbyUtil {
             // Execute the request
             try (CloseableHttpResponse response = httpClient.execute(postRequest)) {
                 // Print the response status code and body
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-                System.out.println("Response body: " + response.getEntity().getContent().toString());
+
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -95,18 +94,7 @@ public class LobbyUtil {
 
 
 
-    public static Lobby joinLobby(long id) throws InterruptedException {
-        httpPut(id);
-        Lobby lobby = getLobby(id);
-        while (lobby.getPlayerCount() != lobby.getMaxPlayers()){
-            Thread.sleep(3000);
-            lobby = getLobby(lobby.getId());
-        }
-       return lobby;
 
-
-
-    }
 
 
 
@@ -120,7 +108,7 @@ public class LobbyUtil {
             // Execute the request
             try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
                 // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
+
 
 
             } catch (IOException e) {
@@ -153,7 +141,7 @@ public class LobbyUtil {
                 // Execute the request
                 try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
                     // Print the response status code
-                    System.out.println("Status code: " + response.getStatusLine().getStatusCode());
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

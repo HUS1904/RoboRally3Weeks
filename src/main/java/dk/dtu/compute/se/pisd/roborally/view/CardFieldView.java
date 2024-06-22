@@ -61,7 +61,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
     // This data format helps avoiding transfers of e.g. Strings from other
     // programs which can copy/paste Strings.
-    public static  DataFormat ROBO_RALLY_CARD_UPGRADE = new DataFormat("/games/roborally/upgrade");;
+    public static DataFormat ROBO_RALLY_CARD_UPGRADE = new DataFormat("/games/roborally/upgrade");
+    ;
 
 
     final public static int CARDFIELD_WIDTH = 60;
@@ -74,7 +75,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
     final public static Background BG_DROP = new Background(new BackgroundFill(Color.LIGHTGRAY, null, null));
 
     final public static Background BG_ACTIVE = new Background(new BackgroundFill(Color.STEELBLUE, null, null));
-    final public static Background BG_DONE = new Background(new BackgroundFill(Color.BLACK,  null, null));
+    final public static Background BG_DONE = new Background(new BackgroundFill(Color.BLACK, null, null));
 
     private CommandCardField field;
 
@@ -86,18 +87,13 @@ public class CardFieldView extends GridPane implements ViewObserver {
     private GameController gameController;
 
 
-
     /**
      * Constructor for creating a view for a command card field.
+     *
      * @param gameController The game controller managing game logic and state.
-     * @param field The command card field model associated with this view.
+     * @param field          The command card field model associated with this view.
      */
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
-
-
-
-
-
 
 
         this.gameController = gameController;
@@ -142,10 +138,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
     }
 
 
-
-
-
-
     private String cardFieldRepresentation(CommandCardField cardField) {
         if (cardField.player != null) {
 
@@ -163,20 +155,22 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 }
             }
 
-                for (int i = 0; i < gameController.board.getShopFields().size(); i++) {
-                    CommandCardField other = gameController.board.getShopFields().get(i);
-                    if (other == cardField) {
-                        return "S," + i;
-                    }
+            for (int i = 0; i < gameController.board.getShopFields().size(); i++) {
+                CommandCardField other = gameController.board.getShopFields().get(i);
+                if (other == cardField) {
+                    return "S," + i;
                 }
-            for (int i = 0; i < Player.NO_UPGRADES ; i++) {
-                CommandCardField other = cardField.player.getUpgradeField(i);;
+            }
+            for (int i = 0; i < Player.NO_UPGRADES; i++) {
+                CommandCardField other = cardField.player.getUpgradeField(i);
+                ;
                 if (other == cardField) {
                     return "U," + i;
                 }
             }
             for (int i = 0; i < gameController.board.getShopFields().size(); i++) {
-                CommandCardField other = cardField.player.getUpgradeInv(i);;
+                CommandCardField other = cardField.player.getUpgradeInv(i);
+                ;
                 if (other == cardField) {
                     return "I," + i;
                 }
@@ -219,50 +213,31 @@ public class CardFieldView extends GridPane implements ViewObserver {
         return null;
     }
 
-    private Lobby getLobby(long id) {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Create a HttpGet request
-            HttpGet getRequest = new HttpGet("http://localhost:8080/api/lobby/" + id);
-            getRequest.setHeader("Content-Type", "application/json");
-
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
-                // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-
-                // Parse the JSON response into a list of Lobby objects
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<Lobby>() {});
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Updates the view based on changes to the observed command card field.
+     *
      * @param subject The subject (command card field) being observed for changes.
      */
     @Override
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
             field.getCard().ifPresentOrElse(card -> {
-                if (field.isVisible()) {
-                    // If the field has a card, set the ImageView to display the card image
-                    imageView = card.getCardImage();
-                    imageView.setFitWidth(45);
-                    imageView.setFitHeight(60);
-                    imageView.setPreserveRatio(true);
-                    this.getChildren().clear(); // Clear any existing content
-                    this.add(imageView, 0, 0);
-                    label.setText(card.getName());
-                } else this.getChildren().clear();
-            }, this.getChildren()::clear
+                        if (field.isVisible()) {
+                            // If the field has a card, set the ImageView to display the card image
+                            imageView = card.getCardImage();
+                            imageView.setFitWidth(45);
+                            imageView.setFitHeight(60);
+                            imageView.setPreserveRatio(true);
+                            this.getChildren().clear(); // Clear any existing content
+                            this.add(imageView, 0, 0);
+                            label.setText(card.getName());
+                        } else this.getChildren().clear();
+                    }, this.getChildren()::clear
             );
         }
     }
+
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
         @Override
@@ -305,25 +280,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
     }
 
     private class OnDragOverHandler implements EventHandler<DragEvent> {
-        private Timeline timeline;
-
-        public OnDragOverHandler() {
-            // Create a timeline that runs every 3 seconds
-            timeline = new Timeline(new KeyFrame(Duration.seconds(3), new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    // Perform your action here
-                   gameController.setLobby(getLobby(gameController.getLobby().getId()));
-                   Lobby lobby = gameController.getLobby();
-                  gameController.board.setTurnIndex(lobby.getPlayerIndex());
-                    gameController.board.setCurrentTurn(gameController.board.findCorrespondingPlayer(lobby.getCurrentPlayer()));
-                    gameController.board.readjustShop(lobby.getCardField());
-                    timeline.stop();
-                }
-            }));
-            timeline.setCycleCount(Timeline.INDEFINITE);
-        }
-
         @Override
         public void handle(DragEvent event) {
             if (!(event.getTarget() instanceof CardFieldView target)) return;
@@ -331,15 +287,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
             CommandCardField cardField = target.field;
             if (isValidForDragOver(cardField, event)) {
                 event.acceptTransferModes(TransferMode.MOVE);
-                // Stop the timeline if it's running
-                if (timeline.getStatus() == Timeline.Status.RUNNING) {
-                    timeline.stop();
-                }
-            } else {
-                // Start the timeline if it's not already running
-                if (timeline.getStatus() != Timeline.Status.RUNNING) {
-                    timeline.play();
-                }
             }
             event.consume();
         }
@@ -463,9 +410,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
             event.consume();
         }
     }
-
-
 }
+
 
 
 

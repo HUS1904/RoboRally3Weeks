@@ -51,6 +51,8 @@ public class GameController {
 
    private Timeline timeline;
 
+   private Timeline timeline2;
+
 
 
     private Lobby lobby;
@@ -122,6 +124,8 @@ public class GameController {
                 field.setVisible(true);
             });
         });
+
+        startLobbyPolling();
     }
 
     // XXX: implemented in the current version
@@ -172,74 +176,91 @@ public class GameController {
      * one step in the activation phase, executing the command in the current register for each player.
      */
     public void executeRegister() {
-            timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
-               lobby = LobbyUtil.getLobby(lobby.getId());
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            try {
                 lobby = LobbyUtil.getLobby(lobby.getId());
                 List<Integer> cords = lobby.getPlayersPosition();
-                if (board.getCurrentPlayer().getName().equals(lobby.getCurrentPlayer())) {
-                    int maxPlayers = lobby.getMaxPlayers();
+                List<String> headings = lobby.getPlayerHeadings();
+                Player currentPlayer = board.getCurrentPlayer();
 
-                    for (int i = maxPlayers; i > 0; i--) {
-                        int playerIndex = i - 1;
-                        if (playerIndex >= 0 && cords.size() >= 2) {
-                            // Remove the coordinates for the current player
-                            int y = cords.remove(cords.size() - 1);
-                            int x = cords.remove(cords.size() - 1);
-                            movePlayerToSpace(board.getPlayer(playerIndex), board.getSpace(x, y));
+
+
+
+
+
+                    currentPlayer.incrementEnergy(1);
+                    makeProgramFieldsVisible(board.getStep() + 1);
+
+                    if (board.getPhase() == Phase.ACTIVATION) {
+                        int step = board.getStep();
+                        if (step >= 0 && step < Player.NO_REGISTERS) {
+                            currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
+                                if (card.command.isInteractive()) {
+                                    board.setPhase(Phase.PLAYER_INTERACTION);
+                                } else {
+                                    executeCommand(currentPlayer, card.command);
+                                }
+                            });
                         }
                     }
 
-                   this.board.getCurrentPlayer().incrementEnergy(1);
-                   makeProgramFieldsVisible(board.getStep() + 1);
-                   if(board.getPhase() == Phase.ACTIVATION) {
-                       Player player = this.board.getCurrentPlayer();
-                       int step = board.getStep();
-                       if (step >= 0 && step < Player.NO_REGISTERS) {
-                           player.getProgramField(step).getCard().ifPresent(card -> {
-                               if (card.command.isInteractive()) {
-                                   // Set to interaction phase, but don't advance the step
-                                   board.setPhase(Phase.PLAYER_INTERACTION);
-                                   // Interaction handling will occur here (show dialog, etc.)
-                               } else {
-                                   // Execute non-interactive command
-                                   executeCommand(player, card.command);
-                                   // Optionally wait for user to trigger next step manually
-                                   // If automatically proceeding:
-                               }
-                           });
-                       }
+                    advanceStep();
+                    discardCards();
 
-                   }
+                    cords.clear();
+                    for (Player player : board.getPlayers()) {
+                        cords.add(player.getSpace().x);
+                        cords.add(player.getSpace().y);
+                        headings.add(player.getHeading().toString());
 
-                   advanceStep();
-                   discardCards();
+                    }
+                    lobby.setPlayersPosition(cords);
 
-                   for(Player player : board.getPlayers()){
-                       cords.add(player.getSpace().x);
-                       cords.add(player.getSpace().y);
-
-                   }
-                   lobby.setPlayersPosition(cords);
                     board.moveCurrentTurn();
-                    System.out.println(board.getCurrentTurn().getName());
                     lobby.setCurrentPlayer(board.getCurrentTurn().getName());
-                   try {
-                       LobbyUtil.httpPutLobby(lobby.getId(),lobby);
-                   } catch (IOException ex) {
-                       throw new RuntimeException(ex);
-                   }
+
+                    System.out.println("After moveCurrentTurn:");
+                    System.out.println("Next Player: " + board.getCurrentTurn().getName());
+                    System.out.println("Turn Index: " + board.getTurnIndex());
+
+                    LobbyUtil.httpPutLobby(lobby.getId(), lobby);
 
 
-                   timeline.stop();
-
-               }
-            }));
-            timeline.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
-            timeline.play();
+                        timeline.stop();
 
 
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
 
+
+            }
+
+
+    private void startLobbyPolling() {
+        timeline2 = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            lobby = LobbyUtil.getLobby(lobby.getId());
+            List<Integer> cords = lobby.getPlayersPosition();
+            List<String> headings = lobby.getPlayerHeadings();
+                int maxPlayers = lobby.getMaxPlayers();
+                for (int i = maxPlayers; i > 0; i--) {
+                    int playerIndex = i - 1;
+                    if (playerIndex >= 0 && cords.size() >= 2) {
+                        int y = cords.remove(cords.size() - 1);
+                        int x = cords.remove(cords.size() - 1);
+                        movePlayerToSpace(board.getPlayer(playerIndex), board.getSpace(x, y));
+                    }
+                }
+
+
+        }));
+        timeline2.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
+        timeline2.play();
     }
+
 
     private void discardCards() {
         board.getPlayers().forEach(player -> {

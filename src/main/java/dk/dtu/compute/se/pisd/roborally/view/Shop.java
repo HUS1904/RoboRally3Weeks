@@ -7,7 +7,8 @@ import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -38,26 +39,29 @@ public class Shop extends VBox {
 
     Timeline timeline;
 
-    public Shop(GameController gameController){
+    Timeline timeline2;
+
+    public Shop(GameController gameController) {
         this.deck = gameController.board.getShop();
-        //this.deck = deck.generateUpgradeDeck(gameController);
         this.gameController = gameController;
         image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Facedown.png")));
 
-
         /// button to change phase
         Button phaseChanger = new Button("Start programming phase");
-        phaseChanger.setOnAction(e -> handleClick());
+        phaseChanger.setOnAction(e -> {
+            try {
+                handleClick();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         phaseChanger.setAlignment(Pos.CENTER);
 
-
         // the cardfield view
-
-        GridPane upgradshop = new GridPane();
-        upgradshop.setAlignment(Pos.CENTER);
-        upgradshop.setHgap(10);
-
+        GridPane upgradeShop = new GridPane();
+        upgradeShop.setAlignment(Pos.CENTER);
+        upgradeShop.setHgap(10);
 
         Pane deck1 = new Pane();
         ImageView deckImage = new ImageView(image);
@@ -65,101 +69,50 @@ public class Shop extends VBox {
         deckImage.setFitWidth(60);
         deck1.getChildren().add(deckImage);
 
-
-        for(int i = 0; i< gameController.board.getPlayerAmount();i++) {
-
-
-                this.deck.generateUpgradeDeck(gameController);
-                CommandCard commandCard = this.deck.deal();
-                CommandCardField cardfield = new CommandCardField(gameController.board.getCurrentPlayer(), "upgrade");
-
-                cardfield.setCard(commandCard);
-                CardFieldView fieldView = new CardFieldView(gameController, cardfield);
-                gameController.board.getShopFields().add(cardfield);
-                upgradshop.add(fieldView, i, 0);
-
-
-            }
-
-        upgradshop.add(deck1,gameController.board.getPlayerAmount(),0);
-
-
-
-
-
-        this.getChildren().addAll(phaseChanger,upgradshop);
-
-
-    }
-
-
-    public Lobby getLobby(long id) {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Create a HttpGet request
-            HttpGet getRequest = new HttpGet("http://localhost:8080/api/lobby/" + id);
-            getRequest.setHeader("Content-Type", "application/json");
-
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
-                // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-
-                // Parse the JSON response into a list of Lobby objects
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<Lobby>() {});
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for (int i = 0; i < gameController.board.getPlayerAmount(); i++) {
+            this.deck.generateUpgradeDeck(gameController);
+            CommandCard commandCard = this.deck.deal();
+            CommandCardField cardField = new CommandCardField(gameController.board.getCurrentPlayer(), "upgrade");
+            cardField.setCard(commandCard);
+            CardFieldView fieldView = new CardFieldView(gameController, cardField);
+            gameController.board.getShopFields().add(cardField);
+            upgradeShop.add(fieldView, i, 0);
         }
+
+        upgradeShop.add(deck1, gameController.board.getPlayerAmount(), 0);
+
+        this.getChildren().addAll(phaseChanger, upgradeShop);
+
+        startLobbyPolling();
     }
 
-    public void putRequest(Lobby lobby) {
-        String url = "http://localhost:8080/api/lobby/shop/" + lobby.getId(); // Example URL with ID
-
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            // Create a HttpPut request with the URL
-            HttpPut putRequest = new HttpPut(url);
-
-            // Convert the Lobby object to JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(lobby);
-
-            // Set the JSON as the entity of the put request
-            StringEntity entity = new StringEntity(json);
-            putRequest.setEntity(entity);
-            putRequest.setHeader("Accept", "application/json");
-            putRequest.setHeader("Content-type", "application/json");
-
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
-                // Print the response status code
-                System.out.println("Status code: " + response.getStatusLine().getStatusCode());
-            } catch (IOException e) {
-                e.printStackTrace();
+    private void startLobbyPolling() {
+        timeline2 = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            try {
+                gameController.setLobby(LobbyUtil.getLobby(gameController.getLobby().getId()));
+                Lobby lobby = gameController.getLobby();
+                gameController.board.setTurnIndex(lobby.getPlayerIndex());
+                gameController.board.setCurrentTurn(gameController.board.findCorrespondingPlayer(lobby.getCurrentPlayer()));
+                gameController.board.readjustShop(lobby.getCardField());
+            } catch (Exception ex) {
+                ex.printStackTrace(); // Handle the exception appropriately
             }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        }));
+        timeline2.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
+        timeline2.play();
     }
 
-    public void handleClick() {
-
+    public void handleClick() throws IOException {
         if (gameController.board.getCurrentPlayer() == gameController.board.getCurrentTurn()) {
             List<String> cardFields = new ArrayList<>();
 
             Lobby lobby = gameController.getLobby();
             gameController.board.getCurrentTurn().phase = Phase.PROGRAMMING;
 
-            if(gameController.board.getPlayers().indexOf(gameController.board.getCurrentPlayer()) == gameController.board.getPlayerAmount() -1 &&
+            if (gameController.board.getPlayers().indexOf(gameController.board.getCurrentPlayer()) == gameController.board.getPlayerAmount() - 1 &&
                     gameController.board.getCurrentTurn().phase == Phase.PROGRAMMING) {
-
                 gameController.startProgrammingPhase();
             }
-
-
 
             gameController.board.moveCurrentTurn();
             lobby.setCurrentPlayer(gameController.board.getCurrentTurn().getName());
@@ -173,39 +126,32 @@ public class Shop extends VBox {
             }
             lobby.setCardField(cardFields);
             lobby.setPlayerIndex(gameController.board.getTurnIndex());
-            putRequest(lobby);
+            LobbyUtil.httpPutLobby(lobby.getId(), lobby);
 
-
-            if(gameController.board.getTurnIndex() != gameController.board.getPlayerAmount()) {
-                timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
-                    Lobby updatedLobby = getLobby(lobby.getId());
-                    if (updatedLobby.getPlayerIndex() >= gameController.board.getPlayerAmount()) {
-                        // Logic when player index is as big as the amount of players
-                        gameController.startProgrammingPhase();
-                        timeline.stop(); // Stop the timeline when the condition is met
-                    }
-                }));
-                timeline.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
-                timeline.play();
-
+            if (gameController.board.getTurnIndex() != gameController.board.getPlayerAmount()) {
+                startProgrammingPhasePolling(lobby);
             }
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
-        }
-
-
     }
 
+    private void startProgrammingPhasePolling(Lobby lobby) {
+        if (timeline != null) {
+            timeline.stop();
+        }
 
+        timeline = new Timeline(new KeyFrame(Duration.seconds(5), e -> {
+            try {
+                Lobby updatedLobby = LobbyUtil.getLobby(lobby.getId());
+                if (updatedLobby.getPlayerIndex() >= gameController.board.getPlayerAmount()) {
+                    gameController.startProgrammingPhase();
+                    timeline.stop();
+                    timeline2.stop();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace(); // Handle the exception appropriately
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
+        timeline.play();
+    }
+}

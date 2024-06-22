@@ -7,6 +7,8 @@ import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.model.Lobby;
 import dk.dtu.compute.se.pisd.roborally.model.LobbyUtil;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
@@ -17,6 +19,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -47,11 +50,11 @@ public class LobbySelecter extends VBox {
     private final RoboRally roborally;
 
     private AppController appController;
-
+    Timeline timeline;
     private String course = null;
 
 
-    public LobbySelecter(RoboRally roborally,AppController appController) {
+    public LobbySelecter(RoboRally roborally, AppController appController) {
 
         this.ID = 5;
 
@@ -111,7 +114,7 @@ public class LobbySelecter extends VBox {
         });
     }
 
-    public void setCourse(String course){
+    public void setCourse(String course) {
         this.course = course;
     }
 
@@ -119,8 +122,6 @@ public class LobbySelecter extends VBox {
         roborally.createMapSlectionView(this);
 
     }
-
-
 
 
     public void sendRequest() throws JsonProcessingException {
@@ -154,6 +155,28 @@ public class LobbySelecter extends VBox {
     }
 
 
+    public void joinLobby(long id) throws InterruptedException {
+        LobbyUtil.httpPut(id);
+        Lobby lobby = LobbyUtil.getLobby(id);
+
+        System.out.println(lobby.getPlayerCount());
+
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> {
+
+
+
+
+            if (LobbyUtil.getLobby(id).getPlayerCount() == lobby.getMaxPlayers()) {
+                appController.startGameFromJoinLobby(lobby);
+                timeline.stop();
+            }
+
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
+        timeline.play();
+
+
+    }
 
 
 
@@ -184,8 +207,7 @@ public class LobbySelecter extends VBox {
             lobbyView.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
                 if (event.getClickCount() == 2) {
                     try {
-                       Lobby lobbyJoin = LobbyUtil.joinLobby(lobby.getId());
-                       appController.startGameFromJoinLobby(lobbyJoin);
+                        joinLobby(lobby.getId());
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }

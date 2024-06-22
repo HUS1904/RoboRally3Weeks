@@ -134,7 +134,6 @@ public class AppController implements Observer {
                 playerPositions.add(player.getSpace().y);
                 playerPositions.add(player.getSpace().x);
             }
-            System.out.println(playerPositions);
             lobby.setPlayersPosition(playerPositions);
             Space antenna = board.getSpacesList().stream().filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA).findAny().orElseThrow(NoSuchElementException::new);
             board.determineTurn(antenna.x, antenna.y);
@@ -193,7 +192,7 @@ public class AppController implements Observer {
                     player.setSpace(board.getSpace(i % board.width, i));
                 }
                 board.determineTurn(2, 2);
-                board.setCurrentPlayer(board.getPlayer(0));
+                gameController.board.setCurrentPlayer( gameController.board.findCorrespondingPlayer("Player " + lobby.getPlayerCount()));
                 gameController.getLobby().setCards(board.getShop().deckIntoString(board.getShop()));
 
 

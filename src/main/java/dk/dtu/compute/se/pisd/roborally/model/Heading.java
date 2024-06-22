@@ -48,4 +48,28 @@ public enum Heading {
     public Heading prev() {
         return values()[(this.ordinal() + values().length - 1) % values().length];
     }
+
+    /**
+     * Returns the Heading corresponding to the provided string.
+     * The comparison is case-insensitive.
+     * @param heading The string representing the heading.
+     * @return The corresponding Heading.
+     * @throws IllegalArgumentException If the string does not match any heading.
+     */
+    public static Heading fromString(String heading) {
+        try {
+            return Heading.valueOf(heading.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid heading: " + heading);
+        }
+    }
+
+    /**
+     * Returns the string representation of the heading.
+     * @return The string representation of the heading.
+     */
+    @Override
+    public String toString() {
+        return name().charAt(0) + name().substring(1).toLowerCase();
+    }
 }

@@ -221,9 +221,6 @@ public class Board extends Subject {
 
         double[] distancesSorted = Arrays.stream(distances).sorted().toArray();
 
-        for (double v : distancesSorted) {
-            System.out.print("/" + v + "/");
-        }
 
         for (int i = 0; i < distances.length; i++) {
             for (Player player : players) {
@@ -237,14 +234,21 @@ public class Board extends Subject {
 
         players.clear();
         players.addAll(temp);
+
+
         setCurrentTurn(players.get(0));
+        System.out.println("current player after determine turn " + currentTurn.getName());
     }
 
     // moves the current turn to the next players in the current order of turns
     public void moveCurrentTurn(){
-        int index = (players.indexOf(currentTurn) + 1) % ( players.size());
+        int index = (players.indexOf(getCurrentPlayer()) + 1) % ( players.size());
         setCurrentTurn(players.get(index));
        setTurnIndex(turnIndex + 1);
+
+        System.out.println("the index is " + index);
+
+        System.out.println("current turn is " + currentTurn.getName());
 
     }
 
