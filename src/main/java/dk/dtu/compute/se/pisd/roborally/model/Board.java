@@ -77,14 +77,26 @@ public class Board extends Subject {
      */
     private EnumSet<Heading> getWalls(int x, int y) {
         List<Heading> walls = new ArrayList<>();
+
+        // Check if Course and its spaces are not null, and if coordinates are within bounds
         if (Course != null && Course.getSpaces() != null && y < Course.getSpaces().size() && x < Course.getSpaces().get(y).size()) {
             Space courseSpace = Course.getSpaces().get(y).get(x);
+
+            // Check if courseSpace and its walls are not null
             if (courseSpace != null && courseSpace.getWalls() != null) {
                 walls.addAll(courseSpace.getWalls());
             }
         }
-        return EnumSet.noneOf(Heading.class);
+
+        // Check if walls list is empty
+        if (walls.isEmpty()) {
+            return EnumSet.noneOf(Heading.class); // Return an empty EnumSet if no walls are present
+        } else {
+            return EnumSet.copyOf(walls); // Convert the List<Heading> walls to EnumSet<Heading> and return
+        }
     }
+
+
 
 
     /**
@@ -128,6 +140,7 @@ public class Board extends Subject {
         this.stepMode = false;
     }
 
+
     /**
      * Creates a {@link Space} object based on the type specified in the {@link Space} object from the course.
      * This method chooses the appropriate constructor for the {@link Space} class depending on the type of
@@ -143,33 +156,53 @@ public class Board extends Subject {
      * @author Hussein Jarrah
      */
     public Space createSpaceFromType(int x, int y, Space courseSpace, EnumSet<Heading> walls) {
-        if(courseSpace.getType() != null){
-            switch (courseSpace.getType()) {
-                case ENERGY_SPACE,
-                        CONVEYOR_BELT,
-                        DOUBLE_CONVEYOR_BELT,
-                        DOUBLE_LEFTTREE_CONVEYOR_BELT,
-                        DOUBLE_RIGHTTREE_CONVEYOR_BELT,
-                        RIGHT_CONVEYOR_BELT,
-                        LEFT_CONVEYOR_BELT,
-                        LEFT_GEAR,
-                        RIGHT_GEAR,
-                        STARTING_GEAR,
-                        RESPAWN,
-                        WALL,
-                        BOARD_LASER_START,
-                        BOARD_LASER,
-                        BOARD_LASER_END,
-                        PRIORITY_ANTENNA:
-                    return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading(), walls);
-                case CHECKPOINT:
-                    return new Space(this, x, y, courseSpace.getIndex(), walls);
-                default:
-                    return new Space(this, x, y, walls);
-            }
+        EnumSet<Heading> wallSet = EnumSet.noneOf(Heading.class);
+
+        // Add walls if specified in the courseSpace
+        if (walls != null) {
+            wallSet.addAll(walls);  // Assuming walls parameter is already populated correctly
         }
-        return new Space(this, x, y);
+
+        switch (courseSpace.getType()) {
+            case ENERGY_SPACE:
+            case CONVEYOR_BELT:
+            case DOUBLE_CONVEYOR_BELT:
+            case DOUBLE_LEFTTREE_CONVEYOR_BELT:
+            case DOUBLE_RIGHTTREE_CONVEYOR_BELT:
+            case RIGHT_CONVEYOR_BELT:
+            case LEFT_CONVEYOR_BELT:
+            case LEFT_GEAR:
+            case RIGHT_GEAR:
+            case STARTING_GEAR:
+            case RESPAWN:
+            case BOARD_LASER_START:
+            case BOARD_LASER:
+            case BOARD_LASER_END:
+            case PRIORITY_ANTENNA:
+                // Create Space object with type, heading, and walls
+                return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading(), wallSet);
+
+            case CHECKPOINT:
+                // Assuming getIndex() retrieves index for CHECKPOINT type
+                // Create Space object with index and walls
+                return new Space(this, x, y, courseSpace.getIndex(), wallSet);
+
+            case WALL:
+                // Handle WALL type if necessary, though typically walls are added to other space types
+                // Ensure your JSON structure and logic aligns with expected behavior
+                break;
+
+            default:
+                // Create a generic Space object with walls
+                return new Space(this, x, y, wallSet);
+        }
+
+        // Default case: Create a generic Space object with walls
+        return new Space(this, x, y, wallSet);
     }
+
+
+
 
     public Player findCorrespondingPlayer(Player player) {
         return getPlayers().stream().filter(p -> p.getName().equals(player.getName())).findAny().orElse(null);

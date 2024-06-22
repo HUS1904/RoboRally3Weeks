@@ -27,7 +27,6 @@ import javafx.scene.image.Image;
 
 import java.io.InputStream;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Represents a single space or tile on the RoboRally game board. Each space is
@@ -55,9 +54,10 @@ public class Space extends Subject {
 
     /**
      * Constructs a new Space with the specified board and coordinates.
+     *
      * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
      */
     public Space(Board board, int x, int y) {
         this(board, x, y, ActionField.NORMAL, Heading.NORTH, 0, EnumSet.noneOf(Heading.class));
@@ -65,37 +65,53 @@ public class Space extends Subject {
 
     /**
      * Constructs a new Space with walls specified.
+     *
      * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
      * @param walls The set of walls for this space.
      */
     public Space(Board board, int x, int y, EnumSet<Heading> walls) {
-        this(board, x, y, ActionField.NORMAL, Heading.NORTH, 0, walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class));
+        this(board, x, y, ActionField.NORMAL, Heading.NORTH, 0, walls);
+    }
+
+    /**
+     * Constructs a new Space with the specified board, coordinates, type, and walls.
+     *
+     * @param board The board to which this space belongs.
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
+     * @param type  The type of action field located at this space.
+     * @param walls The set of walls for this space.
+     */
+    public Space(Board board, int x, int y, ActionField type, EnumSet<Heading> walls) {
+        this(board, x, y, type, Heading.NORTH, 0, walls);
     }
 
     /**
      * Constructs a new Space with the specified board, coordinates, type, heading, and walls.
-     * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
-     * @param type The type of action field located at this space
-     * @param heading The heading the field is facing in
-     * @param walls The set of walls for this space.
+     *
+     * @param board   The board to which this space belongs.
+     * @param x       The x coordinate of this space on the board.
+     * @param y       The y coordinate of this space on the board.
+     * @param type    The type of action field located at this space.
+     * @param heading The heading the field is facing in.
+     * @param walls   The set of walls for this space.
      */
     public Space(Board board, int x, int y, ActionField type, Heading heading, EnumSet<Heading> walls) {
-        this(board, x, y, type, heading, 0, walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class));
+        this(board, x, y, type, heading, 0, walls);
     }
 
     /**
      * Constructs a new Space with the specified board, coordinates, type, heading, index, and walls.
-     * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
-     * @param type The type of action field located at this space
-     * @param heading The heading the field is facing in
-     * @param index The index corresponding to this checkpoint
-     * @param walls The set of walls for this space.
+     *
+     * @param board   The board to which this space belongs.
+     * @param x       The x coordinate of this space on the board.
+     * @param y       The y coordinate of this space on the board.
+     * @param type    The type of action field located at this space.
+     * @param heading The heading the field is facing in.
+     * @param index   The index corresponding to this checkpoint.
+     * @param walls   The set of walls for this space.
      */
     public Space(Board board, int x, int y, ActionField type, Heading heading, int index, EnumSet<Heading> walls) {
         this.board = board;
@@ -104,8 +120,17 @@ public class Space extends Subject {
         this.type = type;
         this.heading = heading;
         this.index = index;
-        this.walls = walls;
+        this.walls = walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class);
         this.player = null;
+
+        initializeImage();
+        logSpaceCreation();
+    }
+
+    /**
+     * Initializes the image associated with this space based on its type.
+     */
+    private void initializeImage() {
         String imagePath = "/" + this.type + ".png";
         InputStream inputStream = getClass().getResourceAsStream(imagePath);
         if (inputStream != null) {
@@ -113,19 +138,30 @@ public class Space extends Subject {
         } else {
             System.err.println("Failed to load image from path: " + imagePath);
         }
+    }
 
+    /**
+     * Logs the creation of this space, indicating walls if present.
+     */
+    private void logSpaceCreation() {
+        if (!this.walls.isEmpty()) {
+            System.out.println("Space created at (" + x + "," + y + ") with walls: " + this.walls);
+        } else {
+            System.out.println("Space created at (" + x + ", " + y + ") with no walls.");
+        }
     }
 
     /**
      * Constructs a new CHECKPOINT type space with walls specified.
+     *
      * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
-     * @param index The index corresponding to this checkpoint
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
+     * @param index The index corresponding to this checkpoint.
      * @param walls The set of walls for this space.
      */
     public Space(Board board, int x, int y, int index, EnumSet<Heading> walls) {
-        this(board, x, y, ActionField.CHECKPOINT, Heading.NORTH, index, walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class));
+        this(board, x, y, ActionField.CHECKPOINT, Heading.NORTH, index, walls);
     }
 
     public int getIndex() {
@@ -141,8 +177,13 @@ public class Space extends Subject {
         notifyChange();
     }
 
+    public Phase getPhase() {
+        return board.getPhase();
+    }
+
     /**
      * Gets the player (robot) currently occupying this space, if any.
+     *
      * @return The player occupying this space, or null if the space is empty.
      */
     public Player getPlayer() {
@@ -151,11 +192,8 @@ public class Space extends Subject {
 
     /**
      * Retrieves the current heading of this object.
-     * The heading is typically used to determine the direction in which an object (such as a robot or a conveyor belt) is facing.
-     * This method is crucial for navigation and movement mechanics within the game, as it helps in determining the forward direction.
      *
      * @return The current heading of the object, represented as an {@link Heading} enum.
-     * Author: Hussein Jarrah
      */
     public Heading getHeading() {
         return heading;
@@ -165,9 +203,17 @@ public class Space extends Subject {
         return board;
     }
 
+    void playerChanged() {
+        // This is a minor hack; since some views that are registered with the space
+        // also need to update when some player attributes change, the player can
+        // notify the space of these changes by calling this method.
+        notifyChange();
+    }
+
     /**
      * Sets or clears the player occupying this space. This method also ensures
      * consistency by updating the player's space reference accordingly.
+     *
      * @param player The new player to occupy this space, or null to clear the space.
      */
     public void setPlayer(Player player) {
@@ -193,64 +239,67 @@ public class Space extends Subject {
     public void activate() {
         if (player != null) {
             Heading oldHeading = player.getHeading();
-            Player p = this.getPlayer();
             switch (type) {
                 case LEFT_CONVEYOR_BELT:
-                    p.setHeading(heading.prev());
-                    p.move(1);
-                    p.setHeading(oldHeading);
+                    player.setHeading(heading.prev());
+                    player.move(1);
+                    player.setHeading(oldHeading);
                     break;
                 case RIGHT_CONVEYOR_BELT:
-                    p.setHeading(heading.next());
-                    p.move(1);
-                    p.setHeading(oldHeading);
+                    player.setHeading(heading.next());
+                    player.move(1);
+                    player.setHeading(oldHeading);
                     break;
-                case CONVEYOR_BELT, PUSH_PANEL:
-                    p.setHeading(heading);
-                    p.move(1);
-                    p.setHeading(oldHeading);
+                case CONVEYOR_BELT:
+                case PUSH_PANEL:
+                    player.setHeading(heading);
+                    player.move(1);
+                    player.setHeading(oldHeading);
                     break;
-                case DOUBLE_CONVEYOR_BELT,
-                        DOUBLE_RIGHTTREE_CONVEYOR_BELT,
-                        DOUBLE_LEFTTREE_CONVEYOR_BELT:
-                    p.setHeading(heading);
-                    p.move(2);
-                    p.setHeading(oldHeading);
+                case DOUBLE_CONVEYOR_BELT:
+                case DOUBLE_RIGHTTREE_CONVEYOR_BELT:
+                case DOUBLE_LEFTTREE_CONVEYOR_BELT:
+                    player.setHeading(heading);
+                    player.move(2);
+                    player.setHeading(oldHeading);
                     break;
                 case LEFT_GEAR:
-                    p.setHeading(p.getHeading().prev());
+                    player.setHeading(player.getHeading().prev());
                     break;
                 case RIGHT_GEAR:
-                    p.setHeading(p.getHeading().next());
+                    player.setHeading(player.getHeading().next());
                     break;
-                case BOARD_LASER_START,
-                        BOARD_LASER,
-                        BOARD_LASER_END:
-                    // TODO: Implement BOARD_LASER
-                    return;
+                case BOARD_LASER_START:
+                case BOARD_LASER:
+                case BOARD_LASER_END:
+                    // TODO: Implement BOARD_LASER logic
+                    break;
                 case PIT:
-                    // TODO: Implement PIT
-                    return;
+                    // TODO: Implement PIT logic
+                    break;
                 case ENERGY_SPACE:
-                    // TODO: Implement ENERGY_SPACE
-                    return;
+                    player.incrementEnergy(1);
+                    break;
                 case CHECKPOINT:
-                    p.incrementIndex();
-                    System.out.println("Checkpoint reached:" + p.getIndex());
-                    return;
+                    player.incrementIndex();
+                    System.out.println("Checkpoint reached:" + player.getIndex());
+                    break;
                 case WALL:
-                    // This doesn't do anything here but any action having to do with movement will eventually need to check for its presence
-                    return;
+                    // No action for WALL type in activation
+                    break;
                 case PRIORITY_ANTENNA:
                     board.determineTurn(x, y);
-                    return;
+                    break;
                 case RESPAWN:
-                    // TODO: Implement RESPAWN
+                    // TODO: Implement RESPAWN logic
+                    break;
                 default:
-                    return;
+                    break;
             }
         }
     }
+
+
 
     public void addWall(Heading direction) {
         walls.add(direction);
@@ -264,21 +313,23 @@ public class Space extends Subject {
         return walls;
     }
 
-    void playerChanged() {
-        // This is a minor hack; since some views that are registered with the space
-        // also need to update when some player attributes change, the player can
-        // notify the space of these changes by calling this method.
-        notifyChange();
-    }
-
-    public Phase getPhase() {
-        return board.getPhase();
-    }
-
     public boolean isOccupiable() {
         // Here, you can add any logic that determines if the space is occupiable.
         // For now, let's assume a space is occupiable if there is no player on it.
         return this.player == null;
     }
+
+    @Override
+    public String toString() {
+        return "Space{" +
+                "x=" + x +
+                ", y=" + y +
+                ", player=" + player +
+                ", type=" + type +
+                ", heading=" + heading +
+                ", walls=" + walls +
+                '}';
+    }
 }
+
 

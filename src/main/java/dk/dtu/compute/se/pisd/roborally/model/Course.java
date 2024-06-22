@@ -20,9 +20,9 @@ public class Course {
 
     }
 
-
     public ArrayList<ArrayList<Space>> getSpaces() {
         return spaces;
     }
+
 
 }
