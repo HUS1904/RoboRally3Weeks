@@ -123,8 +123,6 @@ public class Board extends Subject {
      * Constructs a new Board with the given Course and then retrives the Width and Height
      *
      */
-
-
     public Board(int width, int height) {
         this.boardName = "default";
         this.width = width;
