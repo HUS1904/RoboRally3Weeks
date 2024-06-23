@@ -151,4 +151,18 @@ public class LobbyUtil {
             }
         }
 
+        public static boolean joinLobby(long id) {
+            Lobby lobby = getLobby(id);
+
+            if (lobby != null && lobby.addPlayer()) {
+                try {
+                    httpPutLobby(id, lobby);
+                    return true;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return false;
+        }
+
 }

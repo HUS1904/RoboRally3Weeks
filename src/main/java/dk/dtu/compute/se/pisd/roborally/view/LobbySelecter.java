@@ -157,14 +157,22 @@ public class LobbySelecter extends VBox {
 
     public void joinLobby(long id) throws InterruptedException {
         LobbyUtil.httpPut(id);
+//        boolean joined = LobbyUtil.joinLobby(id);
+//        if (!joined) {
+//            System.out.println("Lobby is full or could not join lobby");
+//            return;
+//        }
+
         Lobby lobby = LobbyUtil.getLobby(id);
 
         System.out.println(lobby.getPlayerCount());
 
         timeline = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> {
 
-
-
+//            if ("In progress".equals(lobby.getStatus()) || LobbyUtil.getLobby(id).getPlayerCount() == lobby.getMaxPlayers()) {
+//                appController.startGameFromJoinLobby(lobby);
+//                timeline.stop();
+//            }
 
             if (LobbyUtil.getLobby(id).getPlayerCount() == lobby.getMaxPlayers()) {
                 appController.startGameFromJoinLobby(lobby);
@@ -197,7 +205,7 @@ public class LobbySelecter extends VBox {
             Label lobbyIdLabel = new Label("Lobby " + lobby.getId());
             lobbyIdLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;"); // Set font size and weight
 
-            Label playerCountLabel = new Label(lobby.getPlayerCount() + "/" + lobby.getMaxPlayers());
+            Label playerCountLabel = new Label(lobby.getPlayerCount() + "/" + lobby.getMaxPlayers() + " - " + lobby.getStatus());
             playerCountLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;"); // Set font size and weight
 
             lobbyView.getChildren().addAll(lobbyIdLabel, playerCountLabel);
@@ -207,7 +215,10 @@ public class LobbySelecter extends VBox {
             lobbyView.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
                 if (event.getClickCount() == 2) {
                     try {
-                        joinLobby(lobby.getId());
+                        if (lobby.getPlayerCount() < lobby.getMaxPlayers() ) {
+                            joinLobby(lobby.getId());
+                        }
+//                        joinLobby(lobby.getId());
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
