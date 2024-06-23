@@ -35,32 +35,25 @@ import java.util.List;
 import java.util.Optional;
 
 public class LobbySelecter extends VBox {
-
     private static final Background BG_ACTIVE = new Background(new BackgroundFill(Color.LIGHTBLUE, null, null));
     private static final Background BG_INACTIVE = new Background(new BackgroundFill(Color.WHITE, null, null));
     final private List<Integer> PLAYER_NUMBER_OPTIONS = Arrays.asList(2, 3, 4, 5, 6);
-
     long ID;
-
     private HBox titles;
     private HBox buttons;
     private VBox lobbyBox;
     private HBox chosenLobbyView;
-
     private final RoboRally roborally;
-
     private AppController appController;
     Timeline timeline;
     private String course = null;
 
 
     public LobbySelecter(RoboRally roborally, AppController appController) {
-
         this.ID = 5;
-
         this.roborally = roborally;
-
         this.appController = appController;
+
         // Create a new HBox for titles with spacing between the elements
         titles = new HBox(50); // 50 pixels of spacing
         titles.setPadding(new Insets(10, 10, 10, 10)); // Padding around the HBox
@@ -163,9 +156,6 @@ public class LobbySelecter extends VBox {
 
         timeline = new Timeline(new KeyFrame(Duration.seconds(1.5), e -> {
 
-
-
-
             if (LobbyUtil.getLobby(id).getPlayerCount() == lobby.getMaxPlayers()) {
                 appController.startGameFromJoinLobby(lobby);
                 timeline.stop();
@@ -174,8 +164,6 @@ public class LobbySelecter extends VBox {
         }));
         timeline.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
         timeline.play();
-
-
     }
 
 

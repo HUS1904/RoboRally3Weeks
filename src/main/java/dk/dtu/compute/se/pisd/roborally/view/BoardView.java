@@ -23,6 +23,7 @@
 package dk.dtu.compute.se.pisd.roborally.view;
 
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 
 import dk.dtu.compute.se.pisd.roborally.model.Board;
@@ -56,7 +57,7 @@ public class BoardView extends VBox implements ViewObserver {
     private PlayersView playersView;
     private Label statusLabel;
     private SpaceEventHandler spaceEventHandler;
-
+    private final RoboRally roborally;
     private Shop shop;
 
     /**
@@ -66,13 +67,13 @@ public class BoardView extends VBox implements ViewObserver {
      * @param gameController The GameController associated with this board view, providing
      * access to the game logic and state.
      */
-    public BoardView(@NotNull GameController gameController) {
+    public BoardView(@NotNull GameController gameController, RoboRally roborally1) {
         board = gameController.board;
-
+        this.roborally = roborally1;
         mainBoardPane = new GridPane();
         playersView = new PlayersView(gameController);
         statusLabel = new Label("<no status>");
-        shop = new Shop(gameController);
+        shop = new Shop(gameController, roborally);
 
 
         spaces = new SpaceView[board.width][board.height];

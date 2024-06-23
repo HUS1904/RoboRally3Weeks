@@ -34,7 +34,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -126,7 +128,7 @@ public class RoboRally extends Application {
 
         if (gameController != null) {
             // create and add view for new board
-            BoardView boardView = new BoardView(gameController);
+            BoardView boardView = new BoardView(gameController, this);
             //gameController.setBoardView(boardView);
             boardView.setId("board");
             boardRoot.setCenter(boardView);
@@ -139,9 +141,20 @@ public class RoboRally extends Application {
             // if stage shows, then its gonna maximize
             stage.setMaximized(true);
         }
-
-
     }
+
+    public void showStartingGearDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Starting Gear Selection");
+        alert.setHeaderText(null);
+        alert.setContentText("Please choose a starting gear for your robot.");
+
+        ButtonType dismissButton = new ButtonType("OK");
+        alert.getButtonTypes().setAll(dismissButton);
+
+        alert.showAndWait();
+    }
+
 
     public void createMapSlectionView(LobbySelecter lobbySelecter){
         boardRoot.getChildren().clear();

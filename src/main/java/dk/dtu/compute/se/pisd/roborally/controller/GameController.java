@@ -52,9 +52,7 @@ public class GameController {
    private Timeline timeline;
 
    private Timeline timeline2;
-
-
-
+    List<Integer> cords;
     private Lobby lobby;
 
     /**
@@ -65,6 +63,7 @@ public class GameController {
     public GameController(@NotNull Board board, Lobby lobby) {
         this.board = board;
         this.lobby = lobby;
+        cords = lobby.getPlayersPosition();
     }
 
     public GameController(@NotNull Board board) {
@@ -87,7 +86,7 @@ public class GameController {
      * @param space the space to which the current player should move
      */
     public void movePlayerToSpace(Player player,@NotNull Space space)  {
-       // if (!gearPhase) return;
+        if (!gearPhase) return;
         Player currentPlayer = player;
         if (currentPlayer != null) {
             // Check if the target space is occupied
@@ -96,13 +95,22 @@ public class GameController {
                 currentPlayer.setSpace(space);
             }
         }
-//        if (board.getPlayers()
-//                 .stream()
-//                 .map(Player::getSpace)
-//                 .map(Space::getType)
-//                 .allMatch(ActionField.STARTING_GEAR::equals)) {
-//            gearPhase = !gearPhase;
-//        }
+
+        if (gearPhase) {
+            lobby = LobbyUtil.getLobby(lobby.getId());
+            for (Player p: board.getPlayers()) {
+                cords.add(p.getSpace().x);
+                cords.add(p.getSpace().y);
+            }
+
+            if (board.getPlayers()
+                    .stream()
+                    .map(Player::getSpace)
+                    .map(Space::getType)
+                    .allMatch(ActionField.STARTING_GEAR::equals)) {
+                gearPhase = !gearPhase;
+            }
+        }
     }
 
 
@@ -182,62 +190,53 @@ public class GameController {
                 List<Integer> cords = lobby.getPlayersPosition();
                 List<String> headings = lobby.getPlayerHeadings();
                 Player currentPlayer = board.getCurrentPlayer();
+                currentPlayer.incrementEnergy(1);
+                makeProgramFieldsVisible(board.getStep() + 1);
 
-
-
-
-
-
-                    currentPlayer.incrementEnergy(1);
-                    makeProgramFieldsVisible(board.getStep() + 1);
-
-                    if (board.getPhase() == Phase.ACTIVATION) {
-                        int step = board.getStep();
-                        if (step >= 0 && step < Player.NO_REGISTERS) {
-                            currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
-                                if (card.command.isInteractive()) {
-                                    board.setPhase(Phase.PLAYER_INTERACTION);
-                                } else {
-                                    executeCommand(currentPlayer, card.command);
-                                }
-                            });
-                        }
+                if (board.getPhase() == Phase.ACTIVATION) {
+                    int step = board.getStep();
+                    if (step >= 0 && step < Player.NO_REGISTERS) {
+                        currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
+                            if (card.command.isInteractive()) {
+                                board.setPhase(Phase.PLAYER_INTERACTION);
+                            } else {
+                                executeCommand(currentPlayer, card.command);
+                            }
+                        });
                     }
+                }
 
-                    advanceStep();
-                    discardCards();
+                advanceStep();
+                discardCards();
 
-                    cords.clear();
-                    for (Player player : board.getPlayers()) {
-                        cords.add(player.getSpace().x);
-                        cords.add(player.getSpace().y);
-                        headings.add(player.getHeading().toString());
+                cords.clear();
+                for (Player player : board.getPlayers()) {
+                    cords.add(player.getSpace().x);
+                    cords.add(player.getSpace().y);
+                    headings.add(player.getHeading().toString());
 
-                    }
-                    lobby.setPlayersPosition(cords);
+                }
+                lobby.setPlayersPosition(cords);
 
-                    board.moveCurrentTurn();
-                    lobby.setCurrentPlayer(board.getCurrentTurn().getName());
+                board.moveCurrentTurn();
+                lobby.setCurrentPlayer(board.getCurrentTurn().getName());
 
-                    System.out.println("After moveCurrentTurn:");
-                    System.out.println("Next Player: " + board.getCurrentTurn().getName());
-                    System.out.println("Turn Index: " + board.getTurnIndex());
+                System.out.println("After moveCurrentTurn:");
+                System.out.println("Next Player: " + board.getCurrentTurn().getName());
+                System.out.println("Turn Index: " + board.getTurnIndex());
 
-                    LobbyUtil.httpPutLobby(lobby.getId(), lobby);
-
-
-                        timeline.stop();
+                LobbyUtil.httpPutLobby(lobby.getId(), lobby);
 
 
+                timeline.stop();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }));
+
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
-
-
-            }
+    }
 
 
     private void startLobbyPolling() {
@@ -245,17 +244,15 @@ public class GameController {
             lobby = LobbyUtil.getLobby(lobby.getId());
             List<Integer> cords = lobby.getPlayersPosition();
             List<String> headings = lobby.getPlayerHeadings();
-                int maxPlayers = lobby.getMaxPlayers();
-                for (int i = maxPlayers; i > 0; i--) {
-                    int playerIndex = i - 1;
-                    if (playerIndex >= 0 && cords.size() >= 2) {
-                        int y = cords.remove(cords.size() - 1);
-                        int x = cords.remove(cords.size() - 1);
-                        movePlayerToSpace(board.getPlayer(playerIndex), board.getSpace(x, y));
-                    }
+            int maxPlayers = lobby.getMaxPlayers();
+            for (int i = maxPlayers; i > 0; i--) {
+                int playerIndex = i - 1;
+                if (playerIndex >= 0 && cords.size() >= 2) {
+                    int y = cords.remove(cords.size() - 1);
+                    int x = cords.remove(cords.size() - 1);
+                    movePlayerToSpace(board.getPlayer(playerIndex), board.getSpace(x, y));
                 }
-
-
+            }
         }));
         timeline2.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
         timeline2.play();
@@ -273,52 +270,6 @@ public class GameController {
         });
     }
 
-//    private void activateRobotLasers() {
-//        Set<ActionField> invalidValues = new HashSet<>();
-//        invalidValues.add(ActionField.WALL);
-//        invalidValues.add(ActionField.BOARD_LASER_START);
-//        invalidValues.add(ActionField.BOARD_LASER_END);
-//        invalidValues.add(ActionField.PRIORITY_ANTENNA);
-//
-//        for (int i = 0; i < board.getPlayerAmount(); i++) {
-//            Player p = board.getPlayer(i);
-//            Space s = p.getSpace();
-//            SpaceView[][] spaces = boardView.getSpaceViews();
-//            int x = p.getSpace().x;
-//            int y = p.getSpace().y;
-//
-//            while (board.getSpace(x,y).getType() != null && !invalidValues.contains(board.getSpace(x,y).getType())){
-//                if ((x >= 0 && x < board.width) && (y >= 0 && y < board.height)) {
-////                    //PHASE = PROGRAMMING | LASERS = OFF
-////                    if(board.getPhase() == Phase.PROGRAMMING){
-////                        spaces[x][y].setAltImage("/" + board.getSpace(x,y).getType() + ".png");
-////                        spaces[x][y].setChangeImage(true);
-////                    }
-//
-//                    //PHASE = ACTIVATION | LASERS = ON
-//                    if(board.getPhase() == Phase.ACTIVATION && !p.getSpace().equals(s)){
-//                        spaces[x][y].setAltImage("/" + "BOARD_LASER" + ".png");
-//                        spaces[x][y].setChangeImage(true);
-//                    }
-//                }
-//
-//                switch (p.getHeading()) {
-//                    case NORTH:
-//                        y--;
-//                        break;
-//                    case EAST:
-//                        x++;
-//                        break;
-//                    case SOUTH:
-//                        y++;
-//                        break;
-//                    case WEST:
-//                        x--;
-//                        break;
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Advances the game to the next step in the activation phase.

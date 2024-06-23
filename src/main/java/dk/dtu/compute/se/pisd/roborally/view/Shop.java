@@ -3,6 +3,7 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.animation.KeyFrame;
@@ -36,14 +37,15 @@ public class Shop extends VBox {
     GameController gameController;
     Image image;
     Deck deck = null;
-
+    private final RoboRally roborally;
     Timeline timeline;
 
     Timeline timeline2;
 
-    public Shop(GameController gameController) {
+    public Shop(GameController gameController, RoboRally roborally) {
         this.deck = gameController.board.getShop();
         this.gameController = gameController;
+        this.roborally = roborally;
         image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Facedown.png")));
 
         /// button to change phase
@@ -132,6 +134,8 @@ public class Shop extends VBox {
                 startProgrammingPhasePolling(lobby);
             }
         }
+
+        roborally.showStartingGearDialog();
     }
 
     private void startProgrammingPhasePolling(Lobby lobby) {

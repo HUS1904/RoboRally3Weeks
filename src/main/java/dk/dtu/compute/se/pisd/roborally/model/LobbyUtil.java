@@ -56,7 +56,6 @@ public class LobbyUtil {
             try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
                 // Print the response status code
 
-
                 // Parse the JSON response into a list of Lobby objects
                 ObjectMapper objectMapper = new ObjectMapper();
                 return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<Lobby>() {});
@@ -90,14 +89,6 @@ public class LobbyUtil {
         }
     }
 
-
-
-
-
-
-
-
-
     public static void httpPut(long id) {
         String url = "http://localhost:8080/api/lobby/" + id; // Example URL with ID 1
 
@@ -123,32 +114,29 @@ public class LobbyUtil {
     public static void httpPutLobby(long id,Lobby lobby) throws IOException {
         String url = "http://localhost:8080/api/lobby/shop/" + id; // Example URL with ID 1
 
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            // Create a HttpPut request with the URL
+            HttpPut putRequest = new HttpPut(url);
 
+            // Convert the Lobby object to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(lobby);
 
-            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-                // Create a HttpPut request with the URL
-                HttpPut putRequest = new HttpPut(url);
+            // Set the JSON as the entity of the PUT request
+            StringEntity entity = new StringEntity(json);
+            putRequest.setEntity(entity);
+            putRequest.setHeader("Content-type", "application/json");
 
-                // Convert the Lobby object to JSON
-                ObjectMapper objectMapper = new ObjectMapper();
-                String json = objectMapper.writeValueAsString(lobby);
-
-                // Set the JSON as the entity of the PUT request
-                StringEntity entity = new StringEntity(json);
-                putRequest.setEntity(entity);
-                putRequest.setHeader("Content-type", "application/json");
-
-                // Execute the request
-                try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
-                    // Print the response status code
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            // Execute the request
+            try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
+                // Print the response status code
 
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
-        }
 
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
