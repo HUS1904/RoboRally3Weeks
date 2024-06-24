@@ -187,46 +187,47 @@ public class GameController {
 
 
 
+                    if(lobby.getCurrentPlayer().equals(board.getCurrentPlayer().getName())) {
+                        currentPlayer.incrementEnergy(1);
+                        makeProgramFieldsVisible(board.getStep() + 1);
 
-                    currentPlayer.incrementEnergy(1);
-                    makeProgramFieldsVisible(board.getStep() + 1);
-
-                    if (board.getPhase() == Phase.ACTIVATION) {
-                        int step = board.getStep();
-                        if (step >= 0 && step < Player.NO_REGISTERS) {
-                            currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
-                                if (card.command.isInteractive()) {
-                                    board.setPhase(Phase.PLAYER_INTERACTION);
-                                } else {
-                                    executeCommand(currentPlayer, card.command);
-                                }
-                            });
+                        if (board.getPhase() == Phase.ACTIVATION) {
+                            int step = board.getStep();
+                            if (step >= 0 && step < Player.NO_REGISTERS) {
+                                currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
+                                    if (card.command.isInteractive()) {
+                                        board.setPhase(Phase.PLAYER_INTERACTION);
+                                    } else {
+                                        executeCommand(currentPlayer, card.command);
+                                    }
+                                });
+                            }
                         }
-                    }
 
-                    advanceStep();
-                    discardCards();
+                        advanceStep();
+                        discardCards();
 
-                    cords.clear();
-                    for (Player player : board.getPlayers()) {
-                        cords.add(player.getSpace().x);
-                        cords.add(player.getSpace().y);
-                        headings.add(player.getHeading().toString());
+                        cords.clear();
+                        for (Player player : board.getPlayers()) {
+                            cords.add(player.getSpace().x);
+                            cords.add(player.getSpace().y);
+                            headings.add(player.getHeading().toString());
 
-                    }
-                    lobby.setPlayersPosition(cords);
+                        }
+                        lobby.setPlayersPosition(cords);
 
-                    board.moveCurrentTurn();
-                    lobby.setCurrentPlayer(board.getCurrentTurn().getName());
+                        board.moveCurrentTurn();
+                        lobby.setCurrentPlayer(board.getCurrentTurn().getName());
 
-                    System.out.println("After moveCurrentTurn:");
-                    System.out.println("Next Player: " + board.getCurrentTurn().getName());
-                    System.out.println("Turn Index: " + board.getTurnIndex());
+                        System.out.println("After moveCurrentTurn:");
+                        System.out.println("Next Player: " + board.getCurrentTurn().getName());
+                        System.out.println("Turn Index: " + board.getTurnIndex());
 
-                    LobbyUtil.httpPutLobby(lobby.getId(), lobby);
+                        LobbyUtil.httpPutLobby(lobby.getId(), lobby);
 
 
                         timeline.stop();
+                    }
 
 
             } catch (IOException ex) {

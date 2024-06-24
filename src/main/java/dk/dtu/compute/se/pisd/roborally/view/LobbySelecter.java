@@ -218,7 +218,7 @@ public class LobbySelecter extends VBox {
                         if (lobby.getPlayerCount() < lobby.getMaxPlayers() ) {
                             joinLobby(lobby.getId());
                         }
-//                        joinLobby(lobby.getId());
+//
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
