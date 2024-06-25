@@ -25,6 +25,7 @@ import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -40,12 +41,12 @@ import java.util.Objects;
 public class CommandCard extends Subject {
     @Expose
     final public Command command;
+    @Getter
     @Expose
     private ImageView cardImage;
 
-
-
-    private String type;
+    @Getter
+    private final String type;
 
     /**
      * Constructs a new CommandCard with the specified command.
@@ -69,15 +70,5 @@ public class CommandCard extends Subject {
     public String getName() {
         return command.displayName;
     }
-
-
-    public ImageView getCardImage() {
-        return cardImage;
-    }
-
-    public String getType() {
-        return type;
-    }
-
 
 }

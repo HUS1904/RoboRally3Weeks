@@ -59,32 +59,33 @@ import java.io.IOException;
  */
 public class CardFieldView extends GridPane implements ViewObserver {
 
-    // This data format helps avoiding transfers of e.g. Strings from other
+    // This data format helps avoid transfers of e.g. Strings from other
     // programs which can copy/paste Strings.
     public static DataFormat ROBO_RALLY_CARD_UPGRADE = new DataFormat("/games/roborally/upgrade");
-    ;
-
 
     final public static int CARDFIELD_WIDTH = 60;
+
     final public static int CARDFIELD_HEIGHT = 70;
 
     final public static Border BORDER = new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, null, new BorderWidths(2)));
 
     final public static Background BG_DEFAULT = new Background(new BackgroundFill(Color.DARKGRAY, null, null));
+
     final public static Background BG_DRAG = new Background(new BackgroundFill(Color.GRAY, null, null));
+
     final public static Background BG_DROP = new Background(new BackgroundFill(Color.LIGHTGRAY, null, null));
 
     final public static Background BG_ACTIVE = new Background(new BackgroundFill(Color.STEELBLUE, null, null));
+
     final public static Background BG_DONE = new Background(new BackgroundFill(Color.BLACK, null, null));
 
-    private CommandCardField field;
-
+    private final CommandCardField field;
 
     private ImageView imageView;
 
-    private Label label;
+    private final Label label;
 
-    private GameController gameController;
+    private final GameController gameController;
 
 
     /**
@@ -94,8 +95,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
      * @param field          The command card field model associated with this view.
      */
     public CardFieldView(@NotNull GameController gameController, @NotNull CommandCardField field) {
-
-
         this.gameController = gameController;
         this.field = field;
 
@@ -139,8 +138,8 @@ public class CardFieldView extends GridPane implements ViewObserver {
 
 
     private String cardFieldRepresentation(CommandCardField cardField) {
-        if (cardField.player != null) {
-
+        Player player = cardField.player;
+        if (player != null) {
             for (int i = 0; i < Player.NO_REGISTERS; i++) {
                 CommandCardField other = cardField.player.getProgramField(i);
                 if (other == cardField) {
@@ -177,7 +176,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
             }
         }
         return null;
-
     }
 
     private CommandCardField cardFieldFromRepresentation(String rep) {
@@ -196,19 +194,17 @@ public class CardFieldView extends GridPane implements ViewObserver {
                 } else if ("S".equals(strings[0])) {
                     if (i < gameController.board.getShopFields().size()) {
                         return gameController.board.getShopFields().get(i);
-                    } else if ("U".equals(strings[0])) {
-                        if (i < Player.NO_UPGRADES) {
-                            return field.player.getUpgradeField(i);
-                        }
-                    } else if ("I".equals(strings[0])) {
-                        if (i < Player.NO_UPGRADE_INV) {
-                            return field.player.getUpgradeInv(i);
-                        }
+                    }
+                } else if ("U".equals(strings[0])) {
+                    if (i < Player.NO_UPGRADES) {
+                        return field.player.getUpgradeField(i);
+                    }
+                } else if ("I".equals(strings[0])) {
+                    if (i < Player.NO_UPGRADE_INV) {
+                        return field.player.getUpgradeInv(i);
                     }
                 }
-
             }
-
         }
         return null;
     }
@@ -223,21 +219,19 @@ public class CardFieldView extends GridPane implements ViewObserver {
     public void updateView(Subject subject) {
         if (subject == field && subject != null) {
             field.getCard().ifPresentOrElse(card -> {
-                        if (field.isVisible()) {
-                            // If the field has a card, set the ImageView to display the card image
-                            imageView = card.getCardImage();
-                            imageView.setFitWidth(45);
-                            imageView.setFitHeight(60);
-                            imageView.setPreserveRatio(true);
-                            this.getChildren().clear(); // Clear any existing content
-                            this.add(imageView, 0, 0);
-                            label.setText(card.getName());
-                        } else this.getChildren().clear();
-                    }, this.getChildren()::clear
-            );
+                if (field.isVisible()) {
+                    // If the field has a card, set the ImageView to display the card image
+                    imageView = card.getCardImage();
+                    imageView.setFitWidth(45);
+                    imageView.setFitHeight(60);
+                    imageView.setPreserveRatio(true);
+                    this.getChildren().clear(); // Clear any existing content
+                    this.add(imageView, 0, 0);
+                    label.setText(card.getName());
+                } else this.getChildren().clear();
+            }, this.getChildren()::clear);
         }
     }
-
 
     private class OnDragDetectedHandler implements EventHandler<MouseEvent> {
         @Override
@@ -284,8 +278,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
         public void handle(DragEvent event) {
             if (!(event.getTarget() instanceof CardFieldView target)) return;
 
-            CommandCardField cardField = target.field;
-            if (isValidForDragOver(cardField, event)) {
+            if (isValidForDragOver(target.field, event)) {
                 event.acceptTransferModes(TransferMode.MOVE);
             }
             event.consume();
@@ -318,8 +311,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
         public void handle(DragEvent event) {
             if (!(event.getTarget() instanceof CardFieldView target)) return;
 
-            CommandCardField cardField = target.field;
-            if (shouldSetBackgroundDrop(cardField, event)) {
+            if (shouldSetBackgroundDrop(target.field, event)) {
                 target.setBackground(BG_DROP);
             }
             event.consume();
@@ -339,13 +331,12 @@ public class CardFieldView extends GridPane implements ViewObserver {
         }
     }
 
-    private class OnDragExitedHandler implements EventHandler<DragEvent> {
+    private static class OnDragExitedHandler implements EventHandler<DragEvent> {
         @Override
         public void handle(DragEvent event) {
             if (!(event.getTarget() instanceof CardFieldView target)) return;
 
-            CommandCardField cardField = target.field;
-            if (shouldResetBackground(cardField, event)) {
+            if (shouldResetBackground(target.field, event)) {
                 target.setBackground(BG_DEFAULT);
             }
             event.consume();
@@ -401,7 +392,7 @@ public class CardFieldView extends GridPane implements ViewObserver {
         }
     }
 
-    private class OnDragDoneHandler implements EventHandler<DragEvent> {
+    private static class OnDragDoneHandler implements EventHandler<DragEvent> {
         @Override
         public void handle(DragEvent event) {
             if (event.getTarget() instanceof CardFieldView source) {

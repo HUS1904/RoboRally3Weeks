@@ -24,12 +24,11 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.view.CardFieldView;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Phase.INITIALISATION;
 
@@ -46,6 +45,7 @@ public class Board extends Subject {
     @Expose
     public final int height;
 
+    @Getter
     @Expose
     private Course Course;
 
@@ -57,26 +57,56 @@ public class Board extends Subject {
     private  Space[][] spaces;
     @Expose
     private  List<Player> players = new ArrayList<>();
+    @Getter
     @Expose
     private List<CommandCardField> shopFields = new ArrayList<>();
     @Expose
     private Player current;
+    /**
+     * -- GETTER --
+     *  Gets the current phase of the game.
+     *
+     * @return the current game phase
+     */
+    @Getter
     @Expose
     private Phase phase = INITIALISATION;
 
+    /**
+     * -- GETTER --
+     *  Gets the current step of the game within the current phase.
+     *
+     * @return the current step
+     */
+    @Getter
     @Expose
     private int step = 0;
+    /**
+     * -- GETTER --
+     *  Checks if the game is in step mode, which means actions are executed step by step rather than all at once.
+     *
+     * @return true if the game is in step mode, false otherwise
+     */
+    @Getter
     @Expose
     private boolean stepMode;
 
 
 
+    @Setter
+    @Getter
     private Deck shop;
 
     private List<CardFieldView> shopViews = new ArrayList<>();
     private static final int MAX_PLAYERS = 6;
+    // gets the player who's supposed to play
+    // sets the current turn
+    @Getter
+    @Setter
     private Player currentTurn;
 
+    @Setter
+    @Getter
     private int turnIndex = 0;
 
     /**
@@ -173,36 +203,11 @@ public class Board extends Subject {
             }
         }
     }
-    public Deck getShop() {
-        return shop;
-    }
-
-    public void setShop(Deck shop) {
-        this.shop = shop;
-    }
-
-    public int getTurnIndex() {
-        return turnIndex;
-    }
-
-    public void setTurnIndex(int turnIndex) {
-        this.turnIndex = turnIndex;
-    }
-
 
     public Player findCorrespondingPlayer(String playerName) {
         return getPlayers().stream().filter(p -> p.getName().equals(playerName)).findAny().orElse(null);
     }
 
-    public Course getCourse(){
-        return Course;
-    }
-
-    /**
-     * Gets the unique game identifier for this board.
-     *
-     * @return the game ID, or null if not set
-     */
     public void determineTurn(int x, int y) {
         int counter = 0;
         double[] distances = new double[players.size()];
@@ -251,17 +256,6 @@ public class Board extends Subject {
         System.out.println("current turn is " + currentTurn.getName());
 
     }
-
-    // sets the current turn
-    public void setCurrentTurn(Player player){
-        this.currentTurn = player;
-    }
-
-    // gets the player who's supposed to play
-    public Player getCurrentTurn(){
-        return currentTurn;
-    }
-
 
     /**
      * Sets the unique game identifier for this board. Throws an exception if
@@ -329,12 +323,8 @@ public class Board extends Subject {
      * @param i the index of the player
      * @return the player at the specified index, or null if index is out of bounds
      */
-    public Player getPlayer(int i) {
-        if (i >= 0 && i < players.size()) {
-            return players.get(i);
-        } else {
-            return null;
-        }
+    public Optional<Player> getPlayer(int i) {
+        return Optional.ofNullable(players.get(i));
     }
 
     /**
@@ -363,15 +353,6 @@ public class Board extends Subject {
         }
     }
 
-    /**
-     * Gets the current phase of the game.
-     *
-     * @return the current game phase
-     */
-    public Phase getPhase() {
-        return phase;
-    }
-
     public Space getSpaceView(int x, int y){
         return spaces[x][y];
     }
@@ -388,19 +369,6 @@ public class Board extends Subject {
         }
     }
 
-
-    public List<CommandCardField> getShopFields() {
-        return shopFields;
-    }
-
-    /**
-     * Gets the current step of the game within the current phase.
-     * @return the current step
-     */
-    public int getStep() {
-        return step;
-    }
-
     /**
      * Sets the current step of the game within the current phase.
      * @param step the new step
@@ -410,14 +378,6 @@ public class Board extends Subject {
             this.step = step;
             notifyChange();
         }
-    }
-
-    /**
-     * Checks if the game is in step mode, which means actions are executed step by step rather than all at once.
-     * @return true if the game is in step mode, false otherwise
-     */
-    public boolean isStepMode() {
-        return stepMode;
     }
 
     /**
@@ -450,13 +410,7 @@ public class Board extends Subject {
      * @return the player that corresponds to the parameter name
      */
     public Player getPlayerRepresentation(String representation){
-        for (int i = 0; i < players.size();i++){
-            if(representation.equals(players.get(i).getName())){
-                return players.get(i);
-            }
-
-        }
-        return null;
+        return players.stream().filter(player -> representation.equals(player.getName())).findAny().orElse(null);
     }
 
     /**
@@ -498,6 +452,10 @@ public class Board extends Subject {
         return this.players.size();
     }
 
+    /**
+     * Assembles a one dimensional ArrayList of all the spaces
+     * @return A 1D list of all the spaces on the board
+     */
     public ArrayList<Space> getSpacesList() {
         ArrayList<Space> spacesList = new ArrayList<>();
         for (Space[] space : spaces) {

@@ -36,19 +36,15 @@ import javafx.scene.control.MenuItem;
  */
 public class RoboRallyMenuBar extends MenuBar {
 
-    private AppController appController;
+    private final AppController appController;
 
-    private Menu controlMenu;
+    private final MenuItem saveGame;
 
-    private MenuItem saveGame;
+    private final MenuItem newGame;
 
-    private MenuItem newGame;
+    private final MenuItem loadGame;
 
-    private MenuItem loadGame;
-
-    private MenuItem stopGame;
-
-    private MenuItem exitApp;
+    private final MenuItem stopGame;
 
     /**
      * Constructs a RoboRallyMenuBar with associated game control actions.
@@ -57,7 +53,7 @@ public class RoboRallyMenuBar extends MenuBar {
     public RoboRallyMenuBar(AppController appController) {
         this.appController = appController;
 
-        controlMenu = new Menu("File");
+        Menu controlMenu = new Menu("File");
         this.getMenus().add(controlMenu);
 
         newGame = new MenuItem("New Game");
@@ -88,8 +84,8 @@ public class RoboRallyMenuBar extends MenuBar {
         });
         controlMenu.getItems().add(loadGame);
 
-        exitApp = new MenuItem("Exit");
-        exitApp.setOnAction( e -> this.appController.exit());
+        MenuItem exitApp = new MenuItem("Exit");
+        exitApp.setOnAction(e -> this.appController.exit());
         controlMenu.getItems().add(exitApp);
 
         controlMenu.setOnShowing(e -> update());

@@ -1,6 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.model;
 
 import com.google.gson.annotations.Expose;
+import lombok.Getter;
 
 import java.util.ArrayList;
 
@@ -10,6 +11,7 @@ public class Course {
     @Expose
     public final int height;
 
+    @Getter
     @Expose
     private ArrayList<ArrayList<Space>> spaces;
 
@@ -19,10 +21,4 @@ public class Course {
         spaces = new ArrayList<>();
 
     }
-
-
-    public ArrayList<ArrayList<Space>> getSpaces() {
-        return spaces;
-    }
-
 }

@@ -24,6 +24,9 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
+import lombok.Getter;
+
+import java.util.Objects;
 
 
 /**
@@ -33,16 +36,21 @@ import javafx.scene.image.Image;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class Space extends Subject {
+    @Getter
     public transient Board board;
     @Expose
     public  int x;
     @Expose
     public  int y;
+    @Getter
     private  Player player;
+    @Getter
     @Expose
     private ActionField type;
+    @Getter
     @Expose
     private final Heading heading;
+    @Getter
     @Expose
     private final int index;
     public Image image;
@@ -61,7 +69,7 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.index = 0;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
+        image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/NORMAL.png")));
     }
 
 
@@ -81,7 +89,7 @@ public class Space extends Subject {
         this.heading = heading;
         this.index = 0;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/" + this.type + ".png" ));
+        image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/" + this.type + ".png")));
     }
 
     /**
@@ -99,44 +107,12 @@ public class Space extends Subject {
         this.heading = Heading.NORTH;
         this.index = index;
         player = null;
-        image = new Image(getClass().getResourceAsStream("/NORMAL.png" ));
-    }
-
-    public int getIndex() {
-        return index;
-    }
-
-    public ActionField getType() {
-        return type;
+        image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/NORMAL.png")));
     }
 
     public void setType(ActionField t) {
        this.type = t;
        notifyChange();
-    }
-
-    /**
-     * Gets the player (robot) currently occupying this space, if any.
-     * @return The player occupying this space, or null if the space is empty.
-     */
-    public Player getPlayer() {
-        return player;
-    }
-
-    /**
-     * Retrieves the current heading of this object.
-     * The heading is typically used to determine the direction in which an object (such as a robot or a conveyor belt) is facing.
-     * This method is crucial for navigation and movement mechanics within the game, as it helps in determining the forward direction.
-     *
-     * @return The current heading of the object, represented as an {@link Heading} enum.
-     * @author Hussein Jarrah
-     */
-    public Heading getHeading(){
-        return heading;
-    }
-
-    public Board getBoard(){
-        return board;
     }
 
     /**

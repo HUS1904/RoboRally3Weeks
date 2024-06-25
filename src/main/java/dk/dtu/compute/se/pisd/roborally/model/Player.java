@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -40,7 +41,6 @@ import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class Player extends Subject {
-
     final public static int NO_REGISTERS = 5;
     final public static int NO_CARDS = 8;
     final public static int NO_UPGRADES = 3;
@@ -48,22 +48,27 @@ public class Player extends Subject {
 
 
     final transient public Board board;
+    @Getter
     @Expose
     private String name;
+    @Getter
     @Expose
     private String color;
+    @Getter
     @Expose
-    private  Space space;
+    private Space space;
+    @Getter
     @Expose
     private Heading heading = SOUTH;
     @Expose
-    private CommandCardField[] program;
+    private ArrayList<CommandCardField> program = new ArrayList<>();
     @Expose
-    private CommandCardField[] cards;
+    private ArrayList<CommandCardField> cards = new ArrayList<>();
     @Expose
-    private CommandCardField[] upgrades;
+    private ArrayList<CommandCardField> upgrades = new ArrayList<>();
     @Expose
-    private CommandCardField[] upgradeInv;
+    private ArrayList<CommandCardField> upgradeInv = new ArrayList<>();
+    @Getter
     private int index = 0;
     @Expose
     public double distance;
@@ -72,10 +77,10 @@ public class Player extends Subject {
 
     private int energyCubes;
 
+    @Getter
+    private final Deck deck;
 
-    private Deck deck;
-
-    private GameController gameController;
+    private final GameController gameController;
 
     /**
      * Constructs a new Player with the specified board, color, and name.
@@ -96,39 +101,21 @@ public class Player extends Subject {
 
         this.deck = new Deck("program",gameController);
 
-        program = new CommandCardField[NO_REGISTERS];
-        for (int i = 0; i < program.length; i++) {
-            program[i] = new CommandCardField(this,"program");
+        for (int i = 0; i < NO_REGISTERS; i++) {
+            program.add(new CommandCardField(this,"program"));
         }
 
-        cards = new CommandCardField[NO_CARDS];
-        for (int i = 0; i < cards.length; i++) {
-            cards[i] = new CommandCardField(this,"program");
+        for (int i = 0; i < NO_CARDS; i++) {
+            cards.add(new CommandCardField(this,"program"));
         }
 
-        upgrades = new CommandCardField[3];
-        for (int i = 0; i < upgrades.length; i++) {
-             upgrades[i] = new CommandCardField(this,"upgrade");
+        for (int i = 0; i < 3; i++) {
+             upgrades.add(new CommandCardField(this,"upgrade"));
         }
 
-        upgradeInv  = new CommandCardField[6];
-        for (int i = 0; i < upgradeInv.length; i++) {
-            upgradeInv[i] = new CommandCardField(this,"upgrade");
+        for (int i = 0; i < 6; i++) {
+            upgradeInv.add(new CommandCardField(this,"upgrade"));
         }
-
-
-
-    }
-
-
-
-
-    /**
-     * Gets the name of the player.
-     * @return the player's name
-     */
-    public String getName() {
-        return name;
     }
 
     /**
@@ -146,14 +133,6 @@ public class Player extends Subject {
     }
 
     /**
-     * Gets the color representing the player.
-     * @return the player's color
-     */
-    public String getColor() {
-        return color;
-    }
-
-    /**
      * Sets the color representing the player and notifies observers of the change.
      * @param color the new color of the player
      */
@@ -163,14 +142,6 @@ public class Player extends Subject {
         if (space != null) {
             space.playerChanged();
         }
-    }
-
-    /**
-     * Gets the current space the player is occupying on the board.
-     * @return the player's current space
-     */
-    public Space getSpace() {
-        return space;
     }
 
     /**
@@ -193,14 +164,6 @@ public class Player extends Subject {
     }
 
     /**
-     * Gets the current heading (direction) of the player.
-     * @return the player's current heading
-     */
-    public Heading getHeading() {
-        return heading;
-    }
-
-    /**
      * Sets the heading (direction) of the player and notifies observers of the change.
      * @param heading the new heading for the player
      */
@@ -220,7 +183,7 @@ public class Player extends Subject {
      * @return the programming field at the specified index
      */
     public CommandCardField getProgramField(int i) {
-        return program[i];
+        return program.get(i);
     }
 
     /**
@@ -228,7 +191,7 @@ public class Player extends Subject {
      * @return an ArrayList of programming fields
      */
     public ArrayList<CommandCardField> getProgramFields() {
-        return new ArrayList<>(List.of(program));
+        return program;
     }
 
     /**
@@ -237,7 +200,7 @@ public class Player extends Subject {
      * @return the command card field at the specified index
      */
     public CommandCardField getCardField(int i) {
-        return cards[i];
+        return cards.get(i);
     }
 
     /**
@@ -245,14 +208,14 @@ public class Player extends Subject {
      * @return an ArrayList of card fields
      */
     public ArrayList<CommandCardField> getCardFields() {
-        return new ArrayList<>(List.of(cards));
+        return cards;
     }
 
     public CommandCardField getUpgradeField(int i) {
-        return upgrades[i];
+        return upgrades.get(i);
     }
     public CommandCardField getUpgradeInv(int i) {
-        return upgradeInv[i];
+        return upgradeInv.get(i);
     }
 
     public void incrementIndex() {
@@ -273,19 +236,17 @@ public class Player extends Subject {
             case EAST  -> board.getSpace(space.x + 1, space.y);
         };
 
-        if(nextSpace.getType() == ActionField.WALL)
-            return;
-        else if(nextSpace.getType() == ActionField.CHECKPOINT)
-            incrementIndex();
-        else if(nextSpace.getType() == ActionField.BOARD_LASER)
-            deck.sendToDiscardPile(gameController.generateDamageCard());
-            System.out.println("1 card sent to discard-pile");
+        switch (nextSpace.getType()) {
+            case WALL: return;
+            case CHECKPOINT:
+                incrementIndex();
+                break;
+            case BOARD_LASER:
+                deck.sendToDiscardPile(gameController.generateDamageCard());
+                System.out.println("1 card sent to discard-pile");
+        }
 
         setSpace(nextSpace);
-    }
-
-    public int getIndex() {
-        return index;
     }
 
     /**
@@ -299,16 +260,11 @@ public class Player extends Subject {
     /**
      * increments or decrements the players energy cubes
      * @param amount can be either negative or positive
-     * @return returns the amount of energy cubes
      */
     public void incrementEnergy(int amount){
         this.energyCubes += amount;
 
         notifyChange();
-    }
-
-    public Deck getDeck() {
-        return deck;
     }
 }
 

@@ -23,6 +23,7 @@ package dk.dtu.compute.se.pisd.roborally.model;
 
 import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
+import lombok.Getter;
 
 import java.util.Optional;
 
@@ -34,16 +35,16 @@ import java.util.Optional;
  * @author Ekkart Kindler, ekki@dtu.dk
  */
 public class CommandCardField extends Subject {
-
     final transient public Player player;
     @Expose
     private CommandCard card;
+
+    @Getter
     @Expose
     private boolean visible;
 
-
-
-    private String type;
+    @Getter
+    private final String type;
 
     /**
      * Constructs a CommandCardField for the specified player, initially without a command card.
@@ -76,14 +77,6 @@ public class CommandCardField extends Subject {
     }
 
     /**
-     * Checks whether this field is visible to the player.
-     * @return True if the field is visible, false otherwise.
-     */
-    public boolean isVisible() {
-        return visible;
-    }
-
-    /**
      * Sets the visibility of this field (and its card) to the player. Notifies observers of the change.
      * @param visible True to make the field visible, false to hide it.
      */
@@ -92,9 +85,6 @@ public class CommandCardField extends Subject {
             this.visible = visible;
             notifyChange();
         }
-    }
-    public String getType() {
-        return type;
     }
 
 }

@@ -20,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import lombok.Setter;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -42,15 +43,16 @@ public class LobbySelecter extends VBox {
 
     long ID;
 
-    private HBox titles;
-    private HBox buttons;
-    private VBox lobbyBox;
+    private final HBox titles;
+    private final HBox buttons;
+    private final VBox lobbyBox;
     private HBox chosenLobbyView;
 
     private final RoboRally roborally;
 
-    private AppController appController;
+    private final AppController appController;
     Timeline timeline;
+    @Setter
     private String course = null;
 
 
@@ -114,16 +116,11 @@ public class LobbySelecter extends VBox {
         });
     }
 
-    public void setCourse(String course) {
-        this.course = course;
-    }
-
     public void handleCreation() throws JsonProcessingException {
         roborally.createMapSlectionView(this);
 
     }
-
-
+    
     public void sendRequest() throws JsonProcessingException {
 
         ChoiceDialog<Integer> dialog = new ChoiceDialog<>(PLAYER_NUMBER_OPTIONS.get(0), PLAYER_NUMBER_OPTIONS);

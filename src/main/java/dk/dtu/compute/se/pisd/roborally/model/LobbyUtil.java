@@ -28,19 +28,7 @@ public class LobbyUtil {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // Create a HttpGet request
             HttpGet getRequest = new HttpGet("http://localhost:8080/api/lobby");
-            getRequest.setHeader("Content-Type", "application/json");
-
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
-                // Print the response status code
-
-
-                // Parse the JSON response into a list of Lobby objects
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<List<Lobby>>() {});
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return executeGetRequest(getRequest, httpClient, new TypeReference<>() {});
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -50,24 +38,24 @@ public class LobbyUtil {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             // Create a HttpGet request
             HttpGet getRequest = new HttpGet("http://localhost:8080/api/lobby/" + id);
-            getRequest.setHeader("Content-Type", "application/json");
-
-            // Execute the request
-            try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
-                // Print the response status code
-
-
-                // Parse the JSON response into a list of Lobby objects
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.readValue(response.getEntity().getContent(), new TypeReference<Lobby>() {});
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return executeGetRequest(getRequest, httpClient, new TypeReference<>() {});
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private static <T> T executeGetRequest(HttpGet getRequest, CloseableHttpClient httpClient, TypeReference<T> typeReference) {
+        getRequest.setHeader("Content-Type", "application/json");
+
+        // Execute the request
+        try (CloseableHttpResponse response = httpClient.execute(getRequest)) {
+            // Parse the JSON response into a list of Lobby objects
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(response.getEntity().getContent(), typeReference);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void httpPost(Lobby lobby) throws JsonProcessingException {
 
@@ -90,14 +78,6 @@ public class LobbyUtil {
         }
     }
 
-
-
-
-
-
-
-
-
     public static void httpPut(long id) {
         String url = "http://localhost:8080/api/lobby/" + id; // Example URL with ID 1
 
@@ -108,8 +88,7 @@ public class LobbyUtil {
             // Execute the request
             try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
                 // Print the response status code
-
-
+                System.out.println(response.getStatusLine());
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -123,46 +102,43 @@ public class LobbyUtil {
     public static void httpPutLobby(long id,Lobby lobby) throws IOException {
         String url = "http://localhost:8080/api/lobby/shop/" + id; // Example URL with ID 1
 
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            // Create a HttpPut request with the URL
+            HttpPut putRequest = new HttpPut(url);
 
+            // Convert the Lobby object to JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(lobby);
 
-            try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-                // Create a HttpPut request with the URL
-                HttpPut putRequest = new HttpPut(url);
+            // Set the JSON as the entity of the PUT request
+            StringEntity entity = new StringEntity(json);
+            putRequest.setEntity(entity);
+            putRequest.setHeader("Content-type", "application/json");
 
-                // Convert the Lobby object to JSON
-                ObjectMapper objectMapper = new ObjectMapper();
-                String json = objectMapper.writeValueAsString(lobby);
+            // Execute the request
+            try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
+                // Print the response status code
+                System.out.println(response.getStatusLine());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-                // Set the JSON as the entity of the PUT request
-                StringEntity entity = new StringEntity(json);
-                putRequest.setEntity(entity);
-                putRequest.setHeader("Content-type", "application/json");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-                // Execute the request
-                try (CloseableHttpResponse response = httpClient.execute(putRequest)) {
-                    // Print the response status code
+    public static boolean joinLobby(long id) {
+        Lobby lobby = getLobby(id);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+        if (lobby != null && lobby.addPlayer()) {
+            try {
+                httpPutLobby(id, lobby);
+                return true;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        public static boolean joinLobby(long id) {
-            Lobby lobby = getLobby(id);
-
-            if (lobby != null && lobby.addPlayer()) {
-                try {
-                    httpPutLobby(id, lobby);
-                    return true;
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            return false;
-        }
-
+        return false;
+    }
 }

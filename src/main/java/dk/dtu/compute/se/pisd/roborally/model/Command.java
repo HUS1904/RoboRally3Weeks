@@ -21,6 +21,8 @@
  */
 package dk.dtu.compute.se.pisd.roborally.model;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +54,7 @@ public enum Command {
     OPTION_LEFT_FORWARD("Option Left or Forward", LEFT, FORWARD);
 
     final public String displayName;
+    @Getter
     final private List<Command> options;
 
     Command(String displayName, Command... options) {
@@ -59,8 +62,7 @@ public enum Command {
         this.options = Collections.unmodifiableList(Arrays.asList(options));
     }
 
-    public boolean isInteractive() {return !options.isEmpty(); }
-    public List<Command> getOptions() {return options; }
+    public boolean isInteractive() {return !options.isEmpty();}
 
     public static Command fromDisplayName(String displayName) {
         for (Command command : Command.values()) {

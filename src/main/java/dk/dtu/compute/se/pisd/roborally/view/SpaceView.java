@@ -25,6 +25,7 @@ import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import javafx.scene.image.Image;
@@ -32,6 +33,7 @@ import java.io.InputStream;
 
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -47,21 +49,15 @@ public class SpaceView extends StackPane implements ViewObserver {
     final public static int SPACE_HEIGHT = 60; // 60; // 75;
     final public static int SPACE_WIDTH = 60;  // 60; // 75;
 
+    @Setter
     private String altImage;
 
+    @Setter
     private boolean changeImage;
 
     public final Space space;
 
     public ImageView image;
-
-    public void setAltImage(String altImage) {
-        this.altImage = altImage;
-    }
-
-    public void setChangeImage(boolean b) {
-        this.changeImage = b;
-    }
 
     /**
      * Constructs a SpaceView for the specified Space.
@@ -144,28 +140,9 @@ public class SpaceView extends StackPane implements ViewObserver {
             }
 
 
-            String img = "/" + s.getType() + ".png";
-
-            //LASERS OFF
-            if (phase == Phase.PROGRAMMING) {
-                img = switch (s.getType()) {
-                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START_OFF" + ".png";
-                    case BOARD_LASER -> "/" + "NORMAL" + ".png";
-                    case BOARD_LASER_END -> "/" + "WALL" + ".png";
-                    default -> img;
-                };
-            }
-            //LASERS ON
-            if (phase == Phase.ACTIVATION) {
-                img = switch (s.getType()) {
-                    case BOARD_LASER_START -> "/" + "BOARD_LASER_START" + ".png";
-                    case BOARD_LASER -> "/" + "BOARD_LASER" + ".png";
-                    case BOARD_LASER_END -> "/" + "BOARD_LASER_END" + ".png";
-                    default -> img;
-                };
-            }
+            String img = getString(s, phase);
 //            img = changeImage ? altImage : img;
-            image.setImage(new Image(getClass().getResourceAsStream(img)));
+            image.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream(img))));
 //
 //            changeImage = false;
 
@@ -209,6 +186,31 @@ public class SpaceView extends StackPane implements ViewObserver {
         }
 
         updatePlayer();
+    }
+
+    @NotNull
+    private static String getString(Space s, Phase phase) {
+        String img = "/" + s.getType() + ".png";
+
+        //LASERS OFF
+        if (phase == Phase.PROGRAMMING) {
+            img = switch (s.getType()) {
+                case BOARD_LASER_START -> "/" + "BOARD_LASER_START_OFF" + ".png";
+                case BOARD_LASER -> "/" + "NORMAL" + ".png";
+                case BOARD_LASER_END -> "/" + "WALL" + ".png";
+                default -> img;
+            };
+        }
+        //LASERS ON
+        if (phase == Phase.ACTIVATION) {
+            img = switch (s.getType()) {
+                case BOARD_LASER_START -> "/" + "BOARD_LASER_START" + ".png";
+                case BOARD_LASER -> "/" + "BOARD_LASER" + ".png";
+                case BOARD_LASER_END -> "/" + "BOARD_LASER_END" + ".png";
+                default -> img;
+            };
+        }
+        return img;
     }
 
 }

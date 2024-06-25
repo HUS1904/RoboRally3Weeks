@@ -26,6 +26,8 @@ import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -47,14 +49,14 @@ public class GameController {
     private boolean gearPhase = true;
 
     public Board board;
-   private BoardView boardView;
+    private BoardView boardView;
 
-   private Timeline timeline;
+    private Timeline timeline;
 
-   private Timeline timeline2;
+    private Timeline timeline2;
 
-
-
+    @Setter
+    @Getter
     private Lobby lobby;
 
     /**
@@ -71,14 +73,6 @@ public class GameController {
         this.board = board;
     }
 
-
-    public Lobby getLobby() {
-        return lobby;
-    }
-
-    public void setLobby(Lobby lobby) {
-        this.lobby = lobby;
-    }
 
     /**
      * This is just some dummy controller operation to make a simple move to see something
@@ -162,7 +156,11 @@ public class GameController {
      * the players visible for the current register.
      */
     public void finishProgrammingPhase() {
-        Space antenna = board.getSpacesList().stream().filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA).findAny().orElseThrow(NoSuchElementException::new);
+        Space antenna = board.getSpacesList()
+                .stream()
+                .filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA)
+                .findAny()
+                .orElseThrow(NoSuchElementException::new);
         board.determineTurn(antenna.x, antenna.y);
         makeProgramFieldsInvisible();
         makeProgramFieldsVisible(0);
@@ -183,76 +181,67 @@ public class GameController {
                 List<String> headings = lobby.getPlayerHeadings();
                 Player currentPlayer = board.getCurrentPlayer();
 
+                if(lobby.getCurrentPlayer().equals(board.getCurrentPlayer().getName())) {
+                    currentPlayer.incrementEnergy(1);
+                    makeProgramFieldsVisible(board.getStep() + 1);
 
-
-
-
-                    if(lobby.getCurrentPlayer().equals(board.getCurrentPlayer().getName())) {
-                        currentPlayer.incrementEnergy(1);
-                        makeProgramFieldsVisible(board.getStep() + 1);
-
-                        if (board.getPhase() == Phase.ACTIVATION) {
-                            int step = board.getStep();
-                            if (step >= 0 && step < Player.NO_REGISTERS) {
-                                currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
-                                    if (card.command.isInteractive()) {
-                                        board.setPhase(Phase.PLAYER_INTERACTION);
-                                    } else {
-                                        executeCommand(currentPlayer, card.command);
-                                    }
-                                });
-                            }
+                    if (board.getPhase() == Phase.ACTIVATION) {
+                        int step = board.getStep();
+                        if (step >= 0 && step < Player.NO_REGISTERS) {
+                            currentPlayer.getProgramField(step).getCard().ifPresent(card -> {
+                                if (card.command.isInteractive()) {
+                                    board.setPhase(Phase.PLAYER_INTERACTION);
+                                } else {
+                                    executeCommand(currentPlayer, card.command);
+                                }
+                            });
                         }
-
-                        advanceStep();
-                        discardCards();
-
-                        cords.clear();
-                        for (Player player : board.getPlayers()) {
-                            cords.add(player.getSpace().x);
-                            cords.add(player.getSpace().y);
-                            headings.add(player.getHeading().toString());
-
-                        }
-                        lobby.setPlayersPosition(cords);
-
-                        board.moveCurrentTurn();
-                        lobby.setCurrentPlayer(board.getCurrentTurn().getName());
-
-                        System.out.println("After moveCurrentTurn:");
-                        System.out.println("Next Player: " + board.getCurrentTurn().getName());
-                        System.out.println("Turn Index: " + board.getTurnIndex());
-
-                        LobbyUtil.httpPutLobby(lobby.getId(), lobby);
-
-
-                        timeline.stop();
                     }
 
+                    advanceStep();
+                    discardCards();
 
+                    cords.clear();
+                    for (Player player : board.getPlayers()) {
+                        cords.add(player.getSpace().x);
+                        cords.add(player.getSpace().y);
+                        headings.add(player.getHeading().toString());
+
+                    }
+                    lobby.setPlayersPosition(cords);
+
+                    board.moveCurrentTurn();
+                    lobby.setCurrentPlayer(board.getCurrentTurn().getName());
+
+                    System.out.println("After moveCurrentTurn:");
+                    System.out.println("Next Player: " + board.getCurrentTurn().getName());
+                    System.out.println("Turn Index: " + board.getTurnIndex());
+
+                    LobbyUtil.httpPutLobby(lobby.getId(), lobby);
+
+                    timeline.stop();
+                }
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
-
-
-            }
+    }
 
 
     private void startLobbyPolling() {
         timeline2 = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             lobby = LobbyUtil.getLobby(lobby.getId());
-            List<Integer> cords = lobby.getPlayersPosition();
+            List<Integer> coords = lobby.getPlayersPosition();
             List<String> headings = lobby.getPlayerHeadings();
                 int maxPlayers = lobby.getMaxPlayers();
                 for (int i = maxPlayers; i > 0; i--) {
                     int playerIndex = i - 1;
-                    if (playerIndex >= 0 && cords.size() >= 2) {
-                        int y = cords.remove(cords.size() - 1);
-                        int x = cords.remove(cords.size() - 1);
-                        movePlayerToSpace(board.getPlayer(playerIndex), board.getSpace(x, y));
+                    if (coords.size() >= 2) {
+                        int y = coords.remove(coords.size() - 1);
+                        int x = coords.remove(coords.size() - 1);
+                        movePlayerToSpace(board.getPlayer(playerIndex).orElseThrow(NoSuchElementException::new), board.getSpace(x, y));
                     }
                 }
 
@@ -337,16 +326,9 @@ public class GameController {
     }
 
     public Optional<Player> getWinner() {
-        int checkpoints = (int) board
-                .getSpacesList()
-                .stream()
-                .map(Space::getType)
-                .filter(ActionField.CHECKPOINT::equals)
-                .count();
+        long checkpoints = board.getSpacesList().stream().map(Space::getType).filter(ActionField.CHECKPOINT::equals).count();
 
-        return board.getPlayers().stream().map(Player::getIndex).anyMatch(index -> index == checkpoints)
-                ? Optional.of(board.getCurrentPlayer())
-                : Optional.empty();
+        return board.getPlayers().stream().filter(player -> player.getIndex() == checkpoints).findAny();
     }
 
     public void activateSpaces() {
@@ -412,14 +394,14 @@ public class GameController {
                     // Move to the next player
                     int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
                     if (nextPlayerNumber < board.getPlayersNumber()) {
-                        board.setCurrentPlayer(board.getPlayer(nextPlayerNumber));
+                        board.setCurrentPlayer(board.getPlayer(nextPlayerNumber).orElse(null));
                     } else {
                         // Last player, move to next step or end of the cycle
                         step++;
                         if (step < Player.NO_REGISTERS) {
                             makeProgramFieldsVisible(step);
                             board.setStep(step);
-                            board.setCurrentPlayer(board.getPlayer(0));  // Reset to first player
+                            board.setCurrentPlayer(board.getPlayer(0).orElseThrow(NoSuchElementException::new));  // Reset to first player
                         } else {
                             startProgrammingPhase();
                             return;  // Exit if all steps are done
@@ -458,7 +440,7 @@ public class GameController {
     }
 
     void executeCommand(@NotNull Player player, Command command) {
-        if (player != null && player.board == board && command != null) {
+        if (player.board == board && command != null) {
             // Handle different commands
             switch (command) {
                 case FORWARD:
@@ -609,7 +591,7 @@ public class GameController {
         switch (board.getPhase()) {
             case PROGRAMMING:
                 this.board.setPhase(Phase.PROGRAMMING);
-                this.board.setCurrentPlayer(board.getPlayer(0));
+                this.board.setCurrentPlayer(board.getPlayer(0).orElseThrow(NoSuchElementException::new));
                 this.board.setStep(board.getStep());
                 break;
             case ACTIVATION:
@@ -621,8 +603,8 @@ public class GameController {
         this.board.setStepMode(board.isStepMode());
 
         for (int i = 0; i < this.board.getPlayerAmount(); i++) {
-            Player player = this.board.getPlayer(i);
-            Player otherPlayer = board.getPlayer(i);
+            Player player = this.board.getPlayer(i).orElseThrow(NoSuchElementException::new);
+            Player otherPlayer = board.getPlayer(i).orElseThrow(NoSuchElementException::new);
 
             for (int j = 0; j < Player.NO_CARDS; j++) {
                 CommandCardField field = player.getCardField(j);
@@ -666,13 +648,11 @@ public class GameController {
      * @param player the player whose robot should turn right
      */
     public void turnRight (Player player){
-        Heading heading = player.getHeading();
         board.getCurrentPlayer().getProgramField(board.getStep()).getCard().ifPresent(card -> {
-            if (card.getName().equals("U-Turn")) {
-                player.setHeading(heading.next().next());
-            } else {
-                player.setHeading(heading.next());
-            }
+            Heading heading = card.getName().equals("U-Turn")
+                    ? player.getHeading().next().next()
+                    : player.getHeading().next();
+            player.setHeading(heading);
         });
     }
 
@@ -694,23 +674,12 @@ public class GameController {
      * @return true if the card was successfully moved, false otherwise
      */
     public boolean moveCards (@NotNull CommandCardField source, @NotNull CommandCardField target){
-        Optional<CommandCard> sourceCard = source.getCard();
-        Optional<CommandCard> targetCard = target.getCard();
-        if (sourceCard.isPresent() && targetCard.isEmpty()) {
-            target.setCard(sourceCard.get());
-            source.setCard(null);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * A method called when no corresponding controller operation is implemented yet. This
-     * should eventually be removed.
-     */
-    public void notImplemented () {
-        // XXX just for now to indicate that the actual method is not yet implemented
-        assert false;
+        return source.getCard().map(card -> {
+            if(target.getCard().isEmpty()) {
+                target.setCard(card);
+                source.setCard(null);
+                return true;
+            } else return false;
+        }).orElse(false);
     }
 }

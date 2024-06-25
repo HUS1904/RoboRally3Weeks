@@ -1,6 +1,7 @@
 package dk.dtu.compute.se.pisd.roborally.model;
 
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +9,10 @@ import java.util.Objects;
 
 public class Deck {
 
-    private ArrayList<CommandCard> deck = new ArrayList<>();
-    private ArrayList<CommandCard> discardPile = new ArrayList<>();
-    private ArrayList<CommandCard> upgradeDeck = new ArrayList<>();
+    @Getter
+    private final ArrayList<CommandCard> deck = new ArrayList<>();
+    private final ArrayList<CommandCard> discardPile = new ArrayList<>();
+    private final ArrayList<CommandCard> upgradeDeck = new ArrayList<>();
 
     private GameController gameController;
 
@@ -56,10 +58,6 @@ public class Deck {
         deck.add(random,card);
     }
 
-    public ArrayList<CommandCard> getDeck(){
-        return deck;
-    }
-
     public CommandCard deal() {
         if(deck.isEmpty()){
             shuffleDeck();
@@ -82,7 +80,7 @@ public class Deck {
     public Deck turnStringToDeck(List<String> list){
         this.deck.clear();
         for(String string : list){
-            this.deck.add(new CommandCard(Command.fromDisplayName(string),"upgrade"));
+            this.deck.add(new CommandCard(Objects.requireNonNull(Command.fromDisplayName(string)),"upgrade"));
         }
         return this;
     }

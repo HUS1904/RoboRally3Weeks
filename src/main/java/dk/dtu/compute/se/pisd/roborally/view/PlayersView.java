@@ -36,10 +36,6 @@ import javafx.scene.control.TabPane;
  */
 public class PlayersView extends TabPane implements ViewObserver {
 
-    private Board board;
-
-    private PlayerView[] playerViews;
-
     /**
      * Initializes a new PlayersView with tabs for each player, using the given game controller.
      * This constructor creates a tab for each player in the game, allowing for individual
@@ -49,13 +45,13 @@ public class PlayersView extends TabPane implements ViewObserver {
      * information about the game state and players to display their views correctly.
      */
     public PlayersView(GameController gameController) {
-        board = gameController.board;
+        Board board = gameController.board;
 
         this.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 
-        playerViews = new PlayerView[1];
+        PlayerView[] playerViews = new PlayerView[1];
 
-        playerViews[0] = new PlayerView(gameController,board.getCurrentPlayer());
+        playerViews[0] = new PlayerView(gameController, board.getCurrentPlayer());
 
         this.getTabs().add(playerViews[0]);
 

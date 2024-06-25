@@ -137,9 +137,9 @@ public class AppController implements Observer {
             lobby.setPlayersPosition(playerPositions);
             Space antenna = board.getSpacesList().stream().filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA).findAny().orElseThrow(NoSuchElementException::new);
             board.determineTurn(antenna.x, antenna.y);
-            board.setCurrentPlayer(board.getPlayer(0));
+            board.setCurrentPlayer(board.getPlayer(0).orElseThrow(NoSuchElementException::new));
             lobby.setCards(board.getShop().deckIntoString(board.getShop()));
-            lobby.setCurrentPlayer(gameController.board.getPlayer(0).getName());
+            lobby.setCurrentPlayer(gameController.board.getPlayer(0).orElseThrow(NoSuchElementException::new).getName());
 
             LobbyUtil.httpPost(lobby);
 
@@ -305,10 +305,10 @@ public class AppController implements Observer {
                 newBoard.addPlayer(player);
                 player.setSpace(newBoard.getSpace(i % board.width, i));
                 gameController.moveTo(player,board.findCorrespondingPlayer(player.getName()).getSpace().x,board.findCorrespondingPlayer(player.getName()).getSpace().y);
-                player.setHeading(board.getPlayer(i).getHeading());
+                player.setHeading(board.getPlayer(i).orElseThrow(NoSuchElementException::new).getHeading());
             }
 
-            newBoard.setCurrentPlayer(board.getPlayer(0));
+            newBoard.setCurrentPlayer(board.getPlayer(0).orElseThrow(NoSuchElementException::new));
 
             gameController.reInitialize(board);
             roboRally.createBoardView(gameController);

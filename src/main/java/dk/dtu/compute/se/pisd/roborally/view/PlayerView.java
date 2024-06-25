@@ -46,38 +46,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PlayerView extends Tab implements ViewObserver {
 
-    private Player player;
+    private final Player player;
 
-    private VBox top;
+    private final GridPane programPane;
 
-    private HBox programCards;
+    private final CardFieldView[] programCardViews;
 
-    private VBox progLabelAndCards;
-    private VBox progInvLabelAndCards;
+    private final VBox buttonPanel;
 
-    private Label programLabel;
-    private GridPane programPane;
-    private Label cardsLabel;
-    private GridPane cardsPane;
-    private GridPane upgradesPane;
-    private GridPane upgradesInvPane;
+    private final Button finishButton;
+    private final Button executeButton;
+    private final Button stepButton;
 
-    private CardFieldView[] programCardViews;
-    private CardFieldView[] cardViews;
-    private CardFieldView[] upgradesViews;
-    private CardFieldView[] upgradesInvViews;
+    private final VBox playerInteractionPanel;
 
-    private VBox buttonPanel;
+    private final GridPane energyCubes;
 
-    private Button finishButton;
-    private Button executeButton;
-    private Button stepButton;
-
-    private VBox playerInteractionPanel;
-
-    private GridPane energyCubes;
-
-    private GameController gameController;
+    private final GameController gameController;
 
     /**
      * Constructs a PlayerView for the specified player and game controller.
@@ -88,13 +73,13 @@ public class PlayerView extends Tab implements ViewObserver {
         super(player.getName());
         this.setStyle("-fx-text-base-color: " + player.getColor() + ";");
 
-        top = new VBox();
+        VBox top = new VBox();
         this.setContent(top);
 
         this.gameController = gameController;
         this.player = player;
 
-        programLabel = new Label("Program");
+        Label programLabel = new Label("Program");
 
         programPane = new GridPane();
         programPane.setVgap(2.0);
@@ -130,11 +115,11 @@ public class PlayerView extends Tab implements ViewObserver {
         playerInteractionPanel.setAlignment(Pos.CENTER_LEFT);
         playerInteractionPanel.setSpacing(3.0);
 
-        cardsLabel = new Label("Command Cards");
-        cardsPane = new GridPane();
+        Label cardsLabel = new Label("Command Cards");
+        GridPane cardsPane = new GridPane();
         cardsPane.setVgap(2.0);
         cardsPane.setHgap(2.0);
-        cardViews = new CardFieldView[Player.NO_CARDS];
+        CardFieldView[] cardViews = new CardFieldView[Player.NO_CARDS];
         for (int i = 0; i < Player.NO_CARDS; i++) {
             CommandCardField cardField = player.getCardField(i);
             if (cardField != null) {
@@ -145,10 +130,10 @@ public class PlayerView extends Tab implements ViewObserver {
 
 
         Label currentUpgrades = new Label("Current Upgrades");
-        upgradesPane = new GridPane();
+        GridPane upgradesPane = new GridPane();
         upgradesPane.setVgap(2.0);
         upgradesPane.setHgap(2.0);
-        upgradesViews = new CardFieldView[Player.NO_UPGRADES];
+        CardFieldView[] upgradesViews = new CardFieldView[Player.NO_UPGRADES];
         for (int i = 0; i < Player.NO_UPGRADES; i++) {
             CommandCardField cardField = player.getUpgradeField(i);
             if (cardField != null) {
@@ -158,10 +143,10 @@ public class PlayerView extends Tab implements ViewObserver {
         }
 
         Label upgradeCards = new Label("Available upgrades");
-        upgradesInvPane = new GridPane();
+        GridPane upgradesInvPane = new GridPane();
         upgradesInvPane.setVgap(2.0);
         upgradesInvPane.setHgap(2.0);
-        upgradesInvViews = new CardFieldView[Player.NO_UPGRADE_INV];
+        CardFieldView[] upgradesInvViews = new CardFieldView[Player.NO_UPGRADE_INV];
         for (int i = 0; i < Player.NO_UPGRADE_INV; i++) {
             CommandCardField cardField = player.getUpgradeInv(i);
             if (cardField != null) {
@@ -176,30 +161,16 @@ public class PlayerView extends Tab implements ViewObserver {
 
 
         for (int i = 0; i < player.getEnergy(); i++) {
-            Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
-
-            // Create a radial gradient for the shine effect
-            RadialGradient gradient = new RadialGradient(
-                    0,
-                    0,
-                    0.5,
-                    0.5,
-                    0.5,
-                    true,
-                    CycleMethod.NO_CYCLE,
-                    new Stop(0, Color.WHITE),
-                    new Stop(1, Color.GREEN)
-            );
-            rectangle.setFill(gradient);
+            Rectangle rectangle = getRectangle();
 
             energyCubes.add(rectangle,i,0);
         }
 
-        progInvLabelAndCards = new VBox(cardsLabel,cardsPane);
-        progLabelAndCards = new VBox(programLabel
-        ,programPane);
+        VBox progInvLabelAndCards = new VBox(cardsLabel, cardsPane);
+        VBox progLabelAndCards = new VBox(programLabel
+                , programPane);
 
-        programCards = new HBox(30,progInvLabelAndCards,progLabelAndCards);
+        HBox programCards = new HBox(30, progInvLabelAndCards, progLabelAndCards);
 
 
         // Set the fill of the rectangle to the gradient
@@ -224,6 +195,25 @@ public class PlayerView extends Tab implements ViewObserver {
 
     }
 
+    @NotNull
+    private static Rectangle getRectangle() {
+        Rectangle rectangle = new Rectangle(27, 27); // Set width and height to 200
+
+        // Create a radial gradient for the shine effect
+        RadialGradient gradient = new RadialGradient(
+                0,
+                0,
+                0.5,
+                0.5,
+                0.5,
+                true,
+                CycleMethod.NO_CYCLE,
+                new Stop(0, Color.WHITE),
+                new Stop(1, Color.GREEN)
+        );
+        rectangle.setFill(gradient);
+        return rectangle;
+    }
 
 
     /**
