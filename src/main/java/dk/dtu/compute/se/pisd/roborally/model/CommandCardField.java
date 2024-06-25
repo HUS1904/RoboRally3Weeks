@@ -61,7 +61,7 @@ public class CommandCardField extends Subject {
      * Gets the command card currently placed in this field.
      * @return Optional that may or may not contain a card, depending on if the field is empty or not.
      */
-    public Optional<CommandCard> getCard() {
+    public Optional<CommandCard>  getCard() {
         return Optional.ofNullable(card);
     }
 

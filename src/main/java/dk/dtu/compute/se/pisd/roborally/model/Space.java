@@ -110,6 +110,14 @@ public class Space extends Subject {
         return type;
     }
 
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
+    }
+
     public void setType(ActionField t) {
        this.type = t;
        notifyChange();

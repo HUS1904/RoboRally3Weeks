@@ -585,7 +585,7 @@ public class GameController {
         }
     }
 
-    private boolean canPush (Player player, Heading heading,boolean forward){
+    public boolean canPush (Player player, Heading heading,boolean forward){
         Space currentSpace = player.getSpace();
         int newX = currentSpace.x;
         int newY = currentSpace.y;

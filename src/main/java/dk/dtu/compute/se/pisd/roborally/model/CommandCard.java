@@ -79,5 +79,9 @@ public class CommandCard extends Subject {
         return type;
     }
 
+    public Command getCommand() {
+        return command;
+    }
+
 
 }

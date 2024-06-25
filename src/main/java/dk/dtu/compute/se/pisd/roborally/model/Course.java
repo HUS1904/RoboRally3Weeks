@@ -25,4 +25,8 @@ public class Course {
         return spaces;
     }
 
+    public void setSpaces(ArrayList<ArrayList<Space>> spaces) {
+        this.spaces = spaces;
+    }
+
 }
