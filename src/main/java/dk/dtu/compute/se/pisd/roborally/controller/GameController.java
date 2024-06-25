@@ -81,22 +81,56 @@ public class GameController {
      * @param space the space to which the current player should move
      */
     public void movePlayerToSpace(Player player,@NotNull Space space)  {
-       // if (!gearPhase) return;
-        Player currentPlayer = player;
-        if (currentPlayer != null) {
+        List<Integer> cords = new ArrayList<>();
+        if (player != null) {
             // Check if the target space is occupied
             if (space.getPlayer() == null) {
                 // Move the current player to the target space
-                currentPlayer.setSpace(space);
+                player.setSpace(space);
+                for (Player player1 : board.getPlayers()) {
+                    cords.add(player1.getSpace().x);
+                    cords.add(player1.getSpace().y);
+
+                }
+                try {
+                    lobby.setPlayersPosition(cords);
+                    LobbyUtil.httpPutLobby(lobby.getId(), lobby);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+
             }
         }
-//        if (board.getPlayers()
-//                 .stream()
-//                 .map(Player::getSpace)
-//                 .map(Space::getType)
-//                 .allMatch(ActionField.STARTING_GEAR::equals)) {
-//            gearPhase = !gearPhase;
-//        }
+    }
+
+    public void movePlayer(Player player, @NotNull Space space){
+        List<Integer> cords = new ArrayList<>();
+        if (player != null) {
+            // Check if the target space is occupied
+            if (space.getPlayer() == null && board.getCurrentPlayer() == board.findCorrespondingPlayer(lobby.getCurrentPlayer())) {
+                // Move the current player to the target space
+                player.setSpace(space);
+                for (Player player1 : board.getPlayers()) {
+                    cords.add(player1.getSpace().x);
+                    cords.add(player1.getSpace().y);
+
+                }
+            }
+
+            if (gearPhase && board.getCurrentPlayer().getSpace().getType() == ActionField.STARTING_GEAR) {
+                try {
+                    lobby.setPlayersPosition(cords);
+                    gearPhase = !gearPhase;
+                    board.moveCurrentTurn();
+                    lobby.setCurrentPlayer(board.getCurrentTurn().getName());
+
+                    LobbyUtil.httpPutLobby(lobby.getId(), lobby);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+
     }
 
 
