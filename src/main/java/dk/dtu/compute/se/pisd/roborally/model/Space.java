@@ -177,6 +177,14 @@ public class Space extends Subject {
         notifyChange();
     }
 
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
+    }
+
     public Phase getPhase() {
         return board.getPhase();
     }

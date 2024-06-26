@@ -48,6 +48,8 @@ public enum Command {
     SPAM("Spam", "MANGLER DESCRIPTION"),
     RECHARGE("Recha", "Gain three energy"),
     RAMMINGGEAR("Ram", "Deal one SPAM damage card when you push a robot."),
+    VIRUSMODULE("Virus", "Deal one VIRUS damage card when you push a robot."),
+    BOINK("Boink", "Perform an additional move either forward, backward, left or right without changing heading"),
     OPTION_LEFT_RIGHT("Option Left or Right", "MANGLER DESCRIPTION", LEFT, RIGHT),
     OPTION_LEFT_FORWARD("Option Left or Forward", "MANGLER DESCRIPTION", LEFT, FORWARD);
 

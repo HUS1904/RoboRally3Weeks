@@ -23,6 +23,7 @@
 package dk.dtu.compute.se.pisd.roborally.controller;
 
 import dk.dtu.compute.se.pisd.roborally.model.*;
+import javafx.scene.control.ChoiceDialog;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -31,6 +32,9 @@ import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.SpaceView;
 import javafx.scene.image.Image;
 import org.jetbrains.annotations.NotNull;
+
+import static dk.dtu.compute.se.pisd.roborally.model.Command.RAMMINGGEAR;
+import static dk.dtu.compute.se.pisd.roborally.model.Command.VIRUSMODULE;
 
 /**
  * The GameController class is responsible for managing the game logic and state transitions
@@ -44,6 +48,8 @@ public class GameController {
     private AppController appController;
     public Board board;
     private BoardView boardView;
+
+    final private List<String> POSSIBLEMOVES = Arrays.asList("Forward", "Backwards", "Left", "Right");
 
     /**
      * Constructs a GameController with the specified game board.
@@ -105,8 +111,10 @@ public class GameController {
     public CommandCard generateRandomCommandCard() {
         ArrayList<Command> damageCards = new ArrayList<>(List.of(
                 Command.SPAM,
-                Command.RAMMINGGEAR,
-                Command.RECHARGE
+                RAMMINGGEAR,
+                Command.RECHARGE,
+                VIRUSMODULE,
+                Command.BOINK
         ));
         ArrayList<Command> commands = new ArrayList<>(List.of(Command.values()));
         commands.removeAll(damageCards);
@@ -121,8 +129,12 @@ public class GameController {
         return new CommandCard(Command.SPAM, "damage");
     }
 
+    public CommandCard generateVirusCard() {
+        return new CommandCard(VIRUSMODULE, "virus");
+    }
+
     public CommandCard generateUpgradeCard() {
-        List<Command> upgrades = List.of(Command.RECHARGE, Command.RAMMINGGEAR);
+        List<Command> upgrades = List.of(Command.RECHARGE, RAMMINGGEAR, VIRUSMODULE, Command.BOINK);
 
         int random = (int) (Math.random() * upgrades.size());
         return new CommandCard(upgrades.get(random), "upgrade");
@@ -167,6 +179,17 @@ public class GameController {
                             // If automatically proceeding:
                         }
                     });
+                    if (step < 3) {
+                        player.getPermUpgradeField(step).getCard().ifPresent(upgCard -> {
+                            Command command = upgCard.command;
+                            executeCommand(player, command);
+                        });
+                        player.getTempUpgradeInv(step).getCard().ifPresent(tempUpg -> {
+                            Command command = tempUpg.command;
+                            executeCommand(player, command);
+                            discardTempCard();
+                        });
+                    }
                 }
             });
         }
@@ -187,6 +210,22 @@ public class GameController {
                 field.getCard().ifPresent(player.getDeck()::sendToDiscardPile);
             });
         });
+    }
+
+    public void discardTempCard() {
+        Player player = board.getCurrentPlayer();
+        for (int i = 0; i < 3; i++) {
+            board.getCurrentPlayer().getUpgradeFields().forEach(field -> {
+                field.getCard().ifPresent(player.getDeck()::sendToDiscardUpgrade);
+            });
+        }
+//        board.getPlayers().forEach(player -> {
+//            for (int i = 0; i < 3; i++) {
+//                player.getUpgradeFields().forEach(field -> {
+//                   field.getCard().ifPresent(player.getDeck()::sendToDiscardUpgrade);
+//                });
+//            }
+//        });
     }
 
 //    private void activateRobotLasers() {
@@ -322,6 +361,18 @@ public class GameController {
                         }
                     });
 
+                    if (step < 3) {
+                        currentPlayer.getPermUpgradeField(step).getCard().ifPresent(upgCard -> {
+                            Command command = upgCard.command;
+                            executeCommand(currentPlayer, command);
+                        });
+                        currentPlayer.getTempUpgradeInv(step).getCard().ifPresent(tempUpg -> {
+                            Command command = tempUpg.command;
+                            executeCommand(currentPlayer, command);
+                            //discardTempCard();
+                        });
+                    }
+
                     // Move to the next player
                     int nextPlayerNumber = board.getPlayerNumber(currentPlayer) + 1;
                     if (nextPlayerNumber < board.getPlayersNumber()) {
@@ -398,6 +449,48 @@ public class GameController {
                     if (board.getStep() - 1 >= 0) {
                         player.getProgramField(board.getStep() - 1).getCard().ifPresent(card -> executeCommand(player, card.command));
                     }
+                    break;
+
+                case RAMMINGGEAR:
+                    // Handle ram-gear logic
+                    break;
+
+                case VIRUSMODULE:
+                    // Handle virus logic
+                    break;
+
+                case BOINK:
+                    // Handle Boink logic
+                    ChoiceDialog<String> dialog = new ChoiceDialog<>(POSSIBLEMOVES.get(0), POSSIBLEMOVES);
+                    dialog.setHeaderText("Select preferred move");
+                    Optional<String> result = dialog.showAndWait();
+
+                    if (result.isPresent()) {
+
+                        if (result.equals("Forward".describeConstable())) {
+                            moveForward(player, 1, true);
+                        } else if (result.equals("Backwards".describeConstable())) {
+                            moveForward(player,1,false);
+                        } else if (result.equals("Left".describeConstable())) {
+                            turnLeft(player);
+                            moveForward(player, 1, true);
+                            turnRight(player);
+                        } else if (result.equals("Right".describeConstable())) {
+                            turnRight(player);
+                            moveForward(player, 1, true);
+                            turnLeft(player);
+                        }
+                    }
+                    break;
+
+                case RECHARGE:
+                    player.incrementEnergy(3);
+                    break;
+
+                case Power:
+                    player.incrementEnergy(1);
+                    break;
+
                 default:
                     // DO NOTHING (for now)
             }
@@ -479,6 +572,23 @@ public class GameController {
                     currentSpace = nextSpace;
                     currentX = nextX;
                     currentY = nextY;
+
+                    for (int k = 0; k < 3; k++) {
+                        if (player.containsUpgradeCardWithCommand(player.getPermUpgradeField(k), RAMMINGGEAR)) {
+                            // Insert logic for distributing SPAM-cards to player being pushed
+                            otherPlayer.getDeck().addToDeck(generateDamageCard());
+                            otherPlayer.getDeck().sendToDiscardPile(generateDamageCard());
+                            System.out.println("damage-cards pushed to otherPlayer's deck");
+                            break;
+                        } else if (player.containsUpgradeCardWithCommand(player.getPermUpgradeField(k), VIRUSMODULE)) {
+                            otherPlayer.getDeck().addToDeck(generateVirusCard());
+                            otherPlayer.getDeck().addToDeck(generateVirusCard());
+                            otherPlayer.getDeck().sendToDiscardPile(generateVirusCard());
+                            System.out.println("Virus-card pushed to otherPlayer's deck");
+                            break;
+                        }
+                    }
+
                 } else {
                     //Print for debugging
                     System.out.println("Move stopped: Cannot push player.");
@@ -583,18 +693,18 @@ public class GameController {
                 });
             }
 
-            for (int k = 0; k < Player.NO_UPGRADES; k++) {
-                CommandCardField field = player.getUpgradeField(k);
-                CommandCardField otherField = otherPlayer.getUpgradeField(k);
+            for (int k = 0; k < Player.PERMANENT_UPGRADES; k++) {
+                CommandCardField field = player.getPermUpgradeField(k);
+                CommandCardField otherField = otherPlayer.getPermUpgradeField(k);
                 otherField.getCard().ifPresent(card -> {
                     field.setCard(new CommandCard(card.command, "upgrade"));
                     field.setVisible(true);
                 });
             }
 
-            for (int k = 0; k < Player.NO_UPGRADE_INV; k++) {
-                CommandCardField field = player.getUpgradeInv(k);
-                CommandCardField otherField = otherPlayer.getUpgradeInv(k);
+            for (int k = 0; k < Player.TEMPORARY_UPGRADES; k++) {
+                CommandCardField field = player.getTempUpgradeInv(k);
+                CommandCardField otherField = otherPlayer.getTempUpgradeInv(k);
                 otherField.getCard().ifPresent(card -> {
                     field.setCard(new CommandCard(card.command, "upgrade"));
                     field.setVisible(true);
