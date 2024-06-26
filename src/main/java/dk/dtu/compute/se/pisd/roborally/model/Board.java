@@ -109,24 +109,6 @@ public class Board extends Subject {
     @Getter
     private int turnIndex = 0;
 
-    public EnumSet<Heading> getWalls(int x, int y) {
-        List<Heading> walls = new ArrayList<>();
-
-        if (Course != null && Course.getSpaces() != null && y < Course.getSpaces().size() && x < Course.getSpaces().size()) {
-            Space courseSpace = Course.getSpaces().get(y).get(x);
-
-            if (courseSpace != null && courseSpace.getWalls() != null) {
-                walls.addAll(courseSpace.getWalls());
-            }
-        }
-
-        if (walls.isEmpty()) {
-            return EnumSet.noneOf(Heading.class);
-        } else {
-            return EnumSet.copyOf(walls);
-        }
-    }
-
     /**
      * Constructs a new Board with the given dimensions and name.
      * Initializes the spaces within the board.
@@ -142,9 +124,8 @@ public class Board extends Subject {
         ArrayList<ArrayList<Space>> courseSpaces = course.getSpaces();
         for (int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++)  {
-                EnumSet<Heading> walls = getWalls(x, y);
                 Space courseSpace = courseSpaces.get(y).get(x);
-                spaces[x][y] = createSpaceFromType(x, y, courseSpace, walls);
+                spaces[x][y] = createSpaceFromType(x, y, courseSpace);
             }
         }
         this.stepMode = false;
@@ -164,11 +145,7 @@ public class Board extends Subject {
      *         at the specified coordinates on the game board.
      * @author Hussein Jarrah
      */
-    public Space createSpaceFromType(int x, int y, Space courseSpace, EnumSet<Heading> walls) {
-        EnumSet<Heading> wallSet = EnumSet.noneOf(Heading.class);
-        if (walls != null) {
-            wallSet.addAll(walls);
-        }
+    public Space createSpaceFromType(int x, int y, Space courseSpace) {
         if(courseSpace.getType() != null){
             switch (courseSpace.getType()) {
                 case ENERGY_SPACE,
@@ -187,14 +164,14 @@ public class Board extends Subject {
                         BOARD_LASER,
                         BOARD_LASER_END,
                         PRIORITY_ANTENNA:
-                    return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading(), wallSet);
+                    return new Space(this, x, y, courseSpace.getType(), courseSpace.getHeading());
                 case CHECKPOINT:
-                    return new Space(this, x, y, courseSpace.getIndex(), wallSet);
+                    return new Space(this, x, y, courseSpace.getIndex());
                 default:
-                    return new Space(this, x, y, wallSet);
+                    return new Space(this, x, y);
             }
         }
-        return new Space(this, x, y, wallSet);
+        return new Space(this, x, y);
     }
 
     public List<String> headingsToString(){

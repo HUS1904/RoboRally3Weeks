@@ -572,61 +572,58 @@ public class GameController {
         if (player == null) return;
 
         Space currentSpace = player.getSpace();
-        int currentX = currentSpace.x;
-        int currentY = currentSpace.y;
+        int newX = currentSpace.x;
+        int newY = currentSpace.y;
         int directionMultiplier = forward ? 1 : -1;  // Positive for forward, negative for backward
-        Heading heading = player.getHeading();
-
-        if (!forward) {
-            heading = heading.opposite();
-        }
-
 
         for (int i = 0; i < Math.abs(numSpaces); i++) {
-
-            int nextX = currentX;
-            int nextY = currentY;
             // Calculate the new position based on the player's heading and the direction multiplier
-            switch (heading) {
+            switch (player.getHeading()) {
                 case NORTH:
-                    nextY -= directionMultiplier;
+                    newY -= directionMultiplier;
                     break;
                 case EAST:
-                    nextX += directionMultiplier;
+                    newX += directionMultiplier;
                     break;
                 case SOUTH:
-                    nextY += directionMultiplier;
+                    newY += directionMultiplier;
                     break;
                 case WEST:
-                    nextX -= directionMultiplier;
+                    newX -= directionMultiplier;
                     break;
             }
 
             // Check if the new position is within board limits
-            if (nextX < 0 || nextX >= board.width || nextY < 0 || nextY >= board.height) {
+            if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
                 System.out.println("Move stopped: Reached board limits.");
                 return;
             }
 
-            Space nextSpace = board.getSpace(nextX, nextY);
+            Space nextSpace = board.getSpace(newX, newY);
 
-            if (currentSpace.hasWall(heading) || nextSpace.hasWall(heading.opposite())) {
+            // Check if the next space is a wall
+            if (nextSpace.getType() == ActionField.WALL) {
+                System.out.println("Move stopped: Wall ahead.");
+                return;
+            }
+
+            if (nextSpace.getPlayer() != null) {
+                // Attempt to push the player at nextPosition
                 Player otherPlayer = nextSpace.getPlayer();
-                if (canPush(otherPlayer, heading, forward)) {
+                if (canPush(otherPlayer, player.getHeading(), forward)) {
+                    // Move the current player to the next space after pushing
                     currentSpace.setPlayer(null);
                     nextSpace.setPlayer(player);
                     player.setSpace(nextSpace);
                 } else {
-                    System.out.println("Move stopped: Can't push player");
+                    System.out.println("Move stopped: Cannot push player.");
                     return;
                 }
             } else {
+                // Move the current player to the next space
                 currentSpace.setPlayer(null);
                 nextSpace.setPlayer(player);
                 player.setSpace(nextSpace);
-                currentSpace = nextSpace;
-                currentX = nextX;
-                currentY = nextY;
             }
         }
     }
@@ -654,12 +651,12 @@ public class GameController {
         }
 
         if (newX < 0 || newX >= board.width || newY < 0 || newY >= board.height) {
-            System.out.println("Can't push player: Reached board limits.");
-            return false;
+            return false;  // Return false if out of bounds
         }
 
         Space nextSpace = board.getSpace(newX, newY);
-        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null) {
+        if (nextSpace.isOccupiable() && nextSpace.getPlayer() == null && nextSpace.getType() != ActionField.WALL) {
+            // Push the player to the new space if it is empty and not a wall
             currentSpace.setPlayer(null);
             nextSpace.setPlayer(player);
             player.setSpace(nextSpace);
