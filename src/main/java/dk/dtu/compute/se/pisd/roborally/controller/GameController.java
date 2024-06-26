@@ -48,6 +48,8 @@ import org.jetbrains.annotations.NotNull;
 public class GameController {
     private boolean gearPhase = true;
 
+    public int turnCounter = 0;
+
     public Board board;
     private BoardView boardView;
 
@@ -165,8 +167,14 @@ public class GameController {
      * for the round. This method sets up the game board and players for the programming phase.
      */
     public void startProgrammingPhase() {
+
         board.setPhase(Phase.PROGRAMMING);
         board.setStep(0);
+
+
+        board.getPlayers().forEach(player -> {
+                    player.phase = Phase.PROGRAMMING;
+                    });
 
         board.getPlayers().forEach(player -> {
             player.getProgramFields().forEach(field -> {
@@ -178,7 +186,6 @@ public class GameController {
                 field.setVisible(true);
             });
         });
-
         startLobbyPolling();
     }
 
@@ -216,7 +223,7 @@ public class GameController {
      * the players visible for the current register.
      */
     public void finishProgrammingPhase() {
-
+        if(turnCounter == 0){
         gearPhase = false;
 
         for(Player player: board.getPlayers()){
@@ -224,18 +231,26 @@ public class GameController {
                 gearPhase = true;
             }
         }
+        }
 
-        if(!gearPhase) {
+        if(!gearPhase ) {
             Space antenna = board.getSpacesList()
                     .stream()
                     .filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA)
                     .findAny()
                     .orElseThrow(NoSuchElementException::new);
             board.determineTurn(antenna.x, antenna.y);
+            lobby.setCurrentPlayer(board.getCurrentTurn().getName());
+            try {
+                LobbyUtil.httpPutLobby(lobby.getId(), lobby);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             makeProgramFieldsInvisible();
             makeProgramFieldsVisible(0);
             board.setPhase(Phase.ACTIVATION);
             board.setStep(0);
+            turnCounter++;
         }
 
     }
@@ -249,7 +264,6 @@ public class GameController {
             try {
                 lobby = LobbyUtil.getLobby(lobby.getId());
                 List<Integer> cords = lobby.getPlayersPosition();
-                List<String> headings = lobby.getPlayersHeadings();
                 Player currentPlayer = board.getCurrentPlayer();
 
                 if(lobby.getCurrentPlayer().equals(board.getCurrentPlayer().getName())) {
@@ -278,6 +292,8 @@ public class GameController {
                         cords.add(player.getSpace().y);
                     }
 
+
+
                     lobby.setPlayersHeadings(board.headingsToString());
                     lobby.setPlayersPosition(cords);
 
@@ -302,31 +318,32 @@ public class GameController {
 
     private void startLobbyPolling() {
         timeline2 = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            lobby = LobbyUtil.getLobby(lobby.getId());
-            List<Integer> coords = lobby.getPlayersPosition();
-            List<String> headings = lobby.getPlayersHeadings();
-            int maxPlayers = lobby.getMaxPlayers();
 
-            // Check if we have the correct amount of data
-            if (coords.size() == maxPlayers * 2 && headings.size() == maxPlayers) {
-                for (int i = 0; i < maxPlayers; i++) {
-                    Player player = board.getPlayer(i).orElseThrow(NoSuchElementException::new);
+                lobby = LobbyUtil.getLobby(lobby.getId());
+                List<Integer> coords = lobby.getPlayersPosition();
+                List<String> headings = lobby.getPlayersHeadings();
+                int maxPlayers = lobby.getMaxPlayers();
 
-                    // Update position
-                    int x = coords.get(i * 2);
-                    int y = coords.get(i * 2 + 1);
-                    movePlayerToSpace(player, board.getSpace(x, y));
+                // Check if we have the correct amount of data
+                if (coords.size() == maxPlayers * 2 && headings.size() == maxPlayers) {
+                    for (int i = 0; i < maxPlayers; i++) {
+                        Player player = board.getPlayer(i).orElseThrow(NoSuchElementException::new);
 
-                    // Update heading
-                    String headingString = headings.get(i);
-                    stringToHeading(headingString, player);
+                        // Update position
+                        int x = coords.get(i * 2);
+                        int y = coords.get(i * 2 + 1);
+                        movePlayerToSpace(player, board.getSpace(x, y));
 
-                    // Debug output to verify the heading
-                    System.out.println(player.getHeading());
+                        // Update heading
+                        String headingString = headings.get(i);
+                        stringToHeading(headingString, player);
+
+                        // Debug output to verify the heading
+                    }
+                } else {
+                    System.err.println("Mismatch between players and positions/headings data sizes.");
                 }
-            } else {
-                System.err.println("Mismatch between players and positions/headings data sizes.");
-            }
+
         }));
         timeline2.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
         timeline2.play();
