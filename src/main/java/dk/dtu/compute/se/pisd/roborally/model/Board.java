@@ -132,24 +132,6 @@ public class Board extends Subject {
     }
 
     /**
-     * Constructs a new Board with the given Course and then retrieves the Width and Height
-     *
-     */
-    public Board(int width, int height) {
-        this.boardName = "default";
-        this.width = width;
-        this.height = height;
-        spaces = new Space[width][height];
-        for (int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
-                Space space = new Space(this, x, y);
-                spaces[x][y] = space;
-            }
-        }
-        this.stepMode = false;
-    }
-
-    /**
      * Creates a {@link Space} object based on the type specified in the {@link Space} object from the course.
      * This method chooses the appropriate constructor for the {@link Space} class depending on the type of
      * space described in the courseSpace object. It facilitates the initialization of spaces with specific

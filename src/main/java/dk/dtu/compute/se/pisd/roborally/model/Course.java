@@ -15,10 +15,9 @@ public class Course {
     @Expose
     private ArrayList<ArrayList<Space>> spaces;
 
-    public Course(int width, int height) {
+    public Course(int width, int height, ArrayList<ArrayList<Space>> spaces) {
         this.width = width;
         this.height = height;
-        spaces = new ArrayList<>();
-
+        this.spaces = spaces;
     }
 }

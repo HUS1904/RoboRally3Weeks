@@ -89,7 +89,7 @@ public class Player extends Subject {
      * @param color the color representing the player
      * @param name the name of the player
      */
-    public Player(@NotNull Board board, String color, @NotNull String name,GameController gameController) {
+    public Player(@NotNull Board board, String color, @NotNull String name, GameController gameController) {
         this.board = board;
         this.name = name;
         this.color = color;
