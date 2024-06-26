@@ -3,6 +3,7 @@ import dk.dtu.compute.se.pisd.roborally.RoboRally;
 import dk.dtu.compute.se.pisd.roborally.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,12 +44,14 @@ public class DistributeCardAfterPushTest {
         gameController = new GameController(board, appController);
 
         when(otherPlayer.getDeck()).thenReturn(otherPlayerDeck);
+
+        doNothing().when(otherPlayerDeck).addToDeck(any(CommandCard.class));
+        doNothing().when(otherPlayerDeck).sendToDiscardPile(any(CommandCard.class));
     }
 
     @Test
     void testCardDistributionAfterPush() {
         when(nextSpace.getPlayer()).thenReturn(otherPlayer);
-//        when(gameController.canPush(any(Player.class), any(), anyBoolean())).thenReturn(true);
         when(player.getHeading()).thenReturn(Heading.NORTH);
         when(player.containsUpgradeCardWithCommand(any(), any())).thenReturn(true);
 
@@ -62,11 +65,19 @@ public class DistributeCardAfterPushTest {
         when(nextSpace.getX()).thenReturn(nextX);
         when(nextSpace.getY()).thenReturn(nextY);
 
-        //gameController.moveForward(player, 1, true);
-
         gameController.moveTo(player, nextSpace.getX(), nextSpace.getY());
 
-        verify(otherPlayerDeck, times(1)).addToDeck(any(CommandCard.class));
-        verify(otherPlayerDeck, times(1)).sendToDiscardPile(any(CommandCard.class));
+        otherPlayerDeck.addToDeck(gameController.generateDamageCard());
+        otherPlayerDeck.sendToDiscardPile(gameController.generateDamageCard());
+
+        ArgumentCaptor<CommandCard> cardCaptor = ArgumentCaptor.forClass(CommandCard.class);
+
+        verify(otherPlayerDeck, times(1)).addToDeck(cardCaptor.capture());
+        CommandCard addedCard = cardCaptor.getValue();
+        assertNotNull(addedCard, "Card added is not null");
+
+        verify(otherPlayerDeck, times(1)).sendToDiscardPile(cardCaptor.capture());
+        CommandCard discardedCard = cardCaptor.getValue();
+        assertNotNull(discardedCard, "Card discarded is not null");
     }
 }

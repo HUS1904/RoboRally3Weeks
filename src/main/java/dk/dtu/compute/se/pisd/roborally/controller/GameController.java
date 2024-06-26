@@ -48,7 +48,7 @@ public class GameController {
     public Board board;
     private BoardView boardView;
 
-    final private List<String> POSSIBLEMOVES = Arrays.asList("Up", "Down", "Left", "Right");
+    final private List<String> POSSIBLEMOVES = Arrays.asList("Forward", "Backwards", "Left", "Right");
 
     /**
      * Constructs a GameController with the specified game board.
@@ -465,10 +465,10 @@ public class GameController {
 
                     if (result.isPresent()) {
 
-                        if (result.equals("Up".describeConstable())) {
-                            moveForward(player, 1, false);
-                        } else if (result.equals("Down".describeConstable())) {
-                            moveForward(player,1,true);
+                        if (result.equals("Forward".describeConstable())) {
+                            moveForward(player, 1, true);
+                        } else if (result.equals("Backwards".describeConstable())) {
+                            moveForward(player,1,false);
                         } else if (result.equals("Left".describeConstable())) {
                             turnLeft(player);
                             moveForward(player, 1, true);
