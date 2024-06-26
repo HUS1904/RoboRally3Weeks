@@ -24,6 +24,7 @@ package dk.dtu.compute.se.pisd.roborally;
 import dk.dtu.compute.se.pisd.roborally.controller.AppController;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 import dk.dtu.compute.se.pisd.roborally.model.Deck;
+import dk.dtu.compute.se.pisd.roborally.model.Player;
 import dk.dtu.compute.se.pisd.roborally.view.BoardView;
 import dk.dtu.compute.se.pisd.roborally.view.LobbySelecter;
 import dk.dtu.compute.se.pisd.roborally.view.MapSelection;
@@ -43,6 +44,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.stage.StageStyle;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.net.URL;
 import java.util.Objects;
@@ -64,9 +67,13 @@ public class RoboRally extends Application {
     // private RoboRallyMenuBar menuBar;
 
     public AppController appController;
+    @Setter
     private URL url;
     private ImageView imgMode = new ImageView();;
+    @Getter
     private Scene primaryScene;
+
+    private final ImageView youWinImageView = new ImageView();
 
     /**
      * Initializes the application before the start method is called. This is where
@@ -246,6 +253,46 @@ public class RoboRally extends Application {
         }
     }
 
+    public void displayWinner(Player winner) {
+        Platform.runLater(() -> {
+            boardRoot.getChildren().clear();  // Clear current UI components
+            boardRoot.setId("root");
+
+            VBox layout = new VBox(20);
+            layout.setId("layout");
+            layout.setAlignment(Pos.CENTER);
+            layout.setPadding(new Insets(20));
+
+            String imgName;
+            imgName = appController.isLightMode() ? "/youWinDark.gif" : "/youWinLight.gif";
+            Image youWinImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imgName)));
+            setyouWinImg(youWinImage);
+            youWinImageView.setFitHeight(100);
+            youWinImageView.setFitWidth(300);
+
+            Label winnerLabel = new Label(winner.getName().toUpperCase());
+            winnerLabel.setId("winner-label");
+
+            Image playerImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/robot-" + winner.getColor() + ".png")));
+            ImageView imageView = new ImageView(playerImage);
+            imageView.setRotate(180);
+            imageView.setFitHeight(100);
+            imageView.setFitWidth(100);
+
+            Button stopButton = new Button("STOP GAME");
+            stopButton.setOnAction(event -> {
+                appController.stopGame();
+                //stage.close();  // Optionally close the game window
+            });
+
+            layout.getChildren().addAll(youWinImageView, winnerLabel, imageView, stopButton);
+            boardRoot.setCenter(layout);
+
+            stage.sizeToScene();
+            stage.show();
+        });
+    }
+
     /**
      * Called when the application should stop, and provides a convenient place
      * to prepare for application exit and destroy resources. Overrides the stop
@@ -271,15 +318,11 @@ public class RoboRally extends Application {
         launch(args);
     }
 
-    public void setUrl(URL url) {
-        this.url = url;
-    }
-
     public void setImgMode(Image img) {
         imgMode.setImage(img);
     }
 
-    public Scene getPrimaryScene() {
-        return primaryScene;
+    public void setyouWinImg(Image img) {
+        youWinImageView.setImage(img);
     }
 }

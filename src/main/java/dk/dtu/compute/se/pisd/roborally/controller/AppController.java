@@ -119,7 +119,7 @@ public class AppController implements Observer {
 
             System.out.print(lobby.getId());
 
-            gameController = new GameController(new Board(course, "e"),lobby);
+            gameController = new GameController(new Board(course, "e"),lobby, this);
 
             Board board = gameController.board;
 
@@ -179,7 +179,7 @@ public class AppController implements Observer {
                 Course course = gson.fromJson(jsonContent, Course.class);
 
 
-                gameController = new GameController(new Board(course, "e"),lobby);
+                gameController = new GameController(new Board(course, "e"),lobby, this);
 
                 Board board = gameController.board;
 
@@ -430,6 +430,13 @@ public class AppController implements Observer {
         }
     }
 
+    public void announceWinner(Player winner) {
+        roboRally.displayWinner(winner);  // Delegate to RoboRally to update UI
+    }
+
+    public boolean isLightMode() {
+        return isLightMode;
+    }
 
 
     /**

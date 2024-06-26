@@ -55,6 +55,8 @@ public class GameController {
 
     private Timeline timeline2;
 
+    private AppController appController;
+
     @Setter
     @Getter
     private Lobby lobby;
@@ -64,9 +66,10 @@ public class GameController {
      *
      * @param board the game board that this controller will manage
      */
-    public GameController(@NotNull Board board, Lobby lobby) {
+    public GameController(@NotNull Board board, Lobby lobby, AppController appController) {
         this.board = board;
         this.lobby = lobby;
+        this.appController = appController;
     }
 
     public GameController(@NotNull Board board) {
@@ -511,6 +514,8 @@ public class GameController {
                 board.getSpace(i, j).activate();
             }
         }
+
+        getWinner().ifPresent(appController::announceWinner);
     }
 
     /**
