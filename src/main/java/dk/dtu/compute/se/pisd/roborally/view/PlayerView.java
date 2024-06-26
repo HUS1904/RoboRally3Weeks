@@ -129,26 +129,26 @@ public class PlayerView extends Tab implements ViewObserver {
         }
 
 
-        Label currentUpgrades = new Label("Current Upgrades");
+        Label currentUpgrades = new Label("Permanent Upgrades");
         GridPane upgradesPane = new GridPane();
         upgradesPane.setVgap(2.0);
         upgradesPane.setHgap(2.0);
-        CardFieldView[] upgradesViews = new CardFieldView[Player.NO_UPGRADES];
-        for (int i = 0; i < Player.NO_UPGRADES; i++) {
-            CommandCardField cardField = player.getUpgradeField(i);
+        CardFieldView[] upgradesViews = new CardFieldView[Player.PERMANENT_UPGRADES];
+        for (int i = 0; i < Player.PERMANENT_UPGRADES; i++) {
+            CommandCardField cardField = player.getPermUpgradeField(i);
             if (cardField != null) {
                 upgradesViews[i] = new CardFieldView(gameController, cardField);
                 upgradesPane.add(upgradesViews[i], i, 0);
             }
         }
 
-        Label upgradeCards = new Label("Available upgrades");
+        Label upgradeCards = new Label("Temporary Upgrades");
         GridPane upgradesInvPane = new GridPane();
         upgradesInvPane.setVgap(2.0);
         upgradesInvPane.setHgap(2.0);
-        CardFieldView[] upgradesInvViews = new CardFieldView[Player.NO_UPGRADE_INV];
-        for (int i = 0; i < Player.NO_UPGRADE_INV; i++) {
-            CommandCardField cardField = player.getUpgradeInv(i);
+        CardFieldView[] upgradesInvViews = new CardFieldView[Player.TEMPORARY_UPGRADES];
+        for (int i = 0; i < Player.TEMPORARY_UPGRADES; i++) {
+            CommandCardField cardField = player.getTempUpgradeInv(i);
             if (cardField != null) {
                 upgradesInvViews[i] = new CardFieldView(gameController, cardField);
                 upgradesInvPane.add(upgradesInvViews[i], i, 0);

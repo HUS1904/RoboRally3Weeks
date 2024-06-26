@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static dk.dtu.compute.se.pisd.roborally.model.Command.SPAM;
 import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
@@ -43,8 +44,8 @@ import static dk.dtu.compute.se.pisd.roborally.model.Heading.SOUTH;
 public class Player extends Subject {
     final public static int NO_REGISTERS = 5;
     final public static int NO_CARDS = 8;
-    final public static int NO_UPGRADES = 3;
-    final public static int NO_UPGRADE_INV = 6;
+    final public static int TEMPORARY_UPGRADES = 3;
+    final public static int PERMANENT_UPGRADES = 3;
 
 
     final transient public Board board;
@@ -65,9 +66,9 @@ public class Player extends Subject {
     @Expose
     private ArrayList<CommandCardField> cards = new ArrayList<>();
     @Expose
-    private ArrayList<CommandCardField> upgrades = new ArrayList<>();
+    private ArrayList<CommandCardField> permUpgrades = new ArrayList<>();
     @Expose
-    private ArrayList<CommandCardField> upgradeInv = new ArrayList<>();
+    private ArrayList<CommandCardField> tempUpgrades = new ArrayList<>();
     @Getter
     private int index = 0;
     @Expose
@@ -110,11 +111,11 @@ public class Player extends Subject {
         }
 
         for (int i = 0; i < 3; i++) {
-             upgrades.add(new CommandCardField(this,"upgrade"));
+             permUpgrades.add(new CommandCardField(this,"upgrade"));
         }
 
-        for (int i = 0; i < 6; i++) {
-            upgradeInv.add(new CommandCardField(this,"upgrade"));
+        for (int i = 0; i < 3; i++) {
+            tempUpgrades.add(new CommandCardField(this,"upgrade"));
         }
     }
 
@@ -211,11 +212,15 @@ public class Player extends Subject {
         return cards;
     }
 
-    public CommandCardField getUpgradeField(int i) {
-        return upgrades.get(i);
+    public CommandCardField getPermUpgradeField(int i) {
+        return permUpgrades.get(i);
     }
-    public CommandCardField getUpgradeInv(int i) {
-        return upgradeInv.get(i);
+    public CommandCardField getTempUpgradeInv(int i) {
+        return tempUpgrades.get(i);
+    }
+
+    public ArrayList<CommandCardField> getUpgradeFields() {
+        return tempUpgrades;
     }
 
     public void incrementIndex() {
@@ -265,6 +270,27 @@ public class Player extends Subject {
         this.energyCubes += amount;
 
         notifyChange();
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public boolean containsUpgradeCardWithCommand(CommandCardField field, Command command) {
+        for (CommandCardField permField : permUpgrades) {
+            Optional<CommandCard> card = permField.getCard();
+            if (card.isPresent() && card.get().command == command) {
+                return true;
+            }
+        }
+
+        for (CommandCardField tempField : tempUpgrades) {
+            Optional<CommandCard> card = tempField.getCard();
+            if (card.isPresent() && card.get().command == command) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

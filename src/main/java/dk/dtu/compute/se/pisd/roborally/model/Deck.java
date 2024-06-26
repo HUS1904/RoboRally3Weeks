@@ -13,6 +13,7 @@ public class Deck {
     private final ArrayList<CommandCard> deck = new ArrayList<>();
     private final ArrayList<CommandCard> discardPile = new ArrayList<>();
     private final ArrayList<CommandCard> upgradeDeck = new ArrayList<>();
+    private ArrayList<CommandCard> discardUpgrade = new ArrayList<>();
 
     private GameController gameController;
 
@@ -51,6 +52,11 @@ public class Deck {
 
     public void sendToDiscardPile(CommandCard card){
         discardPile.add(card);
+    }
+
+    public void sendToDiscardUpgrade(CommandCard card) {
+        discardUpgrade.add(card);
+        upgradeDeck.remove(card);
     }
 
     public void addToDeck(CommandCard card){

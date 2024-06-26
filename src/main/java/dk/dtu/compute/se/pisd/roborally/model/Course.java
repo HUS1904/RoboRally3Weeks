@@ -20,4 +20,8 @@ public class Course {
         this.height = height;
         this.spaces = spaces;
     }
+
+    public void setSpaces(ArrayList<ArrayList<Space>> spaces) {
+        this.spaces = spaces;
+    }
 }

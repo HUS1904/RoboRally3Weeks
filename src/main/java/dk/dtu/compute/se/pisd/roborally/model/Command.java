@@ -50,6 +50,8 @@ public enum Command {
     SPAM("Spam"),
     RECHARGE("Recha"),
     RAMMINGGEAR("Ram"),
+    VIRUSMODULE("Virus"),
+    BOINK("Boink"),
     OPTION_LEFT_RIGHT("Option Left or Right", LEFT, RIGHT),
     OPTION_LEFT_FORWARD("Option Left or Forward", LEFT, FORWARD);
 

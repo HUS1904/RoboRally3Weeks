@@ -160,16 +160,14 @@ public class CardFieldView extends GridPane implements ViewObserver {
                     return "S," + i;
                 }
             }
-            for (int i = 0; i < Player.NO_UPGRADES; i++) {
-                CommandCardField other = cardField.player.getUpgradeField(i);
-                ;
+            for (int i = 0; i < Player.TEMPORARY_UPGRADES ; i++) {
+                CommandCardField other = cardField.player.getPermUpgradeField(i);;
                 if (other == cardField) {
                     return "U," + i;
                 }
             }
             for (int i = 0; i < gameController.board.getShopFields().size(); i++) {
-                CommandCardField other = cardField.player.getUpgradeInv(i);
-                ;
+                CommandCardField other = cardField.player.getTempUpgradeInv(i);;
                 if (other == cardField) {
                     return "I," + i;
                 }
@@ -196,12 +194,12 @@ public class CardFieldView extends GridPane implements ViewObserver {
                         return gameController.board.getShopFields().get(i);
                     }
                 } else if ("U".equals(strings[0])) {
-                    if (i < Player.NO_UPGRADES) {
-                        return field.player.getUpgradeField(i);
+                    if (i < Player.PERMANENT_UPGRADES) {
+                        return field.player.getPermUpgradeField(i);
                     }
                 } else if ("I".equals(strings[0])) {
-                    if (i < Player.NO_UPGRADE_INV) {
-                        return field.player.getUpgradeInv(i);
+                    if (i < Player.TEMPORARY_UPGRADES) {
+                        return field.player.getTempUpgradeInv(i);
                     }
                 }
             }

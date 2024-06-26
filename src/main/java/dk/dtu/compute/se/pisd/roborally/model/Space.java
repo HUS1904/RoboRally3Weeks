@@ -218,4 +218,12 @@ public class Space extends Subject {
         // For now, let's assume a space is occupiable if there is no player on it.
         return this.player == null;
     }
+
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
+    }
 }
