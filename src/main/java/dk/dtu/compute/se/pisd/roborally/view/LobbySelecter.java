@@ -30,10 +30,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class LobbySelecter extends VBox {
 
@@ -140,7 +138,14 @@ public class LobbySelecter extends VBox {
         cardFields.add("e");
 
         Lobby lobby = new Lobby();
-        lobby.setId(5L);
+
+
+        long minId = 1L;
+        long maxId = 500L;
+
+        long randomId = ThreadLocalRandom.current().nextLong(minId, maxId + 1); // maxId + 1 to include 500
+
+        lobby.setId(randomId);
         lobby.setPlayerCount(1);
         lobby.setMaxPlayers(result.orElse(2));
         lobby.setCourse(course);

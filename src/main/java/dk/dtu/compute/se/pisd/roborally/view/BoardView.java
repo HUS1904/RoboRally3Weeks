@@ -25,15 +25,17 @@ package dk.dtu.compute.se.pisd.roborally.view;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import dk.dtu.compute.se.pisd.roborally.controller.GameController;
 
-import dk.dtu.compute.se.pisd.roborally.model.Board;
-import dk.dtu.compute.se.pisd.roborally.model.Phase;
-import dk.dtu.compute.se.pisd.roborally.model.Space;
+import dk.dtu.compute.se.pisd.roborally.model.*;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.ListIterator;
 
 /**
  * Provides the graphical representation of the RoboRally game board, including all spaces and
@@ -50,7 +52,11 @@ public class BoardView extends VBox implements ViewObserver {
     private final Label statusLabel;
 
     private final Shop shop;
-
+    private HBox hBox = new HBox();
+    private VBox checkPointStatusBox = new VBox();
+    private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<Label> playerLabels = new ArrayList<>();
+    private int max = 0;
     /**
      * Constructs a BoardView associated with a given game controller, initializing
      * the visual components for each space on the board and setting up event handlers
@@ -70,7 +76,7 @@ public class BoardView extends VBox implements ViewObserver {
         spaces = new SpaceView[board.width][board.height];
 
         SpaceEventHandler spaceEventHandler = new SpaceEventHandler(gameController);
-
+        players = board.getPlayers();
         for (int x = 0; x < board.width; x++) {
             for (int y = 0; y < board.height; y++) {
                 Space space = board.getSpace(x, y);
@@ -80,6 +86,27 @@ public class BoardView extends VBox implements ViewObserver {
                 spaceView.setOnMouseClicked(spaceEventHandler);
             }
         }
+        max = (int) board.getSpacesList().stream()
+                .filter(s -> s.getType() == ActionField.CHECKPOINT)
+                .count();
+
+        Label checkPointTitle = new Label("Check Point Status");
+        checkPointTitle.setId("checkPointTitle");
+        checkPointStatusBox.getChildren().add(checkPointTitle);
+
+        // Display each player's checkpoint progress
+        ListIterator<Player> playersIterator = players.listIterator(players.size());
+        while(playersIterator.hasPrevious()) {
+            Player player = playersIterator.previous();
+            // Ensure there's no division by zero
+            String progress = max > 0 ? player.getIndex() + "/" + max : "N/A";
+            Label playerStatus = new Label(player.getName() + ":\t" + progress);
+            playerStatus.setId("checkPointPlayer");
+            playerLabels.add(playerStatus);
+            checkPointStatusBox.getChildren().add(playerStatus);
+        }
+
+        hBox.getChildren().addAll(mainBoardPane,checkPointStatusBox);
 
         board.attach(this);
         update(board);
@@ -109,7 +136,17 @@ public class BoardView extends VBox implements ViewObserver {
             if(phase == Phase.INITIALISATION){
                 this.getChildren().addAll(shop,playersView,statusLabel);
             } else{
-                this.getChildren().addAll(mainBoardPane,playersView,statusLabel);
+
+                this.getChildren().addAll(hBox,playersView,statusLabel);
+            }
+            try {
+                ListIterator<Player> playersIterator = players.listIterator(players.size());
+                Player player = playersIterator.previous();
+                for (Label playerLabel : playerLabels) {
+                    playerLabel.setText(player.getName() + ":\t" + player.getIndex() + "/" + max);
+                    player = playersIterator.previous();
+                }
+            } catch (Exception e) {
             }
         }
     }

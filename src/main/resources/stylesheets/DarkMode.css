@@ -141,5 +141,17 @@
 .tab-pane .tab:selected {
     -fx-background-color: #2d2d30; /* Light blue for each tab */
 }
+#checkPointTitle{
+    -fx-text-fill: white;
+    -fx-font-size: 25.0 pt;
+    -fx-font-family: "poppins";
+    -fx-font-weight: bold;
+}
 
+#checkPointPlayer{
+    -fx-text-fill: white;
+    -fx-font-size: 15.0 pt;
+    -fx-font-family: "poppins";
+    -fx-font-weight: bold;
+}
 

@@ -186,6 +186,9 @@ public class GameController {
                 field.setVisible(true);
             });
         });
+        board.getPlayers().forEach(player -> {
+           player.incrementEnergy(1);
+        });
         startLobbyPolling();
     }
 
@@ -267,7 +270,6 @@ public class GameController {
                 Player currentPlayer = board.getCurrentPlayer();
 
                 if(lobby.getCurrentPlayer().equals(board.getCurrentPlayer().getName())) {
-                    currentPlayer.incrementEnergy(1);
                     makeProgramFieldsVisible(board.getStep() + 1);
 
                     if (board.getPhase() == Phase.ACTIVATION) {
@@ -337,6 +339,7 @@ public class GameController {
                         // Update heading
                         String headingString = headings.get(i);
                         stringToHeading(headingString, player);
+
 
                         // Debug output to verify the heading
                     }
@@ -576,6 +579,11 @@ public class GameController {
                 board.getSpace(i, j).activate();
             }
         }
+       for(Player player1 : board.getPlayers()){
+           if((player1.getSpace().getType() == ActionField.CHECKPOINT) && (player1.getSpace().getIndex() == (player1.getIndex() + 1)) ){
+               player1.incrementIndex();
+           }
+       }
 
         getWinner().ifPresent(appController::announceWinner);
     }

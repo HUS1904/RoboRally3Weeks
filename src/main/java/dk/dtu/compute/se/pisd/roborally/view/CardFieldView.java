@@ -384,7 +384,6 @@ public class CardFieldView extends GridPane implements ViewObserver {
             if (object instanceof String representation) {
                 CommandCardField source = cardFieldFromRepresentation(representation);
                 if (source != null && gameController.moveCards(source, cardField)) {
-                    cardField.player.incrementEnergy(2);
                     return true;
                 }
             }
