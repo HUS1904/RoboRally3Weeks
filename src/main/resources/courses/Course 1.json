@@ -202,7 +202,8 @@
         "y": 1,
         "type": "WALL",
         "heading": "NORTH",
-        "index": 0
+        "index": 0,
+        "walls": ["NORTH"]
       },
       {
         "x": 2,
@@ -330,7 +331,8 @@
         "y": 6,
         "type": "BOARD_LASER_END",
         "heading": "NORTH",
-        "index": 0
+        "index": 0,
+        "walls": ["NORTH"]
       },
       {
         "x": 3,
@@ -344,14 +346,16 @@
         "y": 8,
         "type": "BOARD_LASER_START",
         "heading": "WEST",
-        "index": 0
+        "index": 0,
+        "walls": ["WEST"]
       },
       {
         "x": 3,
         "y": 9,
         "type": "BOARD_LASER_END",
         "heading": "EAST",
-        "index": 0
+        "index": 0,
+        "walls": ["EAST"]
       },
       {
         "x": 3,
@@ -395,7 +399,8 @@
         "y": 2,
         "type": "WALL",
         "heading": "EAST",
-        "index": 0
+        "index": 0,
+        "walls": ["EAST"]
       },
       {
         "x": 4,
@@ -423,7 +428,8 @@
         "y": 6,
         "type": "BOARD_LASER_START",
         "heading": "SOUTH",
-        "index": 0
+        "index": 0,
+        "walls": ["SOUTH"]
       },
       {
         "x": 4,
@@ -488,7 +494,8 @@
         "y": 2,
         "type": "WALL",
         "heading": "EAST",
-        "index": 0
+        "index": 0,
+        "walls": ["EAST"]
       },
       {
         "x": 5,
@@ -537,7 +544,8 @@
         "y": 9,
         "type": "BOARD_LASER_START",
         "heading": "NORTH",
-        "index": 0
+        "index": 0,
+        "walls": ["NORTH"]
       },
       {
         "x": 5,
@@ -609,14 +617,16 @@
         "y": 6,
         "type": "BOARD_LASER_END",
         "heading": "WEST",
-        "index": 0
+        "index": 0,
+        "walls": ["WEST"]
       },
       {
         "x": 6,
         "y": 7,
         "type": "BOARD_LASER_START",
         "heading": "EAST",
-        "index": 0
+        "index": 0,
+        "walls": ["EAST"]
       },
       {
         "x": 6,
@@ -630,7 +640,8 @@
         "y": 9,
         "type": "BOARD_LASER_END",
         "heading": "SOUTH",
-        "index": 0
+        "index": 0,
+        "walls": ["SOUTH"]
       },
       {
         "x": 6,
@@ -667,7 +678,8 @@
         "y": 1,
         "type": "WALL",
         "heading": "SOUTH",
-        "index": 0
+        "index": 0,
+        "walls": ["SOUTH"]
       },
       {
         "x": 7,
