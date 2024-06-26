@@ -25,7 +25,9 @@ import com.google.gson.annotations.Expose;
 import dk.dtu.compute.se.pisd.designpatterns.observer.Subject;
 import javafx.scene.image.Image;
 import lombok.Getter;
+import java.io.InputStream;
 
+import java.util.EnumSet;
 import java.util.Objects;
 
 
@@ -39,11 +41,11 @@ public class Space extends Subject {
     @Getter
     public transient Board board;
     @Expose
-    public  int x;
+    public int x;
     @Expose
-    public  int y;
+    public int y;
     @Getter
-    private  Player player;
+    private Player player;
     @Getter
     @Expose
     private ActionField type;
@@ -53,13 +55,16 @@ public class Space extends Subject {
     @Getter
     @Expose
     private final int index;
+    @Expose
+    private EnumSet<Heading> walls;
     public Image image;
 
     /**
      * Constructs a new Space with the specified board and coordinates.
+     *
      * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
      */
     public Space(Board board, int x, int y) {
         this.board = board;
@@ -68,17 +73,50 @@ public class Space extends Subject {
         this.type = ActionField.NORMAL;
         this.heading = Heading.NORTH;
         this.index = 0;
+        EnumSet.noneOf(Heading.class);
         player = null;
         image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/NORMAL.png")));
+    }
+
+    public Space(Board board, int x, int y, int index,EnumSet<Heading> walls) {
+        this.board = board;
+        this.x = x;
+        this.y = y;
+        this.type = ActionField.NORMAL;
+        this.heading = Heading.NORTH;
+        this.index = index;
+        this.walls = walls;
+    }
+
+    public Space(Board board, int x, int y, EnumSet<Heading> walls) {
+        this.board = board;
+        this.x = x;
+        this.y = y;
+        this.type = ActionField.NORMAL;
+        this.heading = Heading.NORTH;
+        this.index = 0;
+        this.walls = walls;
+    }
+
+
+    public Space(Board board, int x, int y, ActionField type, Heading heading, EnumSet<Heading> walls) {
+        this.board = board;
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.heading = heading;
+        this.index = 0;
+        this.walls = walls;
     }
 
 
     /**
      * Constructs a new Space with the specified board, coordinates, type and heading.
-     * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
-     * @param type The type of action field located at this space
+     *
+     * @param board   The board to which this space belongs.
+     * @param x       The x coordinate of this space on the board.
+     * @param y       The y coordinate of this space on the board.
+     * @param type    The type of action field located at this space
      * @param heading The heading the field is facing in
      */
     public Space(Board board, int x, int y, ActionField type, Heading heading) {
@@ -94,9 +132,10 @@ public class Space extends Subject {
 
     /**
      * Constructs a new CHECKPOINT type space
+     *
      * @param board The board to which this space belongs.
-     * @param x The x coordinate of this space on the board.
-     * @param y The y coordinate of this space on the board.
+     * @param x     The x coordinate of this space on the board.
+     * @param y     The y coordinate of this space on the board.
      * @param index The index corresponding to this checkpoint
      */
     public Space(Board board, int x, int y, int index) {
@@ -111,13 +150,45 @@ public class Space extends Subject {
     }
 
     public void setType(ActionField t) {
-       this.type = t;
-       notifyChange();
+        this.type = t;
+        notifyChange();
+    }
+
+    public Space(Board board, int x, int y, Heading heading, ActionField type, int index, EnumSet<Heading> walls) {
+        this.board = board;
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.heading = heading;
+        this.index = index;
+        this.walls = walls != null ? EnumSet.copyOf(walls) : EnumSet.noneOf(Heading.class);
+        this.player = null;
+        initializeImage();
+        logSpaceCreation();
+    }
+
+    private void initializeImage() {
+        String imagePath = "/" + this.type + ".png";
+        InputStream inputStream = getClass().getResourceAsStream(imagePath);
+        if (inputStream != null) {
+            this.image = new Image(inputStream);
+        } else {
+            System.err.println("Failed to load image from path: " + imagePath);
+        }
+    }
+
+    private void logSpaceCreation() {
+        if (!this.walls.isEmpty()) {
+            System.out.println("Space created at (" + x + "," + y + ") with walls: " + this.walls);
+        } else {
+            System.out.println("Space create at (" + x + "," + y + ") with no walls");
+        }
     }
 
     /**
      * Sets or clears the player occupying this space. This method also ensures
      * consistency by updating the player's space reference accordingly.
+     *
      * @param player The new player to occupy this space, or null to clear the space.
      */
     public void setPlayer(Player player) {
@@ -141,7 +212,7 @@ public class Space extends Subject {
      * the controller every turn.
      */
     public void activate() {
-        if(player != null) {
+        if (player != null) {
             Heading oldHeading = player.getHeading();
             Player p = this.getPlayer();
             switch (type) {
@@ -216,5 +287,17 @@ public class Space extends Subject {
         // Here, you can add any logic that determines if the space is occupiable.
         // For now, let's assume a space is occupiable if there is no player on it.
         return this.player == null;
+    }
+
+    public void addWall(Heading direction) {
+        this.walls.add(direction);
+    }
+
+    public boolean hasWall(Heading direction) {
+        return walls.contains(direction);
+    }
+
+    public EnumSet<Heading> getWalls() {
+        return walls;
     }
 }
