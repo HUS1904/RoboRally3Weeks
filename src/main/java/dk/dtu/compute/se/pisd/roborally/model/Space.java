@@ -185,7 +185,8 @@ public class Space extends Subject {
                     // TODO: Implement ENERGY_SPACE
                     return;
                 case CHECKPOINT:
-                    // Checkpoint logic handled in move
+                    p.incrementIndex();
+                    System.out.println("Checkpoint reached:" + p.getIndex());
                     return;
                 case WALL:
                     // This doesn't do anything here but any action having to do with movement will eventually need to check for its presence

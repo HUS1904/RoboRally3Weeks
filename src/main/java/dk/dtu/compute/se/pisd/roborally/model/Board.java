@@ -192,6 +192,30 @@ public class Board extends Subject {
         return new Space(this, x, y);
     }
 
+    public List<String> headingsToString(){
+        List<String> playersHeadings = new ArrayList<>();
+        for(Player player: players) {
+
+            switch (player.getHeading()) {
+                case SOUTH:
+                    playersHeadings.add("south");
+                    break;
+                case EAST:
+                    playersHeadings.add("east");
+                    break;
+                case WEST:
+                    playersHeadings.add("west");
+                    break;
+                case NORTH:
+                    playersHeadings.add("north");
+                    break;
+            }
+        }
+
+    return playersHeadings;
+
+    }
+
 
     public void readjustShop(List<String> cardFields){
 

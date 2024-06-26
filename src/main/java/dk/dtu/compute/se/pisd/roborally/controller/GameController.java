@@ -106,11 +106,31 @@ public class GameController {
         }
     }
 
+
+    public void stringToHeading(String string,Player player){
+        switch (string) {
+            case "south":
+                player.setHeading(Heading.SOUTH);
+                break;
+            case "west":
+                player.setHeading(Heading.WEST);
+                break;
+            case "north":
+                player.setHeading(Heading.NORTH);
+                break;
+            case "east":
+                player.setHeading(Heading.EAST);
+                break;
+        }
+
+
+    }
+
     public void movePlayer(Player player, @NotNull Space space){
         List<Integer> cords = new ArrayList<>();
         if (player != null) {
             // Check if the target space is occupied
-            if (space.getPlayer() == null && board.getCurrentPlayer() == board.findCorrespondingPlayer(lobby.getCurrentPlayer())) {
+            if (space.getPlayer() == null && board.getCurrentPlayer().getName().equals(lobby.getCurrentPlayer())) {
                 // Move the current player to the target space
                 player.setSpace(space);
                 for (Player player1 : board.getPlayers()) {
@@ -119,6 +139,8 @@ public class GameController {
 
                 }
             }
+
+            lobby.setPlayersHeadings(board.headingsToString());
 
             if (gearPhase && board.getCurrentPlayer().getSpace().getType() == ActionField.STARTING_GEAR) {
                 try {
@@ -135,6 +157,7 @@ public class GameController {
         }
 
     }
+
 
 
     /**
@@ -193,16 +216,27 @@ public class GameController {
      * the players visible for the current register.
      */
     public void finishProgrammingPhase() {
-        Space antenna = board.getSpacesList()
-                .stream()
-                .filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA)
-                .findAny()
-                .orElseThrow(NoSuchElementException::new);
-        board.determineTurn(antenna.x, antenna.y);
-        makeProgramFieldsInvisible();
-        makeProgramFieldsVisible(0);
-        board.setPhase(Phase.ACTIVATION);
-        board.setStep(0);
+
+        gearPhase = false;
+
+        for(Player player: board.getPlayers()){
+            if(player.getSpace().getType() != ActionField.STARTING_GEAR){
+                gearPhase = true;
+            }
+        }
+
+        if(!gearPhase) {
+            Space antenna = board.getSpacesList()
+                    .stream()
+                    .filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA)
+                    .findAny()
+                    .orElseThrow(NoSuchElementException::new);
+            board.determineTurn(antenna.x, antenna.y);
+            makeProgramFieldsInvisible();
+            makeProgramFieldsVisible(0);
+            board.setPhase(Phase.ACTIVATION);
+            board.setStep(0);
+        }
 
     }
 
@@ -215,7 +249,7 @@ public class GameController {
             try {
                 lobby = LobbyUtil.getLobby(lobby.getId());
                 List<Integer> cords = lobby.getPlayersPosition();
-                List<String> headings = lobby.getPlayerHeadings();
+                List<String> headings = lobby.getPlayersHeadings();
                 Player currentPlayer = board.getCurrentPlayer();
 
                 if(lobby.getCurrentPlayer().equals(board.getCurrentPlayer().getName())) {
@@ -242,9 +276,9 @@ public class GameController {
                     for (Player player : board.getPlayers()) {
                         cords.add(player.getSpace().x);
                         cords.add(player.getSpace().y);
-                        headings.add(player.getHeading().toString());
-
                     }
+
+                    lobby.setPlayersHeadings(board.headingsToString());
                     lobby.setPlayersPosition(cords);
 
                     board.moveCurrentTurn();
@@ -266,27 +300,38 @@ public class GameController {
         timeline.play();
     }
 
-
     private void startLobbyPolling() {
         timeline2 = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             lobby = LobbyUtil.getLobby(lobby.getId());
             List<Integer> coords = lobby.getPlayersPosition();
-            List<String> headings = lobby.getPlayerHeadings();
-                int maxPlayers = lobby.getMaxPlayers();
-                for (int i = maxPlayers; i > 0; i--) {
-                    int playerIndex = i - 1;
-                    if (coords.size() >= 2) {
-                        int y = coords.remove(coords.size() - 1);
-                        int x = coords.remove(coords.size() - 1);
-                        movePlayerToSpace(board.getPlayer(playerIndex).orElseThrow(NoSuchElementException::new), board.getSpace(x, y));
-                    }
+            List<String> headings = lobby.getPlayersHeadings();
+            int maxPlayers = lobby.getMaxPlayers();
+
+            // Check if we have the correct amount of data
+            if (coords.size() == maxPlayers * 2 && headings.size() == maxPlayers) {
+                for (int i = 0; i < maxPlayers; i++) {
+                    Player player = board.getPlayer(i).orElseThrow(NoSuchElementException::new);
+
+                    // Update position
+                    int x = coords.get(i * 2);
+                    int y = coords.get(i * 2 + 1);
+                    movePlayerToSpace(player, board.getSpace(x, y));
+
+                    // Update heading
+                    String headingString = headings.get(i);
+                    stringToHeading(headingString, player);
+
+                    // Debug output to verify the heading
+                    System.out.println(player.getHeading());
                 }
-
-
+            } else {
+                System.err.println("Mismatch between players and positions/headings data sizes.");
+            }
         }));
         timeline2.setCycleCount(Timeline.INDEFINITE); // Run indefinitely until stopped
         timeline2.play();
     }
+
 
 
     private void discardCards() {

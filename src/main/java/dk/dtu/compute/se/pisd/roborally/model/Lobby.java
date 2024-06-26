@@ -25,7 +25,7 @@ public class Lobby {
     private String currentPlayer;
 
     private List<Integer> playersPosition ;
-    private List<String> playerHeadings ;
+    private List<String> playersHeadings ;
 
     public String getStatus() {
         return playerCount >= maxPlayers ? "In progress" : "Searching for players";

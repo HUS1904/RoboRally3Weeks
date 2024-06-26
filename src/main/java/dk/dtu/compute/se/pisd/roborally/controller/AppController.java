@@ -134,6 +134,7 @@ public class AppController implements Observer {
                 playerPositions.add(player.getSpace().y);
                 playerPositions.add(player.getSpace().x);
             }
+            lobby.setPlayersHeadings(board.headingsToString());
             lobby.setPlayersPosition(playerPositions);
             Space antenna = board.getSpacesList().stream().filter(s -> s.getType() == ActionField.PRIORITY_ANTENNA).findAny().orElseThrow(NoSuchElementException::new);
             board.determineTurn(antenna.x, antenna.y);
