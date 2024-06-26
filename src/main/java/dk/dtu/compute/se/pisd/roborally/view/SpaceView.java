@@ -190,6 +190,8 @@ public class SpaceView extends StackPane implements ViewObserver {
 
     @NotNull
     private static String getString(Space s, Phase phase) {
+        if(s.getType() == ActionField.CHECKPOINT) return "/" + s.getIndex() + ".png";
+
         String img = "/" + s.getType() + ".png";
 
         //LASERS OFF
