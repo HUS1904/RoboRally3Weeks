@@ -72,4 +72,19 @@ public enum Heading {
     public String toString() {
         return name().charAt(0) + name().substring(1).toLowerCase();
     }
+
+    public Heading opposite() {
+        switch (this) {
+            case NORTH:
+                return SOUTH;
+            case SOUTH:
+                return NORTH;
+            case WEST:
+                return EAST;
+            case EAST:
+                return WEST;
+            default:
+                throw new IllegalArgumentException("Invalid heading: " + this);
+        }
+    }
 }
