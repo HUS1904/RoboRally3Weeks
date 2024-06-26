@@ -29,7 +29,7 @@ public class MapSelection extends VBox {
         // Create a ChoiceBox with selectable options
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.setItems(FXCollections.observableArrayList(
-                "Course 1", "Course 2", "Course 3"
+                "Course 1", "Course 2", "Course 3", "Course 4"
         ));
 
         // Set default selection (optional)
